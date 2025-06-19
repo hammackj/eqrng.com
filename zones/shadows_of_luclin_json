@@ -1,0 +1,272 @@
+[
+  {
+    "name": "Shadow Haven",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "The Nexus",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "City",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Echo Caverns",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Acrylia Caverns",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Shar Vahl",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "City",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Paludal Caverns",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Fungus Grove",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Vex Thal",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Sanctus Seru",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Katta Castellum",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Netherbian Lair",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Ssraeshza Temple",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Grieg's End",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "The Deep",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Shadeweaver's Thicket",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Hollowshade Moor",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Grimling Forest",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Marus Seru",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Mons Letalis",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "The Twilight Sea",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "The Grey",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "The Tenebrous Mountains",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "The Maiden's Eye",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Dawnshroud Peaks",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "The Scarlet Desert",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "The Umbral Plains",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Akheva Ruins",
+    "level_ranges": [],
+    "expansion": "Shadows of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  }
+]

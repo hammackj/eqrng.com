@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>EQRandomizer — Random Zone</title>
+        <style>
+            body {
+                font-family: sans-serif;
+                max-width: 600px;
+                margin: 2em auto;
+            }
+            img {
+                max-width: 100%;
+                border: 1px solid #ccc;
+                margin-top: 1em;
+            }
+            .zone-data li {
+                margin-bottom: 0.5em;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Random EverQuest Zone</h1>
+        <label>
+            Min Level:
+            <input type="number" id="min" value="1" min="1" max="125" />
+        </label>
+        <label>
+            Max Level:
+            <input type="number" id="max" value="125" min="1" max="125" />
+        </label>
+        <button id="go">Get Random Zone</button>
+
+        <div id="result" style="margin-top: 2em"></div>
+
+        <script>
+            document.getElementById("go").onclick = async () => {
+                const min = document.getElementById("min").value;
+                const max = document.getElementById("max").value;
+                const res = await fetch(`/random_zone?min=${min}&max=${max}`);
+                const out = document.getElementById("result");
+                if (!res.ok) {
+                    out.textContent = "No zone found.";
+                    return;
+                }
+                const z = await res.json();
+                out.innerHTML = `
+        <h2>${z.name}</h2>
+        <ul class="zone-data">
+          <li><strong>Levels:</strong> ${z.level_ranges.map((r) => r.join("–")).join(", ")}</li>
+          <li><strong>Expansion:</strong> ${z.expansion}</li>
+          <li><strong>Continent:</strong> ${z.continent}</li>
+          <li><strong>Type:</strong> ${z.zone_type}</li>
+          <li><strong>Connections:</strong> ${z.connections.join(", ")}</li>
+        </ul>
+        <img src="${z.image_url}" alt="Zone image">
+        <img src="${z.map_url}" alt="Zone map">
+      `;
+            };
+        </script>
+    </body>
+</html>

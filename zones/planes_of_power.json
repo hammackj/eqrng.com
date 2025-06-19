@@ -1,0 +1,232 @@
+[
+  {
+    "name": "Doomfire, the Burning Lands (Plane of Fire)",
+    "level_ranges": [[65, 75]],
+    "expansion": "Planes of Power",
+    "continent": "Power",
+    "zone_type": "Outdoor Plane",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Drunder, Fortress of Zek (Plane of Tactics)",
+    "level_ranges": [[60, 65]],
+    "expansion": "Planes of Power",
+    "continent": "Power",
+    "zone_type": "Indoor Plane",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Eryslai, the Kingdom of Wind (Plane of Air)",
+    "level_ranges": [[65, 75]],
+    "expansion": "Planes of Power",
+    "continent": "Power",
+    "zone_type": "Outdoor Plane",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Halls of Honor",
+    "level_ranges": [[60, 65]],
+    "expansion": "Planes of Power",
+    "continent": "Power",
+    "zone_type": "Outdoor Plane",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Lair of Terris Thule",
+    "level_ranges": [[55, 65]],
+    "expansion": "Planes of Power",
+    "continent": "Power",
+    "zone_type": "Outdoor Plane",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Plane of Disease",
+    "level_ranges": [[46, 60]],
+    "expansion": "Planes of Power",
+    "continent": "Power",
+    "zone_type": "Outdoor Plane",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Plane of Innovation",
+    "level_ranges": [[46, 63]],
+    "expansion": "Planes of Power",
+    "continent": "Power",
+    "zone_type": "Outdoor Plane",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Plane of Justice",
+    "level_ranges": [[46, 65]],
+    "expansion": "Planes of Power",
+    "continent": "Power",
+    "zone_type": "Outdoor Plane",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Plane of Knowledge",
+    "level_ranges": [[1, 105]],
+    "expansion": "Planes of Power",
+    "continent": "Power",
+    "zone_type": "Outdoor City/Plane",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Plane of Nightmare",
+    "level_ranges": [[46, 65]],
+    "expansion": "Planes of Power",
+    "continent": "Power",
+    "zone_type": "Outdoor Plane",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Plane of Storms",
+    "level_ranges": [[55, 65]],
+    "expansion": "Planes of Power",
+    "continent": "Power",
+    "zone_type": "Outdoor Plane",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Plane of Time A",
+    "level_ranges": [[65, 75]],
+    "expansion": "Planes of Power",
+    "continent": "Power",
+    "zone_type": "Outdoor Plane",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Plane of Time B",
+    "level_ranges": [[65, 75]],
+    "expansion": "Planes of Power",
+    "continent": "Power",
+    "zone_type": "Outdoor Plane",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Plane of Torment",
+    "level_ranges": [[55, 65]],
+    "expansion": "Planes of Power",
+    "continent": "Power",
+    "zone_type": "Indoor Plane",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Plane of Tranquility",
+    "level_ranges": [[46, 105]],
+    "expansion": "Planes of Power",
+    "continent": "Power",
+    "zone_type": "Outdoor City/Plane",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Plane of Valor",
+    "level_ranges": [[55, 65]],
+    "expansion": "Planes of Power",
+    "continent": "Power",
+    "zone_type": "Outdoor Plane",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Plane of War",
+    "level_ranges": [[65, 100]],
+    "expansion": "Planes of Power",
+    "continent": "Power",
+    "zone_type": "Outdoor Plane",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Ragrax, Stronghold of the Twelve",
+    "level_ranges": [[65, 75]],
+    "expansion": "Planes of Power",
+    "continent": "Power",
+    "zone_type": "Outdoor Plane",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Reef of Coirnav (Plane of Water)",
+    "level_ranges": [[65, 75]],
+    "expansion": "Planes of Power",
+    "continent": "Power",
+    "zone_type": "Indoor Plane",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Ruins of Lxanvom (Crypt of Decay)",
+    "level_ranges": [[60, 65]],
+    "expansion": "Planes of Power",
+    "continent": "Power",
+    "zone_type": "Indoor Plane",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Solusek Ro's Tower",
+    "level_ranges": [[65, 75]],
+    "expansion": "Planes of Power",
+    "continent": "Power",
+    "zone_type": "Indoor Plane",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Temple of Marr",
+    "level_ranges": [[60, 70]],
+    "expansion": "Planes of Power",
+    "continent": "Power",
+    "zone_type": "Outdoor Plane",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Torden, the Bastion of Thunder",
+    "level_ranges": [[57, 70]],
+    "expansion": "Planes of Power",
+    "continent": "Power",
+    "zone_type": "Outdoor Plane",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  }
+]

@@ -1,0 +1,622 @@
+[
+  {
+    "name": "Ak'Anon",
+    "level_ranges": [[1, 10]],
+    "expansion": "Classic",
+    "continent": "Faydar",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Befallen",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Blackburrow",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Castle Mistmoore",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Clan Runnyeye",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Commonlands",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Crushbone",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Dagnor's Cauldron",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "East Karana",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Erud's Crossing",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Erudin",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Erudin Palace",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Estate of Unrest",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Everfrost Peaks",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Felwithe",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Freeport",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Freeport Sewers",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Gorge of King Xorbb",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Greater Faydark",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Grobb",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Halas",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "High Keep",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Highpass Hold",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Infected Paw",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Innothule Swamp",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Kaladim",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Kedge Keep",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Kithicor Forest",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Lake Rathetear",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Lavastorm Mountains",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Lesser Faydark",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Lower Guk",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Misty Thicket",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Nagafen's Lair",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Najena",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Nektulos Forest",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Neriak",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "North Karana",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "North Ro",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Ocean of Tears",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Oggok",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Paineel",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Permafrost Keep",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Plane of Fear",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Plane of Hate",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Plane of Sky",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Qeynos",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Qeynos Catacombs",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Qeynos Hills",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Rathe Mountains",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Rivervale",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Solusek's Eye",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "South Karana",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "South Ro",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Steamfont Mountains",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Surefall Glade",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Temple of Cazic-Thule",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Temple of Solusek Ro",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "The Feerrott",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Toxxulia Forest",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Upper Guk",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "West Karana",
+    "level_ranges": [],
+    "expansion": "Classic",
+    "continent": "",
+    "zone_type": "",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  }
+]

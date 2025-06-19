@@ -1,0 +1,202 @@
+[
+  {
+    "name": "Cobalt Scar",
+    "level_ranges": [[35, 55]],
+    "expansion": "Velious",
+    "continent": "Velious",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Crystal Caverns",
+    "level_ranges": [[25, 45]],
+    "expansion": "Velious",
+    "continent": "Velious",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Dragon Necropolis",
+    "level_ranges": [[45, 60]],
+    "expansion": "Velious",
+    "continent": "Velious",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Eastern Wastes",
+    "level_ranges": [[25, 45]],
+    "expansion": "Velious",
+    "continent": "Velious",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Iceclad Ocean",
+    "level_ranges": [[28, 45]],
+    "expansion": "Velious",
+    "continent": "Velious",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Icewell Keep",
+    "level_ranges": [[35, 60]],
+    "expansion": "Velious",
+    "continent": "Velious",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Kael Drakkal",
+    "level_ranges": [[30, 60]],
+    "expansion": "Velious",
+    "continent": "Velious",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Plane of Growth",
+    "level_ranges": [[46, 60]],
+    "expansion": "Velious",
+    "continent": "Outer Planes",
+    "zone_type": "Plane",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Plane of Mischief",
+    "level_ranges": [[52, 65]],
+    "expansion": "Velious",
+    "continent": "Outer Planes",
+    "zone_type": "Plane",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Siren's Grotto",
+    "level_ranges": [[50, 65]],
+    "expansion": "Velious",
+    "continent": "Velious",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Skyshrine",
+    "level_ranges": [[35, 60]],
+    "expansion": "Velious",
+    "continent": "Velious",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Sleeper's Tomb",
+    "level_ranges": [[60, 75]],
+    "expansion": "Velious",
+    "continent": "Velious",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Stonebrunt Mountains",
+    "level_ranges": [[15, 40]],
+    "expansion": "Velious",
+    "continent": "Odus",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Temple of Veeshan",
+    "level_ranges": [[46, 65]],
+    "expansion": "Velious",
+    "continent": "Velious",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "The Warrens",
+    "level_ranges": [[5, 30]],
+    "expansion": "Velious",
+    "continent": "Odus",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Thurgadin",
+    "level_ranges": [[30, 45]],
+    "expansion": "Velious",
+    "continent": "Velious",
+    "zone_type": "Indoor City",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Tower of Frozen Shadow",
+    "level_ranges": [[30, 55]],
+    "expansion": "Velious",
+    "continent": "Velious",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Velketor's Labyrinth",
+    "level_ranges": [[45, 65]],
+    "expansion": "Velious",
+    "continent": "Velious",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Wakening Land",
+    "level_ranges": [[40, 55]],
+    "expansion": "Velious",
+    "continent": "Velious",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Western Wastes",
+    "level_ranges": [[50, 65]],
+    "expansion": "Velious",
+    "continent": "Velious",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  }
+]

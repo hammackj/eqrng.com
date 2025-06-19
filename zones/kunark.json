@@ -1,0 +1,262 @@
+[
+  {
+    "name": "Burning Woods",
+    "level_ranges": [[35, 50]],
+    "expansion": "Kunark",
+    "continent": "Kunark",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Chardok",
+    "level_ranges": [[40, 60]],
+    "expansion": "Kunark",
+    "continent": "Kunark",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "City of Mist",
+    "level_ranges": [[35, 53]],
+    "expansion": "Kunark",
+    "continent": "Kunark",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Dalnir",
+    "level_ranges": [[25, 35]],
+    "expansion": "Kunark",
+    "continent": "Kunark",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Dreadlands",
+    "level_ranges": [[35, 50]],
+    "expansion": "Kunark",
+    "continent": "Kunark",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "East Cabilis",
+    "level_ranges": [[1, 75]],
+    "expansion": "Kunark",
+    "continent": "Kunark",
+    "zone_type": "City",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Firiona Vie",
+    "level_ranges": [[20, 35]],
+    "expansion": "Kunark",
+    "continent": "Kunark",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Frontier Mountains",
+    "level_ranges": [[22, 45]],
+    "expansion": "Kunark",
+    "continent": "Kunark",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Howling Stones",
+    "level_ranges": [[40, 60]],
+    "expansion": "Kunark",
+    "continent": "Kunark",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Kaesora",
+    "level_ranges": [[30, 50]],
+    "expansion": "Kunark",
+    "continent": "Kunark",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Karnor's Castle",
+    "level_ranges": [[40, 55]],
+    "expansion": "Kunark",
+    "continent": "Kunark",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Kurn's Tower",
+    "level_ranges": [[8, 30]],
+    "expansion": "Kunark",
+    "continent": "Kunark",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Lake of Ill Omen",
+    "level_ranges": [[1, 30]],
+    "expansion": "Kunark",
+    "continent": "Kunark",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Mines of Nurga",
+    "level_ranges": [[40, 55]],
+    "expansion": "Kunark",
+    "continent": "Kunark",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Old Sebilis",
+    "level_ranges": [[43, 60]],
+    "expansion": "Kunark",
+    "continent": "Kunark",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Skyfire Mountains",
+    "level_ranges": [[45, 60]],
+    "expansion": "Kunark",
+    "continent": "Kunark",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Swamp of No Hope",
+    "level_ranges": [[1, 25]],
+    "expansion": "Kunark",
+    "continent": "Kunark",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Temple of Droga",
+    "level_ranges": [[48, 63]],
+    "expansion": "Kunark",
+    "continent": "Kunark",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "The Emerald Jungle",
+    "level_ranges": [[30, 45]],
+    "expansion": "Kunark",
+    "continent": "Kunark",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "The Field of Bone",
+    "level_ranges": [[1, 25]],
+    "expansion": "Kunark",
+    "continent": "Kunark",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "The Overthere",
+    "level_ranges": [[15, 40]],
+    "expansion": "Kunark",
+    "continent": "Kunark",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Trakanon's Teeth",
+    "level_ranges": [[30, 50]],
+    "expansion": "Kunark",
+    "continent": "Kunark",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Veeshan's Peak",
+    "level_ranges": [[60, 75]],
+    "expansion": "Kunark",
+    "continent": "Kunark",
+    "zone_type": "Indoor Dungeon",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Veksar",
+    "level_ranges": [[40, 60]],
+    "expansion": "Kunark",
+    "continent": "Kunark",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Warsliks Wood",
+    "level_ranges": [[1, 30]],
+    "expansion": "Kunark",
+    "continent": "Kunark",
+    "zone_type": "Outdoor",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "West Cabilis",
+    "level_ranges": [[1, 75]],
+    "expansion": "Kunark",
+    "continent": "Kunark",
+    "zone_type": "Mystical City",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  }
+]
