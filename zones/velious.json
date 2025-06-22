@@ -64,7 +64,7 @@
     "level_ranges": [[30, 60]],
     "expansion": "Velious",
     "continent": "Velious",
-    "zone_type": "Dungeon",
+    "zone_type": "City",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -74,7 +74,7 @@
     "level_ranges": [[46, 60]],
     "expansion": "Velious",
     "continent": "Outer Planes",
-    "zone_type": "Plane",
+    "zone_type": "Raid",
     "connections": [],
     "image_url": "",
     "map_url": ""

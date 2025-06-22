@@ -1,0 +1,52 @@
+[
+  {
+    "name": "Gulf of Gunthak",
+    "level_ranges": [[35, 50]],
+    "expansion": "The Legacy of Ykesha",
+    "continent": "Antonica",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Dulak's Harbor",
+    "level_ranges": [[40, 55]],
+    "expansion": "The Legacy of Ykesha",
+    "continent": "Antonica",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Torgiran Mines",
+    "level_ranges": [[45, 60]],
+    "expansion": "The Legacy of Ykesha",
+    "continent": "Antonica",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Crypt of Nadox",
+    "level_ranges": [[50, 65]],
+    "expansion": "The Legacy of Ykesha",
+    "continent": "Antonica",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Hate's Fury, The Scorned Maiden",
+    "level_ranges": [[55, 65]],
+    "expansion": "The Legacy of Ykesha",
+    "continent": "Antonica",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  }
+]

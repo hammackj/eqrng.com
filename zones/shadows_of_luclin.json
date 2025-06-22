@@ -250,8 +250,8 @@
     "map_url": ""
   },
   {
-    "name": "The Umbral Plains",
-    "level_ranges": [],
+    "name": "Umbral Plains",
+    "level_ranges": [[50, 65]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
     "zone_type": "Outdoor",
@@ -261,7 +261,7 @@
   },
   {
     "name": "Akheva Ruins",
-    "level_ranges": [],
+    "level_ranges": [[45, 65]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
     "zone_type": "Dungeon",

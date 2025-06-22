@@ -33,30 +33,23 @@ struct RangeQuery {
 }
 
 fn load_zones() -> Arc<Vec<Zone>> {
-    let classic = fs::read_to_string("zones/classic.json").expect("zones/classic.json missing");
-    let kunark = fs::read_to_string("zones/kunark.json").expect("zones/kunark.json missing");
-    let velious = fs::read_to_string("zones/velious.json").expect("zones/velious.json missing");
-    let sol = fs::read_to_string("zones/shadows_of_luclin.json")
-        .expect("zones/shadows_of_luclin.json missing");
-    let pop = fs::read_to_string("zones/planes_of_power.json")
-        .expect("zones/planes_of_power.json missing");
-
-    let tss = fs::read_to_string("zones/tss.json").expect("zones/tss.json missing");
+    let zone_files = [
+        "zones/classic.json",
+        "zones/kunark.json",
+        "zones/velious.json",
+        "zones/shadows_of_luclin.json",
+        "zones/planes_of_power.json",
+        "zones/loy.json",
+        "zones/tss.json",
+    ];
 
     let mut zones: Vec<Zone> = Vec::new();
-    let classic_zones: Vec<Zone> = serde_json::from_str(&classic).expect("Invalid JSON");
-    let kunark_zones: Vec<Zone> = serde_json::from_str(&kunark).expect("Invalid JSON");
-    let velious_zones: Vec<Zone> = serde_json::from_str(&velious).expect("Invalid JSON");
-    let sol_zones: Vec<Zone> = serde_json::from_str(&sol).expect("Invalid JSON");
-    let pop_zones: Vec<Zone> = serde_json::from_str(&pop).expect("Invalid JSON");
-    let tss_zones: Vec<Zone> = serde_json::from_str(&tss).expect("Invalid JSON");
 
-    zones.extend(classic_zones);
-    zones.extend(kunark_zones);
-    zones.extend(velious_zones);
-    zones.extend(sol_zones);
-    zones.extend(pop_zones);
-    zones.extend(tss_zones);
+    for file in zone_files {
+        let content = fs::read_to_string(file).expect(format!("{} missing", file).as_str());
+        let zone_data: Vec<Zone> = serde_json::from_str(&content).expect("Invalid JSON");
+        zones.extend(zone_data);
+    }
 
     let shared_zones = Arc::new(zones);
 
