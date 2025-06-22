@@ -1,6 +1,6 @@
 # 1. Build Stage
 FROM rust:1.87 as builder
-WORKDIR /usr/src/eqrng
+WORKDIR /usr/src/eq_rng
 
 # 1a. Copy only Cargo files and build a dummy src/main.rs to cache deps
 COPY Cargo.toml Cargo.lock ./
@@ -23,14 +23,14 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy the compiled binary and static assets
-COPY --from=builder /usr/src/eqrng/target/release/eqrng /usr/local/bin/eqrng
-COPY --from=builder /usr/src/eqrng/zones /etc/eqrng/zones
-COPY --from=builder /usr/src/eqrng/public /etc/eqrng/public
+COPY --from=builder /usr/src/eq_rng/target/release/eq_rng /usr/local/bin/eq_rng
+COPY --from=builder /usr/src/eq_rng/zones /etc/eq_rng/zones
+COPY --from=builder /usr/src/eq_rng/public /etc/eq_rng/public
 
-WORKDIR /etc/eqrng
+WORKDIR /etc/eq_rng
 EXPOSE 3000
 
 # Run as non-root (optional)
 USER 1000:1000
 
-CMD ["eqrng"]
+CMD ["eq_rng"]
