@@ -1,4 +1,6 @@
 - Add ratings 0 to 5 Pickles
 - /random_class
-  - param: race
+  - param: race, default random
 - /random_race
+- /random_character
+  -  Generates a random a viable class/race combo

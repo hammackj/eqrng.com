@@ -1,10 +1,10 @@
 [
   {
     "name": "Abysmal Sea",
-    "level_ranges": [[1, 75]],
+    "level_ranges": [[0, 0]],
     "expansion": "Gates of Discord",
     "continent": "Taelosia",
-    "zone_type": "Outdoors",
+    "zone_type": "City",
     "connections": [],
     "image_url": "",
     "map_url": ""
