@@ -33,7 +33,6 @@ struct RangeQuery {
 }
 
 fn load_zones() -> Arc<Vec<Zone>> {
-    let data = fs::read_to_string("zones.json").expect("zones.json missing");
     let classic = fs::read_to_string("zones/classic.json").expect("zones/classic.json missing");
     let kunark = fs::read_to_string("zones/kunark.json").expect("zones/kunark.json missing");
     let velious = fs::read_to_string("zones/velious.json").expect("zones/velious.json missing");
@@ -44,7 +43,7 @@ fn load_zones() -> Arc<Vec<Zone>> {
 
     let tss = fs::read_to_string("zones/tss.json").expect("zones/tss.json missing");
 
-    let mut zones: Vec<Zone> = serde_json::from_str(&data).expect("Invalid JSON");
+    let mut zones: Vec<Zone> = Vec::new();
     let classic_zones: Vec<Zone> = serde_json::from_str(&classic).expect("Invalid JSON");
     let kunark_zones: Vec<Zone> = serde_json::from_str(&kunark).expect("Invalid JSON");
     let velious_zones: Vec<Zone> = serde_json::from_str(&velious).expect("Invalid JSON");
