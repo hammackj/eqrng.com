@@ -81,7 +81,6 @@ async fn main() {
     let listener = TcpListener::bind(addr).await.unwrap();
     println!("Listening on {}", listener.local_addr().unwrap());
 
-    // serve the app
     serve(listener, app.into_make_service()).await.unwrap();
 }
 
@@ -90,33 +89,22 @@ async fn random_zone(
     State(zones): State<Arc<Vec<Zone>>>,
 ) -> Result<Json<Zone>, StatusCode> {
     let mut rng = rand::thread_rng();
+
     let matches: Vec<Zone> = zones
         .iter()
         .filter(|z| {
-            z.level_ranges
-                .iter()
-                .any(|[lmin, lmax]|
-                    // match exactly range
-                    //lmin >= &params.min && lmax <= &params.max
-                    //Match range inclusive
-                    //lmin >= &params.min && lmin <= &params.max
-                    // Respect lower bound: zone must start at or above params.min,
-                    // and we also cap its start to params.max
-                    //(*lmin >= params.min) && (*lmin <= params.max)
-                    // 1) lmin must equal your query’s min
-                    // 2) lmax must be ≤ your query’s max
-                    *lmin == params.min && *lmax <= params.max
-                )
-                // AND, if a type was given, match it
-                && params
-                    .zone_type
-                    .as_ref()
-                    .map_or(true, |t| z.zone_type.eq_ignore_ascii_case(t))
+            if let Some(ref t) = params.zone_type {
+                if !z.zone_type.eq_ignore_ascii_case(t) {
+                    return false;
+                }
+            }
+
+            z.level_ranges.iter().any(|&[lmin, lmax]| {
+                lmin <= params.min && lmax >= params.max
+            })
         })
         .cloned()
         .collect();
-
-    println!("Matches: {:?}", matches);
 
     if let Some(zone) = matches.choose(&mut rng) {
         Ok(Json(zone.clone()))

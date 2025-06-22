@@ -277,7 +277,10 @@
   },
   {
     "name": "Kithicor Forest",
-    "level_ranges": [[1-13], [35,50]],
+    "level_ranges": [
+      [1, 13],
+      [35, 50]
+    ],
     "expansion": "Classic",
     "continent": "",
     "zone_type": "Outdoor",
@@ -287,7 +290,7 @@
   },
   {
     "name": "Lake Rathetear",
-    "level_ranges": [[15,35]],
+    "level_ranges": [[15, 35]],
     "expansion": "Classic",
     "continent": "",
     "zone_type": "Outdoor",
@@ -380,7 +383,7 @@
   },
   {
     "name": "Neriak",
-    "level_ranges": [[0,0]],
+    "level_ranges": [[0, 0]],
     "expansion": "Classic",
     "continent": "",
     "zone_type": "City",
@@ -390,7 +393,7 @@
   },
   {
     "name": "North Karana",
-    "level_ranges": [[10,30]],
+    "level_ranges": [[10, 30]],
     "expansion": "Classic",
     "continent": "",
     "zone_type": "Outdoor",
@@ -400,7 +403,7 @@
   },
   {
     "name": "North Ro",
-    "level_ranges": [[5,30]],
+    "level_ranges": [[5, 30]],
     "expansion": "Classic",
     "continent": "",
     "zone_type": "Outdoor",
@@ -410,7 +413,7 @@
   },
   {
     "name": "Ocean of Tears",
-    "level_ranges": [[9,30]],
+    "level_ranges": [[9, 30]],
     "expansion": "Classic",
     "continent": "",
     "zone_type": "Outdoor",
@@ -420,7 +423,7 @@
   },
   {
     "name": "Oggok",
-    "level_ranges": [[0,0]],
+    "level_ranges": [[0, 0]],
     "expansion": "Classic",
     "continent": "",
     "zone_type": "City",
@@ -430,7 +433,7 @@
   },
   {
     "name": "Paineel",
-    "level_ranges": [[0,0]],
+    "level_ranges": [[0, 0]],
     "expansion": "Classic",
     "continent": "",
     "zone_type": "City",
@@ -480,7 +483,7 @@
   },
   {
     "name": "Qeynos",
-    "level_ranges": [[0,0]],
+    "level_ranges": [[0, 0]],
     "expansion": "Classic",
     "continent": "",
     "zone_type": "City",
@@ -490,7 +493,7 @@
   },
   {
     "name": "Qeynos Catacombs",
-    "level_ranges": [[0,0]],
+    "level_ranges": [[0, 0]],
     "expansion": "Classic",
     "continent": "",
     "zone_type": "Indoor",
@@ -500,7 +503,7 @@
   },
   {
     "name": "Qeynos Hills",
-    "level_ranges": [[2-10]],
+    "level_ranges": [[2, 10]],
     "expansion": "Classic",
     "continent": "",
     "zone_type": "Outdoors",
@@ -510,7 +513,7 @@
   },
   {
     "name": "Rathe Mountains",
-    "level_ranges": [[13-45]],
+    "level_ranges": [[13, 45]],
     "expansion": "Classic",
     "continent": "",
     "zone_type": "Outdoors",
@@ -520,7 +523,7 @@
   },
   {
     "name": "Rivervale",
-    "level_ranges": [[0,0]],
+    "level_ranges": [[0, 0]],
     "expansion": "Classic",
     "continent": "",
     "zone_type": "City",
@@ -550,7 +553,7 @@
   },
   {
     "name": "South Ro",
-    "level_ranges": [[5,20]],
+    "level_ranges": [[5, 20]],
     "expansion": "Classic",
     "continent": "",
     "zone_type": "Outdoor",
@@ -573,7 +576,7 @@
   },
   {
     "name": "Surefall Glade",
-    "level_ranges": [[0,0]],
+    "level_ranges": [[0, 0]],
     "expansion": "Classic",
     "continent": "",
     "zone_type": "City",
@@ -583,7 +586,7 @@
   },
   {
     "name": "Temple of Cazic-Thule",
-    "level_ranges": [[52,65]],
+    "level_ranges": [[52, 65]],
     "expansion": "Classic",
     "continent": "",
     "zone_type": "Dungeon",
@@ -621,7 +624,7 @@
   },
   {
     "name": "Toxxulia Forest",
-    "level_ranges": [[1,10]],
+    "level_ranges": [[1, 10]],
     "expansion": "Classic",
     "continent": "Odus",
     "zone_type": "Outdoors",
@@ -641,7 +644,7 @@
   },
   {
     "name": "West Karana",
-    "level_ranges": [[4,20]],
+    "level_ranges": [[4, 20]],
     "expansion": "Classic",
     "continent": "",
     "zone_type": "Outdoors",
