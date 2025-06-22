@@ -1,45 +1,34 @@
-# ─── 1) PLANNER: cache deps in its own folder ─────────────────────
-FROM rust:1.87 AS planner
-WORKDIR /usr/src/planner
-
-# Only copy Cargo.toml & Cargo.lock → this layer only busts when deps change
-COPY Cargo.toml Cargo.lock ./
-
-# Create stub project, build it, then remove stub code
-RUN mkdir src \
-    && printf 'fn main() { println!("stub"); }\n' > src/main.rs \
-    && cargo build --release \
-    && rm -rf src
-
-# ─── 2) BUILDER: pull in real code ───────────────────────────────
-FROM rust:1.87 AS builder
+### ─── 1) BUILD & CACHE STAGE ────────────────────────────────
+FROM rust:1.87 AS build
 WORKDIR /usr/src/eq_rng
 
-# 1) bring in all the cached dependencies
-COPY --from=planner /usr/src/planner/target target
+# Copy manifests & fetch deps (populates registry cache)
+COPY Cargo.toml Cargo.lock ./
+RUN cargo fetch
 
-# 2) copy your actual project (src/, zones/, public/, Cargo.toml, etc)
+# Copy the rest of your code
 COPY . .
 
-# 3) delete the stub executable so Cargo must rebuild your code
-RUN rm -f target/release/eq_rng \
-    && cargo build --release
+# Build with cache mounts for both registry and target
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/usr/src/eq_rng/target \
+    cargo build --release
 
-# ─── 3) RUNTIME: minimal image ────────────────────────────────────
+### ─── 2) RUNTIME STAGE ──────────────────────────────────────
 FROM debian:bookworm-slim
 RUN apt-get update \
     && apt-get install -y ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy server + assets into place
-COPY --from=builder /usr/src/eq_rng/target/release/eq_rng  /usr/local/bin/eq_rng
-COPY --from=builder /usr/src/eq_rng/zones              /etc/eq_rng/zones
-COPY --from=builder /usr/src/eq_rng/public             /etc/eq_rng/public
+# Copy your compiled server + assets
+COPY --from=build /usr/src/eq_rng/target/release/eq_rng  /usr/local/bin/eq_rng
+COPY --from=build /usr/src/eq_rng/zones              /etc/eq_rng/zones
+COPY --from=build /usr/src/eq_rng/public             /etc/eq_rng/public
 
 WORKDIR /etc/eq_rng
 EXPOSE 3000
 
-# Unprivileged user
+# Optionally drop privileges
 RUN addgroup --gid 1000 app \
     && adduser  --uid 1000 --gid 1000 --disabled-password --gecos "" app \
     && chown -R app:app /etc/eq_rng
