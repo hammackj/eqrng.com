@@ -11,7 +11,7 @@ COPY Cargo.toml Cargo.lock ./
 
 # Create a tiny stub main, build it, then delete it
 RUN mkdir src \
-    && printf 'fn main() { }\n' > src/main.rs \
+    && printf 'fn main() { println!("Hello, world!"); }\n' > src/main.rs \
     && cargo build --release \
     && rm -rf src
 
