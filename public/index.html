@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <title>EQRandomizer — Random Zone</title>
+        <title>EQRng.com — Random Zone</title>
         <style>
             body {
                 font-family: sans-serif;
@@ -30,6 +30,16 @@
             Max Level:
             <input type="number" id="max" value="125" min="1" max="125" />
         </label>
+        <label
+            >Type:
+            <select id="zone-type">
+                <option value="">Any</option>
+                <option>Outdoor</option>
+                <option>Dungeon</option>
+                <option>City</option>
+                <option>Raid</option>
+            </select>
+        </label>
         <button id="go">Get Random Zone</button>
 
         <div id="result" style="margin-top: 2em"></div>
@@ -38,7 +48,12 @@
             document.getElementById("go").onclick = async () => {
                 const min = document.getElementById("min").value;
                 const max = document.getElementById("max").value;
-                const res = await fetch(`/random_zone?min=${min}&max=${max}`);
+                const zt = document.getElementById("zone-type").value;
+                const params = new URLSearchParams({ min, max });
+                if (zt) params.set("zone_type", zt);
+
+                const res = await fetch(`/random_zone?${params}`);
+                //fetch(`/random_zone?min=${min}&max=${max}`);
                 const out = document.getElementById("result");
                 if (!res.ok) {
                     out.textContent = "No zone found.";

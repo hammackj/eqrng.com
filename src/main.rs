@@ -4,12 +4,13 @@ use axum::{
     http::StatusCode,
     response::Json,
     routing::get,
-    serve, // ← free fn for binding
+    serve,
 };
+
 use rand::seq::SliceRandom;
 use serde::{Deserialize, Serialize};
 use std::{fs, net::SocketAddr, sync::Arc};
-use tokio::net::TcpListener; // ← async listener
+use tokio::net::TcpListener;
 use tower_http::services::ServeDir;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -28,6 +29,7 @@ struct Zone {
 struct RangeQuery {
     min: u8,
     max: u8,
+    zone_type: Option<String>,
 }
 
 fn load_zones() -> Arc<Vec<Zone>> {
@@ -40,18 +42,23 @@ fn load_zones() -> Arc<Vec<Zone>> {
     let pop = fs::read_to_string("zones/planes_of_power.json")
         .expect("zones/planes_of_power.json missing");
 
+    let tss = fs::read_to_string("zones/tss.json")
+        .expect("zones/tss.json missing");
+
     let mut zones: Vec<Zone> = serde_json::from_str(&data).expect("Invalid JSON");
     let classic_zones: Vec<Zone> = serde_json::from_str(&classic).expect("Invalid JSON");
     let kunark_zones: Vec<Zone> = serde_json::from_str(&kunark).expect("Invalid JSON");
     let velious_zones: Vec<Zone> = serde_json::from_str(&velious).expect("Invalid JSON");
     let sol_zones: Vec<Zone> = serde_json::from_str(&sol).expect("Invalid JSON");
     let pop_zones: Vec<Zone> = serde_json::from_str(&pop).expect("Invalid JSON");
+    let tss_zones: Vec<Zone> = serde_json::from_str(&tss).expect("Invalid JSON");
 
     zones.extend(classic_zones);
     zones.extend(kunark_zones);
     zones.extend(velious_zones);
     zones.extend(sol_zones);
     zones.extend(pop_zones);
+    zones.extend(tss_zones);
 
     let shared_zones = Arc::new(zones);
 
@@ -60,6 +67,8 @@ fn load_zones() -> Arc<Vec<Zone>> {
 
 #[tokio::main]
 async fn main() {
+    // Load all the zone jsom and merge them together
+    // TODO: Move to sqlite once all data is entered and validated
     let zones = load_zones();
 
     let app = Router::new()
@@ -70,7 +79,7 @@ async fn main() {
     // bind via TcpListener
     let addr: SocketAddr = "127.0.0.1:3000".parse().unwrap();
     let listener = TcpListener::bind(addr).await.unwrap();
-    println!("🚀 Listening on {}", listener.local_addr().unwrap());
+    println!("Listening on {}", listener.local_addr().unwrap());
 
     // serve the app
     serve(listener, app.into_make_service()).await.unwrap();
@@ -86,10 +95,28 @@ async fn random_zone(
         .filter(|z| {
             z.level_ranges
                 .iter()
-                .any(|[lmin, lmax]| lmax >= &params.min && lmin <= &params.max)
+                .any(|[lmin, lmax]|
+                    // match exactly range
+                    //lmin >= &params.min && lmax <= &params.max
+                    //Match range inclusive
+                    //lmin >= &params.min && lmin <= &params.max
+                    // Respect lower bound: zone must start at or above params.min,
+                    // and we also cap its start to params.max
+                    //(*lmin >= params.min) && (*lmin <= params.max)
+                    // 1) lmin must equal your query’s min
+                    // 2) lmax must be ≤ your query’s max
+                    *lmin == params.min && *lmax <= params.max
+                )
+                // AND, if a type was given, match it
+                && params
+                    .zone_type
+                    .as_ref()
+                    .map_or(true, |t| z.zone_type.eq_ignore_ascii_case(t))
         })
         .cloned()
         .collect();
+
+    println!("Matches: {:?}", matches);
 
     if let Some(zone) = matches.choose(&mut rng) {
         Ok(Json(zone.clone()))

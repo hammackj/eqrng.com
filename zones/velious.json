@@ -4,7 +4,7 @@
     "level_ranges": [[35, 55]],
     "expansion": "Velious",
     "continent": "Velious",
-    "zone_type": "Outdoors",
+    "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -14,7 +14,7 @@
     "level_ranges": [[25, 45]],
     "expansion": "Velious",
     "continent": "Velious",
-    "zone_type": "Indoor Dungeon",
+    "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -24,7 +24,7 @@
     "level_ranges": [[45, 60]],
     "expansion": "Velious",
     "continent": "Velious",
-    "zone_type": "Indoor Dungeon",
+    "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -34,7 +34,7 @@
     "level_ranges": [[25, 45]],
     "expansion": "Velious",
     "continent": "Velious",
-    "zone_type": "Outdoors",
+    "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -44,7 +44,7 @@
     "level_ranges": [[28, 45]],
     "expansion": "Velious",
     "continent": "Velious",
-    "zone_type": "Outdoors",
+    "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -54,7 +54,7 @@
     "level_ranges": [[35, 60]],
     "expansion": "Velious",
     "continent": "Velious",
-    "zone_type": "Indoor Dungeon",
+    "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -64,7 +64,7 @@
     "level_ranges": [[30, 60]],
     "expansion": "Velious",
     "continent": "Velious",
-    "zone_type": "Indoor Dungeon",
+    "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -84,7 +84,7 @@
     "level_ranges": [[52, 65]],
     "expansion": "Velious",
     "continent": "Outer Planes",
-    "zone_type": "Plane",
+    "zone_type": "Raid",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -94,7 +94,7 @@
     "level_ranges": [[50, 65]],
     "expansion": "Velious",
     "continent": "Velious",
-    "zone_type": "Indoor Dungeon",
+    "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -114,7 +114,7 @@
     "level_ranges": [[60, 75]],
     "expansion": "Velious",
     "continent": "Velious",
-    "zone_type": "Indoor Dungeon",
+    "zone_type": "Raid",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -124,17 +124,17 @@
     "level_ranges": [[15, 40]],
     "expansion": "Velious",
     "continent": "Odus",
-    "zone_type": "Outdoors",
+    "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
   },
   {
     "name": "Temple of Veeshan",
-    "level_ranges": [[46, 65]],
+    "level_ranges": [[60, 75]],
     "expansion": "Velious",
     "continent": "Velious",
-    "zone_type": "Indoor Dungeon",
+    "zone_type": "Raid",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -144,7 +144,7 @@
     "level_ranges": [[5, 30]],
     "expansion": "Velious",
     "continent": "Odus",
-    "zone_type": "Indoor Dungeon",
+    "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -154,7 +154,7 @@
     "level_ranges": [[30, 45]],
     "expansion": "Velious",
     "continent": "Velious",
-    "zone_type": "Indoor City",
+    "zone_type": "City",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -164,7 +164,7 @@
     "level_ranges": [[30, 55]],
     "expansion": "Velious",
     "continent": "Velious",
-    "zone_type": "Indoor Dungeon",
+    "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -174,7 +174,7 @@
     "level_ranges": [[45, 65]],
     "expansion": "Velious",
     "continent": "Velious",
-    "zone_type": "Indoor Dungeon",
+    "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -184,7 +184,7 @@
     "level_ranges": [[40, 55]],
     "expansion": "Velious",
     "continent": "Velious",
-    "zone_type": "Outdoors",
+    "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -194,7 +194,7 @@
     "level_ranges": [[50, 65]],
     "expansion": "Velious",
     "continent": "Velious",
-    "zone_type": "Outdoors",
+    "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
     "map_url": ""

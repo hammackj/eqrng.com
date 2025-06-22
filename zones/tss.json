@@ -1,0 +1,142 @@
+[
+  {
+    "name": "Crescent Reach",
+    "level_ranges": [[1, 20]],
+    "expansion": "The Serpent's Spine",
+    "continent": "Antonica",
+    "zone_type": "City",
+    "connections": ["Blightfire Moors", "Bixie Warfront"],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Highpass (revamp)",
+    "level_ranges": [[15, 25]],
+    "expansion": "The Serpent's Spine",
+    "continent": "Antonica",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Blightfire Moors",
+    "level_ranges": [[20, 40]],
+    "expansion": "The Serpent's Spine",
+    "continent": "Antonica",
+    "zone_type": "Outdoors",
+    "connections": ["Crescent Reach", "Goru'kar Mesa", "Stone Hive"],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Stone Hive",
+    "level_ranges": [[35, 45]],
+    "expansion": "The Serpent's Spine",
+    "continent": "Antonica",
+    "zone_type": "Outdoors",
+    "connections": ["Blightfire Moors", "Goru'kar Mesa"],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Goru'kar Mesa",
+    "level_ranges": [[40, 60]],
+    "expansion": "The Serpent's Spine",
+    "continent": "Antonica",
+    "zone_type": "Outdoors",
+    "connections": ["Blightfire Moors", "Stone Hive"],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Blackfeather Roost",
+    "level_ranges": [[55, 65]],
+    "expansion": "The Serpent's Spine",
+    "continent": "Antonica",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "The Steppes",
+    "level_ranges": [[60, 70]],
+    "expansion": "The Serpent's Spine",
+    "continent": "Antonica",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Sunderock Springs",
+    "level_ranges": [[63, 73]],
+    "expansion": "The Serpent's Spine",
+    "continent": "Antonica",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Vergalid Mines",
+    "level_ranges": [[60, 75]],
+    "expansion": "The Serpent's Spine",
+    "continent": "Antonica",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Direwind Cliffs",
+    "level_ranges": [[70, 75]],
+    "expansion": "The Serpent's Spine",
+    "continent": "Antonica",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Icefall Glacier",
+    "level_ranges": [[70, 75]],
+    "expansion": "The Serpent's Spine",
+    "continent": "Antonica",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Ashengate, Reliquary of the Scale",
+    "level_ranges": [[75, 75]],
+    "expansion": "The Serpent's Spine",
+    "continent": "Antonica",
+    "zone_type": "Raid",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Valdeholm",
+    "level_ranges": [[72, 75]],
+    "expansion": "The Serpent's Spine",
+    "continent": "Antonica",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Frostcrypt, Throne of the Shade King",
+    "level_ranges": [[75, 75]],
+    "expansion": "The Serpent's Spine",
+    "continent": "Antonica",
+    "zone_type": "Raid",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  }
+]
