@@ -7,6 +7,6 @@ services:
       dockerfile: dockerfile
     restart: always
     ports:
-      - "8000:8080"
+      - "3000:3000"
     environment:
       RUST_LOG: info
