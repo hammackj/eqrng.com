@@ -1,0 +1,4 @@
+- Add ratings 0 to 5 Pickles
+- /random_class
+  - param: race
+- /random_race

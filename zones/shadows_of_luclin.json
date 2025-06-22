@@ -131,17 +131,17 @@
   },
   {
     "name": "The Deep",
-    "level_ranges": [],
+    "level_ranges": [[50, 60]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
-    "zone_type": "Dungeon",
+    "zone_type": "Indoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
   },
   {
     "name": "Shadeweaver's Thicket",
-    "level_ranges": [],
+    "level_ranges": [[1, 25]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
     "zone_type": "Outdoor",
@@ -151,7 +151,7 @@
   },
   {
     "name": "Hollowshade Moor",
-    "level_ranges": [],
+    "level_ranges": [[10, 45]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
     "zone_type": "Outdoor",
@@ -161,7 +161,7 @@
   },
   {
     "name": "Grimling Forest",
-    "level_ranges": [],
+    "level_ranges": [[25, 50]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
     "zone_type": "Outdoor",
@@ -171,7 +171,7 @@
   },
   {
     "name": "Marus Seru",
-    "level_ranges": [],
+    "level_ranges": [[15, 45]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
     "zone_type": "Dungeon",
@@ -181,7 +181,7 @@
   },
   {
     "name": "Mons Letalis",
-    "level_ranges": [],
+    "level_ranges": [[35, 50]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
     "zone_type": "Outdoor",
@@ -190,8 +190,8 @@
     "map_url": ""
   },
   {
-    "name": "The Twilight Sea",
-    "level_ranges": [],
+    "name": "Twilight Sea",
+    "level_ranges": [[25, 50]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
     "zone_type": "Outdoor",
@@ -201,7 +201,7 @@
   },
   {
     "name": "The Grey",
-    "level_ranges": [],
+    "level_ranges": [[40, 55]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
     "zone_type": "Outdoor",
@@ -210,8 +210,8 @@
     "map_url": ""
   },
   {
-    "name": "The Tenebrous Mountains",
-    "level_ranges": [],
+    "name": "Tenebrous Mountains",
+    "level_ranges": [[35, 50]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
     "zone_type": "Outdoor",
@@ -220,8 +220,8 @@
     "map_url": ""
   },
   {
-    "name": "The Maiden's Eye",
-    "level_ranges": [],
+    "name": "Maiden's Eye",
+    "level_ranges": [[45, 60]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
     "zone_type": "Outdoor",
@@ -231,7 +231,7 @@
   },
   {
     "name": "Dawnshroud Peaks",
-    "level_ranges": [],
+    "level_ranges": [[24, 45]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
     "zone_type": "Outdoor",
@@ -240,8 +240,8 @@
     "map_url": ""
   },
   {
-    "name": "The Scarlet Desert",
-    "level_ranges": [],
+    "name": "Scarlet Desert",
+    "level_ranges": [[30, 50]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
     "zone_type": "Outdoor",
