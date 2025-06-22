@@ -61,7 +61,7 @@
   },
   {
     "name": "Fungus Grove",
-    "level_ranges": [],
+    "level_ranges": [[40, 55]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
     "zone_type": "Outdoor",
@@ -81,30 +81,30 @@
   },
   {
     "name": "Sanctus Seru",
-    "level_ranges": [],
+    "level_ranges": [[40, 60]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
-    "zone_type": "Dungeon",
+    "zone_type": "City",
     "connections": [],
     "image_url": "",
     "map_url": ""
   },
   {
     "name": "Katta Castellum",
-    "level_ranges": [],
+    "level_ranges": [[30, 60]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
-    "zone_type": "Dungeon",
+    "zone_type": "City",
     "connections": [],
     "image_url": "",
     "map_url": ""
   },
   {
     "name": "Netherbian Lair",
-    "level_ranges": [],
+    "level_ranges": [[15, 35]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
-    "zone_type": "Dungeon",
+    "zone_type": "Indoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -121,7 +121,7 @@
   },
   {
     "name": "Grieg's End",
-    "level_ranges": [],
+    "level_ranges": [[45, 60]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
     "zone_type": "Dungeon",
