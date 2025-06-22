@@ -1,20 +1,17 @@
-### ─── 1) PLANNER STAGE ───────────────────────────────────────────
 # Builds a tiny “dummy” binary just to populate Cargo’s dependency cache.
-
 FROM rust:1.87 AS planner
 WORKDIR /usr/src/eq_rng
 
 # Copy over Cargo files only
 COPY Cargo.toml Cargo.lock ./
+
 # Create a dummy main.rs so cargo will download & compile your deps
 RUN mkdir src \
     && echo 'fn main() {}' > src/main.rs \
     && cargo build --release \
     && rm -rf src
 
-### ─── 2) BUILDER STAGE ───────────────────────────────────────────
-# Now copy in your real source *and* reuse the planner’s target folder.
-
+# Now copy in the real source *and* reuse the planner’s target folder.
 FROM rust:1.87 AS builder
 WORKDIR /usr/src/eq_rng
 
@@ -24,12 +21,10 @@ COPY --from=planner /usr/src/eq_rng/target target
 # Copy your real source + assets
 COPY . .
 
-# Build your real binary
+# Build the real binary
 RUN cargo build --release
 
-### ─── 3) RUNTIME STAGE ───────────────────────────────────────────
 # A minimal image that just ships your compiled binary & files.
-
 FROM debian:bookworm-slim
 RUN apt-get update \
     && apt-get install -y ca-certificates \
