@@ -2,19 +2,25 @@
 FROM rust:1.87 as builder
 WORKDIR /usr/src/eqrng
 
-# Cache dependencies
+# 1a. Copy only Cargo files and build a dummy src/main.rs to cache deps
 COPY Cargo.toml Cargo.lock ./
-RUN mkdir src && echo "fn main(){}" > src/main.rs
+RUN mkdir -p src \
+    && echo 'fn main() { println!("dummy"); }' > src/main.rs
+
+# Build dependencies (this layer is cached unless Cargo.toml changes)
 RUN cargo build --release
-# Now copy the real source
+
+# 1b. Copy the real source & assets
 COPY . .
-RUN rm src/main.rs
+
+# Build the actual binary
 RUN cargo build --release
 
 # 2. Runtime Stage
 FROM debian:bullseye-slim
-# Install libssl if you use HTTPS or other deps
-RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+    && apt-get install -y ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy the compiled binary and static assets
 COPY --from=builder /usr/src/eqrng/target/release/eqrng /usr/local/bin/eqrng
