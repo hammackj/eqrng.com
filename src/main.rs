@@ -40,6 +40,8 @@ fn load_zones() -> Arc<Vec<Zone>> {
         "zones/shadows_of_luclin.json",
         "zones/planes_of_power.json",
         "zones/loy.json",
+        "zones/ldon.json",
+        "zones/god.json",
         "zones/tss.json",
     ];
 

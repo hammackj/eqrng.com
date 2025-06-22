@@ -1,0 +1,262 @@
+[
+  {
+    "name": "Abysmal Sea",
+    "level_ranges": [[1, 75]],
+    "expansion": "Gates of Discord",
+    "continent": "Taelosia",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Natimbi, The Broken Shores",
+    "level_ranges": [[40, 60]],
+    "expansion": "Gates of Discord",
+    "continent": "Taelosia",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Qinimi, Court of Nihilia",
+    "level_ranges": [[50, 75]],
+    "expansion": "Gates of Discord",
+    "continent": "Taelosia",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Riwwi, Coliseum of Games",
+    "level_ranges": [[60, 70]],
+    "expansion": "Gates of Discord",
+    "continent": "Taelosia",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Barindu, Hanging Gardens",
+    "level_ranges": [[55, 65]],
+    "expansion": "Gates of Discord",
+    "continent": "Taelosia",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Sewers of Nihilia, Purifying Plant",
+    "level_ranges": [[60, 75]],
+    "expansion": "Gates of Discord",
+    "continent": "Taelosia",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Sewers of Nihilia, the Crematory",
+    "level_ranges": [[60, 75]],
+    "expansion": "Gates of Discord",
+    "continent": "Taelosia",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Sewers of Nihilia, Lair of Trapped Ones",
+    "level_ranges": [[60, 65]],
+    "expansion": "Gates of Discord",
+    "continent": "Taelosia",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Sewers of Nihilia, Pool of Sludge",
+    "level_ranges": [[60, 75]],
+    "expansion": "Gates of Discord",
+    "continent": "Taelosia",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Vixed, The Crumbling Caverns",
+    "level_ranges": [[65, 75]],
+    "expansion": "Gates of Discord",
+    "continent": "Taelosia",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Tipt, Treacherous Crags",
+    "level_ranges": [[65, 75]],
+    "expansion": "Gates of Discord",
+    "continent": "Taelosia",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Ferubi, Forgotten Temple of Taelosia",
+    "level_ranges": [[60, 75]],
+    "expansion": "Gates of Discord",
+    "continent": "Taelosia",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Kod'Taz, Broken Trial Grounds",
+    "level_ranges": [[65, 75]],
+    "expansion": "Gates of Discord",
+    "continent": "Taelosia",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Ikkinz: Trial of Singular Might",
+    "level_ranges": [[65, 75]],
+    "expansion": "Gates of Discord",
+    "continent": "Taelosia",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Ikkinz: Trial of Twin Struggles",
+    "level_ranges": [[65, 75]],
+    "expansion": "Gates of Discord",
+    "continent": "Taelosia",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Ikkinz: Trial of Tri-Fates",
+    "level_ranges": [[65, 75]],
+    "expansion": "Gates of Discord",
+    "continent": "Taelosia",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Ikkinz: Trial of Righteousness",
+    "level_ranges": [[65, 75]],
+    "expansion": "Gates of Discord",
+    "continent": "Taelosia",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Ikkinz: Trial of Glorification",
+    "level_ranges": [[65, 75]],
+    "expansion": "Gates of Discord",
+    "continent": "Taelosia",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Ikkinz: Trial of Transcendence",
+    "level_ranges": [[65, 75]],
+    "expansion": "Gates of Discord",
+    "continent": "Taelosia",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Ikkinz: Chambers of Destruction",
+    "level_ranges": [[65, 75]],
+    "expansion": "Gates of Discord",
+    "continent": "Taelosia",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Yxtta, Pulpit of Exiles",
+    "level_ranges": [[65, 75]],
+    "expansion": "Gates of Discord",
+    "continent": "Taelosia",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Uqua, The Ocean God Chantry",
+    "level_ranges": [[65, 75]],
+    "expansion": "Gates of Discord",
+    "continent": "Taelosia",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Qvic, Prayer Grounds of Calling",
+    "level_ranges": [[65, 75]],
+    "expansion": "Gates of Discord",
+    "continent": "Taelosia",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Inku'Ta, The Unmasked Chapel",
+    "level_ranges": [[65, 75]],
+    "expansion": "Gates of Discord",
+    "continent": "Taelosia",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Txevu, Lair of the Elite",
+    "level_ranges": [[65, 75]],
+    "expansion": "Gates of Discord",
+    "continent": "Taelosia",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Tacvi, Seat of the Slaver",
+    "level_ranges": [[65, 75]],
+    "expansion": "Gates of Discord",
+    "continent": "Taelosia",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "name": "Deepest Guk",
+    "level_ranges": [[20, 75]],
+    "expansion": "Lost Dungeons of Norrath",
+    "continent": "Antonica",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Miragul's Menagerie",
+    "level_ranges": [[20, 75]],
+    "expansion": "Lost Dungeons of Norrath",
+    "continent": "Antonica",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Mistmoore Catacombs",
+    "level_ranges": [[20, 75]],
+    "expansion": "Lost Dungeons of Norrath",
+    "continent": "Faydwer",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Rujarkin Hills",
+    "level_ranges": [[20, 70]],
+    "expansion": "Lost Dungeons of Norrath",
+    "continent": "Antonica",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  },
+  {
+    "name": "Takish-Hiz",
+    "level_ranges": [[20, 75]],
+    "expansion": "Lost Dungeons of Norrath",
+    "continent": "Antonica",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": ""
+  }
+]
