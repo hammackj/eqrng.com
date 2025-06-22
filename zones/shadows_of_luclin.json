@@ -1,17 +1,17 @@
 [
   {
     "name": "Shadow Haven",
-    "level_ranges": [],
+    "level_ranges": [[0, 0]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
-    "zone_type": "Outdoor",
+    "zone_type": "City",
     "connections": [],
     "image_url": "",
     "map_url": ""
   },
   {
     "name": "The Nexus",
-    "level_ranges": [],
+    "level_ranges": [[0, 0]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
     "zone_type": "City",
@@ -41,7 +41,7 @@
   },
   {
     "name": "Shar Vahl",
-    "level_ranges": [],
+    "level_ranges": [[0, 0]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
     "zone_type": "City",
@@ -71,10 +71,10 @@
   },
   {
     "name": "Vex Thal",
-    "level_ranges": [],
+    "level_ranges": [[60, 75]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
-    "zone_type": "Outdoor",
+    "zone_type": "Raid",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -111,10 +111,10 @@
   },
   {
     "name": "Ssraeshza Temple",
-    "level_ranges": [],
+    "level_ranges": [[60, 75]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
-    "zone_type": "Indoor Dungeon",
+    "zone_type": "Raid",
     "connections": [],
     "image_url": "",
     "map_url": ""

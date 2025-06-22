@@ -17,7 +17,7 @@ COPY . .
 RUN cargo build --release
 
 # 2. Runtime Stage
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 RUN apt-get update \
     && apt-get install -y ca-certificates \
     && rm -rf /var/lib/apt/lists/*

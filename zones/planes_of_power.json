@@ -4,7 +4,7 @@
     "level_ranges": [[65, 75]],
     "expansion": "Planes of Power",
     "continent": "Power",
-    "zone_type": "Outdoor Plane",
+    "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -14,7 +14,7 @@
     "level_ranges": [[60, 65]],
     "expansion": "Planes of Power",
     "continent": "Power",
-    "zone_type": "Indoor Plane",
+    "zone_type": "Indoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -24,7 +24,7 @@
     "level_ranges": [[65, 75]],
     "expansion": "Planes of Power",
     "continent": "Power",
-    "zone_type": "Outdoor Plane",
+    "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -34,7 +34,7 @@
     "level_ranges": [[60, 65]],
     "expansion": "Planes of Power",
     "continent": "Power",
-    "zone_type": "Outdoor Plane",
+    "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -44,7 +44,7 @@
     "level_ranges": [[55, 65]],
     "expansion": "Planes of Power",
     "continent": "Power",
-    "zone_type": "Outdoor Plane",
+    "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -54,7 +54,7 @@
     "level_ranges": [[46, 60]],
     "expansion": "Planes of Power",
     "continent": "Power",
-    "zone_type": "Outdoor Plane",
+    "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -64,7 +64,7 @@
     "level_ranges": [[46, 63]],
     "expansion": "Planes of Power",
     "continent": "Power",
-    "zone_type": "Outdoor Plane",
+    "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -74,7 +74,7 @@
     "level_ranges": [[46, 65]],
     "expansion": "Planes of Power",
     "continent": "Power",
-    "zone_type": "Outdoor Plane",
+    "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -84,7 +84,7 @@
     "level_ranges": [[0, 0]],
     "expansion": "Planes of Power",
     "continent": "Power",
-    "zone_type": "Outdoor City/Plane",
+    "zone_type": "City",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -94,7 +94,7 @@
     "level_ranges": [[46, 65]],
     "expansion": "Planes of Power",
     "continent": "Power",
-    "zone_type": "Outdoor Plane",
+    "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -104,7 +104,7 @@
     "level_ranges": [[55, 65]],
     "expansion": "Planes of Power",
     "continent": "Power",
-    "zone_type": "Outdoor Plane",
+    "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -114,7 +114,7 @@
     "level_ranges": [[65, 75]],
     "expansion": "Planes of Power",
     "continent": "Power",
-    "zone_type": "Outdoor Plane",
+    "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -124,7 +124,7 @@
     "level_ranges": [[65, 75]],
     "expansion": "Planes of Power",
     "continent": "Power",
-    "zone_type": "Outdoor Plane",
+    "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -134,7 +134,7 @@
     "level_ranges": [[55, 65]],
     "expansion": "Planes of Power",
     "continent": "Power",
-    "zone_type": "Indoor Plane",
+    "zone_type": "Indoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -154,7 +154,7 @@
     "level_ranges": [[55, 65]],
     "expansion": "Planes of Power",
     "continent": "Power",
-    "zone_type": "Outdoor Plane",
+    "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -164,7 +164,7 @@
     "level_ranges": [[65, 100]],
     "expansion": "Planes of Power",
     "continent": "Power",
-    "zone_type": "Outdoor Plane",
+    "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -174,7 +174,7 @@
     "level_ranges": [[65, 75]],
     "expansion": "Planes of Power",
     "continent": "Power",
-    "zone_type": "Outdoor Plane",
+    "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -184,7 +184,7 @@
     "level_ranges": [[65, 75]],
     "expansion": "Planes of Power",
     "continent": "Power",
-    "zone_type": "Indoor Plane",
+    "zone_type": "Indoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -194,7 +194,7 @@
     "level_ranges": [[60, 65]],
     "expansion": "Planes of Power",
     "continent": "Power",
-    "zone_type": "Indoor Plane",
+    "zone_type": "Indoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -204,7 +204,7 @@
     "level_ranges": [[65, 75]],
     "expansion": "Planes of Power",
     "continent": "Power",
-    "zone_type": "Indoor Plane",
+    "zone_type": "Indoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -214,7 +214,7 @@
     "level_ranges": [[60, 70]],
     "expansion": "Planes of Power",
     "continent": "Power",
-    "zone_type": "Outdoor Plane",
+    "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -224,7 +224,7 @@
     "level_ranges": [[57, 70]],
     "expansion": "Planes of Power",
     "continent": "Power",
-    "zone_type": "Outdoor Plane",
+    "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
     "map_url": ""

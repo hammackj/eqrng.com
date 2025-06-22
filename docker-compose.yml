@@ -4,7 +4,7 @@ services:
     image: eq_rng:latest
     build:
       context: .
-      dockerfile: dockerfile
+      dockerfile: Dockerfile
     restart: always
     ports:
       - "3000:3000"
