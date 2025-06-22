@@ -1,6 +1,12 @@
-#EQRng.com
+# EQRng.com
 
-Under development
+## /random_zone
+### Parameters
+- min_level
+- max_level
+- zone_type
+
+This endpoint will return a random zone based on the given parameters.
 
 
 # Deployment

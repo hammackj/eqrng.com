@@ -49,4 +49,4 @@ RUN addgroup --gid 1000 app \
     && chown -R app:app /etc/eq_rng
 USER app
 
-CMD ["eq_rng", "--port", "3000", "--host", "0.0.0.0"]
+CMD ["eq_rng"]

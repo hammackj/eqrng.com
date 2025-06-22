@@ -10,3 +10,4 @@ services:
       - "3000:3000"
     environment:
       RUST_LOG: info
+    command: ["eq_rng"]

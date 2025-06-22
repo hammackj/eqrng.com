@@ -76,6 +76,7 @@ async fn main() {
         .with_state(zones);
 
     // bind via TcpListener
+    // TODO: Add CLI Options for Host / Port
     let addr: SocketAddr = "0.0.0.0:3000".parse().unwrap();
     let listener = TcpListener::bind(addr).await.unwrap();
     println!("Listening on {}", listener.local_addr().unwrap());
