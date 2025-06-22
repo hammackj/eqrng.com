@@ -81,7 +81,7 @@
   },
   {
     "name": "Plane of Knowledge",
-    "level_ranges": [[1, 105]],
+    "level_ranges": [[0, 0]],
     "expansion": "Planes of Power",
     "continent": "Power",
     "zone_type": "Outdoor City/Plane",

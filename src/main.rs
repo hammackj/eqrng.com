@@ -42,8 +42,7 @@ fn load_zones() -> Arc<Vec<Zone>> {
     let pop = fs::read_to_string("zones/planes_of_power.json")
         .expect("zones/planes_of_power.json missing");
 
-    let tss = fs::read_to_string("zones/tss.json")
-        .expect("zones/tss.json missing");
+    let tss = fs::read_to_string("zones/tss.json").expect("zones/tss.json missing");
 
     let mut zones: Vec<Zone> = serde_json::from_str(&data).expect("Invalid JSON");
     let classic_zones: Vec<Zone> = serde_json::from_str(&classic).expect("Invalid JSON");
@@ -77,7 +76,7 @@ async fn main() {
         .with_state(zones);
 
     // bind via TcpListener
-    let addr: SocketAddr = "127.0.0.1:3000".parse().unwrap();
+    let addr: SocketAddr = "0.0.0.0:3000".parse().unwrap();
     let listener = TcpListener::bind(addr).await.unwrap();
     println!("Listening on {}", listener.local_addr().unwrap());
 
@@ -99,9 +98,9 @@ async fn random_zone(
                 }
             }
 
-            z.level_ranges.iter().any(|&[lmin, lmax]| {
-                lmin <= params.min && lmax >= params.max
-            })
+            z.level_ranges
+                .iter()
+                .any(|&[lmin, lmax]| lmin <= params.min && lmax >= params.max)
         })
         .cloned()
         .collect();
