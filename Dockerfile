@@ -7,7 +7,7 @@ COPY Cargo.toml Cargo.lock ./
 
 # Create a dummy main.rs so cargo will download & compile your deps
 RUN mkdir src \
-    && echo 'fn main() {}' > src/main.rs \
+    && echo 'fn main() { println!("Hello, world!"); }' > src/main.rs \
     && cargo build --release \
     && rm -rf src
 
