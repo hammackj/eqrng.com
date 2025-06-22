@@ -21,20 +21,20 @@
   },
   {
     "name": "Echo Caverns",
-    "level_ranges": [],
+    "level_ranges": [[20, 45]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
-    "zone_type": "Indoor Dungeon",
+    "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
     "map_url": ""
   },
   {
     "name": "Acrylia Caverns",
-    "level_ranges": [],
+    "level_ranges": [[40, 60]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
-    "zone_type": "Indoor Dungeon",
+    "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -51,10 +51,10 @@
   },
   {
     "name": "Paludal Caverns",
-    "level_ranges": [],
+    "level_ranges": [[5, 25]],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
-    "zone_type": "Indoor Dungeon",
+    "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -84,7 +84,7 @@
     "level_ranges": [],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
-    "zone_type": "Indoor Dungeon",
+    "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -94,7 +94,7 @@
     "level_ranges": [],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
-    "zone_type": "Indoor Dungeon",
+    "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -104,7 +104,7 @@
     "level_ranges": [],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
-    "zone_type": "Indoor Dungeon",
+    "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -124,7 +124,7 @@
     "level_ranges": [],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
-    "zone_type": "Indoor Dungeon",
+    "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -134,7 +134,7 @@
     "level_ranges": [],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
-    "zone_type": "Indoor Dungeon",
+    "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -174,7 +174,7 @@
     "level_ranges": [],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
-    "zone_type": "Indoor Dungeon",
+    "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -264,7 +264,7 @@
     "level_ranges": [],
     "expansion": "Shadows of Luclin",
     "continent": "Luclin",
-    "zone_type": "Indoor Dungeon",
+    "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
     "map_url": ""

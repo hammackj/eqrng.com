@@ -11,7 +11,7 @@
   },
   {
     "name": "Befallen",
-    "level_ranges": [],
+    "level_ranges": [[7, 25]],
     "expansion": "Classic",
     "continent": "Antonica",
     "zone_type": "Dungeon",
@@ -21,7 +21,7 @@
   },
   {
     "name": "Blackburrow",
-    "level_ranges": [],
+    "level_ranges": [[4, 15]],
     "expansion": "Classic",
     "continent": "Antonica",
     "zone_type": "Dungeon",
@@ -31,7 +31,7 @@
   },
   {
     "name": "Castle Mistmoore",
-    "level_ranges": [],
+    "level_ranges": [[20, 45]],
     "expansion": "Classic",
     "continent": "",
     "zone_type": "Dungeon",
@@ -41,7 +41,7 @@
   },
   {
     "name": "Clan Runnyeye",
-    "level_ranges": [],
+    "level_ranges": [[7, 30]],
     "expansion": "Classic",
     "continent": "",
     "zone_type": "Dungeon",

@@ -15,14 +15,15 @@ RUN mkdir src \
 FROM rust:1.87 AS builder
 WORKDIR /usr/src/eq_rng
 
-# Bring in planner’s compiled artifacts for cache
+# 1) bring in all the cached dependencies
 COPY --from=planner /usr/src/planner/target target
 
-# Now copy *your* entire project (including real src/, zones/, public/)
+# 2) copy your actual project (src/, zones/, public/, Cargo.toml, etc)
 COPY . .
 
-# Build your actual server binary
-RUN cargo build --release
+# 3) delete the stub executable so Cargo must rebuild your code
+RUN rm -f target/release/eq_rng \
+    && cargo build --release
 
 # ─── 3) RUNTIME: minimal image ────────────────────────────────────
 FROM debian:bookworm-slim
