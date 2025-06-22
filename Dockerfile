@@ -1,47 +1,56 @@
-# Builds a tiny “dummy” binary just to populate Cargo’s dependency cache.
+# syntax=docker/dockerfile:1
+
+#####################################################
+# 1) PLANNER: generate a stub to cache dependencies #
+#####################################################
 FROM rust:1.87 AS planner
 WORKDIR /usr/src/eq_rng
 
-# Copy over Cargo files only
+# Copy only Cargo files so changes here bust this layer
 COPY Cargo.toml Cargo.lock ./
 
-# Create a dummy main.rs so cargo will download & compile your deps
+# Create a tiny stub main, build it, then delete it
 RUN mkdir src \
-    && echo 'fn main() { println!("Hello, world!"); }' > src/main.rs \
+    && printf 'fn main() { }\n' > src/main.rs \
     && cargo build --release \
     && rm -rf src
 
-# Now copy in the real source *and* reuse the planner’s target folder.
+#####################################################
+# 2) BUILDER: reuse cache & build your real binary  #
+#####################################################
 FROM rust:1.87 AS builder
 WORKDIR /usr/src/eq_rng
 
-# Copy in the cached build outputs from planner
+# Reuse the planner’s compiled dependencies
 COPY --from=planner /usr/src/eq_rng/target target
 
-# Copy your real source + assets
+# Bring in your actual source & assets
 COPY . .
 
-# Build the real binary
+# Build the real, final binary
 RUN cargo build --release
 
-# A minimal image that just ships your compiled binary & files.
+#####################################################
+# 3) RUNTIME: minimal image with your server (+assets)
+#####################################################
 FROM debian:bookworm-slim
 RUN apt-get update \
     && apt-get install -y ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy the release binary and your zones & public folders
-COPY --from=builder /usr/src/eq_rng/target/release/eq_rng /usr/local/bin/eq_rng
-COPY --from=builder /usr/src/eq_rng/zones /etc/eq_rng/zones
-COPY --from=builder /usr/src/eq_rng/public /etc/eq_rng/public
+# Copy in the compiled server and static files
+COPY --from=builder /usr/src/eq_rng/target/release/eq_rng  /usr/local/bin/eq_rng
+COPY --from=builder /usr/src/eq_rng/zones              /etc/eq_rng/zones
+COPY --from=builder /usr/src/eq_rng/public             /etc/eq_rng/public
 
 WORKDIR /etc/eq_rng
 EXPOSE 3000
 
-# If you want to run as non-root, create/apply an app user:
+# (Optional) run as an unprivileged user
 RUN addgroup --gid 1000 app \
     && adduser  --uid 1000 --gid 1000 --disabled-password --gecos "" app \
     && chown -R app:app /etc/eq_rng
 USER app
 
+# Launch your server (Axum’s .serve() blocks forever)
 CMD ["eq_rng"]
