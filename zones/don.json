@@ -4,7 +4,7 @@
     "level_ranges": [[0, 0]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "City",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -14,7 +14,7 @@
     "level_ranges": [[0, 0]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "City",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -34,7 +34,7 @@
     "level_ranges": [[65, 85]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -44,7 +44,7 @@
     "level_ranges": [[65, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -54,7 +54,7 @@
     "level_ranges": [[65, 80]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -64,7 +64,7 @@
     "level_ranges": [[65, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -74,7 +74,7 @@
     "level_ranges": [[45, 85]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -84,7 +84,7 @@
     "level_ranges": [[65, 85]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -94,7 +94,7 @@
     "level_ranges": [[70, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -114,7 +114,7 @@
     "level_ranges": [[65, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -124,7 +124,7 @@
     "level_ranges": [[70, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -134,7 +134,7 @@
     "level_ranges": [[65, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -144,7 +144,7 @@
     "level_ranges": [[65, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -194,7 +194,7 @@
     "level_ranges": [[70, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -204,7 +204,7 @@
     "level_ranges": [[65, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -214,7 +214,7 @@
     "level_ranges": [[65, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -224,7 +224,7 @@
     "level_ranges": [[70, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -234,7 +234,7 @@
     "level_ranges": [[70, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -244,7 +244,7 @@
     "level_ranges": [[70, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -254,7 +254,7 @@
     "level_ranges": [[70, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -264,7 +264,7 @@
     "level_ranges": [[65, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -274,7 +274,7 @@
     "level_ranges": [[70, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -284,7 +284,7 @@
     "level_ranges": [[70, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -294,7 +294,7 @@
     "level_ranges": [[65, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -314,7 +314,7 @@
     "level_ranges": [[60, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -324,7 +324,7 @@
     "level_ranges": [[65, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -334,7 +334,7 @@
     "level_ranges": [[70, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -344,7 +344,7 @@
     "level_ranges": [[70, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -354,7 +354,7 @@
     "level_ranges": [[65, 80]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -364,7 +364,7 @@
     "level_ranges": [[60, 70]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -374,7 +374,7 @@
     "level_ranges": [[65, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -404,7 +404,7 @@
     "level_ranges": [[60, 85]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -414,7 +414,7 @@
     "level_ranges": [[70, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -424,7 +424,7 @@
     "level_ranges": [[65, 85]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -434,7 +434,7 @@
     "level_ranges": [[65, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -444,7 +444,7 @@
     "level_ranges": [[65, 85]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -454,7 +454,7 @@
     "level_ranges": [[60, 70]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -464,7 +464,7 @@
     "level_ranges": [[70, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -474,7 +474,7 @@
     "level_ranges": [[65, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -484,7 +484,7 @@
     "level_ranges": [[60, 85]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -494,7 +494,7 @@
     "level_ranges": [[65, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -504,7 +504,7 @@
     "level_ranges": [[70, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -514,7 +514,7 @@
     "level_ranges": [[60, 85]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -534,7 +534,7 @@
     "level_ranges": [[65, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -544,7 +544,7 @@
     "level_ranges": [[60, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
@@ -554,7 +554,7 @@
     "level_ranges": [[65, 75]],
     "expansion": "Dragons of Norrath",
     "continent": "Antonica",
-    "zone_type": "Indoors",
+    "zone_type": "Mission",
     "connections": [],
     "image_url": "",
     "map_url": ""
