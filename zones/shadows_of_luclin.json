@@ -7,7 +7,8 @@
     "zone_type": "City",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "The Nexus",
@@ -17,7 +18,8 @@
     "zone_type": "City",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Echo Caverns",
@@ -27,7 +29,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Acrylia Caverns",
@@ -37,7 +40,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Shar Vahl",
@@ -47,7 +51,8 @@
     "zone_type": "City",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Paludal Caverns",
@@ -57,7 +62,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": true
   },
   {
     "name": "Fungus Grove",
@@ -67,7 +73,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Vex Thal",
@@ -77,7 +84,8 @@
     "zone_type": "Raid",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Sanctus Seru",
@@ -87,7 +95,8 @@
     "zone_type": "City",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Katta Castellum",
@@ -97,7 +106,8 @@
     "zone_type": "City",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Netherbian Lair",
@@ -107,7 +117,8 @@
     "zone_type": "Indoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Ssraeshza Temple",
@@ -117,7 +128,8 @@
     "zone_type": "Raid",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Grieg's End",
@@ -127,7 +139,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "The Deep",
@@ -137,7 +150,8 @@
     "zone_type": "Indoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Shadeweaver's Thicket",
@@ -147,7 +161,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Hollowshade Moor",
@@ -157,7 +172,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Grimling Forest",
@@ -167,7 +183,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Marus Seru",
@@ -177,7 +194,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Mons Letalis",
@@ -187,7 +205,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Twilight Sea",
@@ -197,7 +216,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "The Grey",
@@ -207,7 +227,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Tenebrous Mountains",
@@ -217,7 +238,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Maiden's Eye",
@@ -227,7 +249,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Dawnshroud Peaks",
@@ -237,7 +260,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Scarlet Desert",
@@ -247,7 +271,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Umbral Plains",
@@ -257,7 +282,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Akheva Ruins",
@@ -267,6 +293,7 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   }
 ]

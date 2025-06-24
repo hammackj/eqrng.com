@@ -7,7 +7,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Miragul's Menagerie",
@@ -17,7 +18,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Mistmoore Catacombs",
@@ -27,7 +29,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Rujarkin Hills",
@@ -37,7 +40,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Takish-Hiz",
@@ -47,6 +51,7 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   }
 ]

@@ -7,7 +7,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Crystal Caverns",
@@ -17,7 +18,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Dragon Necropolis",
@@ -27,7 +29,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Eastern Wastes",
@@ -37,7 +40,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Iceclad Ocean",
@@ -47,7 +51,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Icewell Keep",
@@ -57,7 +62,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Kael Drakkal",
@@ -67,7 +73,8 @@
     "zone_type": "City",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Plane of Growth",
@@ -77,7 +84,8 @@
     "zone_type": "Raid",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Plane of Mischief",
@@ -87,7 +95,8 @@
     "zone_type": "Raid",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Siren's Grotto",
@@ -97,7 +106,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Skyshrine",
@@ -107,7 +117,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Sleeper's Tomb",
@@ -117,7 +128,8 @@
     "zone_type": "Raid",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Stonebrunt Mountains",
@@ -127,7 +139,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Temple of Veeshan",
@@ -137,7 +150,8 @@
     "zone_type": "Raid",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "The Warrens",
@@ -147,7 +161,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Thurgadin",
@@ -157,7 +172,8 @@
     "zone_type": "City",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Tower of Frozen Shadow",
@@ -167,7 +183,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Velketor's Labyrinth",
@@ -177,7 +194,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Wakening Land",
@@ -187,7 +205,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Western Wastes",
@@ -197,6 +216,7 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   }
 ]

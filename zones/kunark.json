@@ -7,7 +7,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Chardok",
@@ -17,7 +18,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "City of Mist",
@@ -27,7 +29,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Dalnir",
@@ -37,7 +40,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Dreadlands",
@@ -47,7 +51,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "East Cabilis",
@@ -57,7 +62,8 @@
     "zone_type": "City",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Firiona Vie",
@@ -67,7 +73,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Frontier Mountains",
@@ -77,7 +84,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Howling Stones",
@@ -87,7 +95,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Kaesora",
@@ -97,7 +106,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Karnor's Castle",
@@ -107,7 +117,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Kurn's Tower",
@@ -117,7 +128,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Lake of Ill Omen",
@@ -127,7 +139,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Mines of Nurga",
@@ -137,7 +150,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Old Sebilis",
@@ -147,7 +161,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Skyfire Mountains",
@@ -157,7 +172,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Swamp of No Hope",
@@ -167,7 +183,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Temple of Droga",
@@ -177,7 +194,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "The Emerald Jungle",
@@ -187,7 +205,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "The Field of Bone",
@@ -197,7 +216,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "The Overthere",
@@ -210,7 +230,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Trakanon's Teeth",
@@ -220,7 +241,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Veeshan's Peak",
@@ -230,7 +252,8 @@
     "zone_type": "Raid",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Veksar",
@@ -240,7 +263,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Warsliks Wood",
@@ -250,7 +274,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "West Cabilis",
@@ -260,6 +285,7 @@
     "zone_type": "City",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   }
 ]

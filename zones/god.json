@@ -7,7 +7,8 @@
     "zone_type": "City",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Natimbi, The Broken Shores",
@@ -17,7 +18,8 @@
     "zone_type": "Outdoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Qinimi, Court of Nihilia",
@@ -27,7 +29,8 @@
     "zone_type": "Outdoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Riwwi, Coliseum of Games",
@@ -37,7 +40,8 @@
     "zone_type": "Outdoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Barindu, Hanging Gardens",
@@ -47,7 +51,8 @@
     "zone_type": "Outdoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Sewers of Nihilia, Purifying Plant",
@@ -57,7 +62,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Sewers of Nihilia, the Crematory",
@@ -67,7 +73,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Sewers of Nihilia, Lair of Trapped Ones",
@@ -77,7 +84,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Sewers of Nihilia, Pool of Sludge",
@@ -87,7 +95,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Vixed, The Crumbling Caverns",
@@ -97,7 +106,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Tipt, Treacherous Crags",
@@ -107,7 +117,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Ferubi, Forgotten Temple of Taelosia",
@@ -117,7 +128,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Kod'Taz, Broken Trial Grounds",
@@ -127,7 +139,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Ikkinz: Trial of Singular Might",
@@ -137,7 +150,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Ikkinz: Trial of Twin Struggles",
@@ -147,7 +161,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Ikkinz: Trial of Tri-Fates",
@@ -157,7 +172,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Ikkinz: Trial of Righteousness",
@@ -167,7 +183,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Ikkinz: Trial of Glorification",
@@ -177,7 +194,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Ikkinz: Trial of Transcendence",
@@ -187,7 +205,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Ikkinz: Chambers of Destruction",
@@ -197,7 +216,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Yxtta, Pulpit of Exiles",
@@ -207,7 +227,8 @@
     "zone_type": "Outdoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Uqua, The Ocean God Chantry",
@@ -217,7 +238,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Qvic, Prayer Grounds of Calling",
@@ -227,7 +249,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Inku'Ta, The Unmasked Chapel",
@@ -237,7 +260,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Txevu, Lair of the Elite",
@@ -247,7 +271,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Tacvi, Seat of the Slaver",
@@ -257,6 +282,7 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   }
 ]

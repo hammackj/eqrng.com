@@ -7,7 +7,8 @@
     "zone_type": "Outdoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Dulak's Harbor",
@@ -17,7 +18,8 @@
     "zone_type": "Outdoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Torgiran Mines",
@@ -27,7 +29,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Crypt of Nadox",
@@ -37,7 +40,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Hate's Fury, The Scorned Maiden",
@@ -47,6 +51,7 @@
     "zone_type": "Outdoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   }
 ]

@@ -23,6 +23,7 @@ struct Zone {
     connections: Vec<String>,
     image_url: String,
     map_url: String,
+    hot_zone: bool,
 }
 
 #[derive(Deserialize)]

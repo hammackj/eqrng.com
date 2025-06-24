@@ -61,10 +61,11 @@
                 const max = document.getElementById("max").value;
                 const zt = document.getElementById("zone-type").value;
                 const params = new URLSearchParams({ min, max });
+
                 if (zt) params.set("zone_type", zt);
 
                 const res = await fetch(`/random_zone?${params}`);
-                //fetch(`/random_zone?min=${min}&max=${max}`);
+
                 const out = document.getElementById("result");
                 if (!res.ok) {
                     out.textContent = "No zone found.";
@@ -79,6 +80,7 @@
           <li><strong>Continent:</strong> ${z.continent}</li>
           <li><strong>Type:</strong> ${z.zone_type}</li>
           <li><strong>Connections:</strong> ${z.connections.join(", ")}</li>
+          <li><strong>Hot Zone?:</strong> ${z.hot_zone ? "Yes" : "No"}</li>
         </ul>
         <img src="${z.image_url}" alt="Zone image">
         <img src="${z.map_url}" alt="Zone map">

@@ -7,7 +7,8 @@
     "zone_type": "Outdoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Dranik's Hollows A (Watering Hole)",
@@ -17,7 +18,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Dranik's Hollows B (Fire Pit)",
@@ -27,7 +29,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Dranik's Hollows C (Murkglider Hive)",
@@ -37,7 +40,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Catacombs of Dranik A",
@@ -47,7 +51,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Catacombs of Dranik B",
@@ -57,7 +62,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Catacombs of Dranik C",
@@ -67,7 +73,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Catacombs of Dranik: Redemption",
@@ -77,7 +84,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Harbinger's Spire",
@@ -87,7 +95,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "The Bloodfields",
@@ -97,7 +106,8 @@
     "zone_type": "Outdoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Ruined City of Dranik",
@@ -107,7 +117,8 @@
     "zone_type": "Outdoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Sewers of Dranik A",
@@ -117,7 +128,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Sewers of Dranik B",
@@ -127,7 +139,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Sewers of Dranik C",
@@ -137,7 +150,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Nobles' Causeway",
@@ -147,7 +161,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Wall of Slaughter",
@@ -157,7 +172,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Muramite Proving Grounds",
@@ -167,7 +183,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Plane of Hate: Innoruuk's Realm",
@@ -177,7 +194,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Proving Grounds: The Mastery of Destruction",
@@ -187,7 +205,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Proving Grounds: The Mastery of Efficiency",
@@ -197,7 +216,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Proving Grounds: The Mastery of Fear",
@@ -207,7 +227,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Proving Grounds: The Mastery of Ingenuity",
@@ -217,7 +238,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Proving Grounds: The Mastery of Subversion",
@@ -227,7 +249,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Proving Grounds: The Mastery of Weaponry",
@@ -237,7 +260,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Proving Grounds: The Mastery of Adaptation",
@@ -247,7 +271,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Proving Grounds: The Mastery of Corruption",
@@ -257,7 +282,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Proving Grounds: The Mastery of Endurance",
@@ -267,7 +293,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Proving Grounds: The Mastery of Foresight",
@@ -277,7 +304,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Proving Grounds: The Mastery of Hate",
@@ -287,7 +315,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Proving Grounds: The Mastery of Specialization",
@@ -297,7 +326,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Riftseeker's Sanctum",
@@ -307,7 +337,8 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Asylum of Anguish",
@@ -317,6 +348,7 @@
     "zone_type": "Indoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   }
 ]

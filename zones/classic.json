@@ -7,7 +7,8 @@
     "zone_type": "City",
     "connections": ["Steamfont Mountains"],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Befallen",
@@ -17,7 +18,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Blackburrow",
@@ -27,7 +29,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Castle Mistmoore",
@@ -37,7 +40,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Clan Runnyeye",
@@ -47,7 +51,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Commonlands",
@@ -60,7 +65,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Crushbone",
@@ -70,7 +76,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Dagnor's Cauldron",
@@ -80,7 +87,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "East Karana",
@@ -90,7 +98,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Erud's Crossing",
@@ -100,7 +109,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Erudin",
@@ -110,7 +120,8 @@
     "zone_type": "City",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Erudin Palace",
@@ -120,7 +131,8 @@
     "zone_type": "City",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Estate of Unrest",
@@ -130,7 +142,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Everfrost Peaks",
@@ -140,7 +153,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Felwithe",
@@ -150,7 +164,8 @@
     "zone_type": "City",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Freeport",
@@ -160,7 +175,8 @@
     "zone_type": "City",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Freeport Sewers",
@@ -170,7 +186,8 @@
     "zone_type": "City",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Gorge of King Xorbb",
@@ -180,7 +197,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Greater Faydark",
@@ -190,7 +208,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Grobb",
@@ -200,7 +219,8 @@
     "zone_type": "City",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Halas",
@@ -210,7 +230,8 @@
     "zone_type": "City",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "High Keep",
@@ -220,7 +241,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Highpass Hold",
@@ -230,7 +252,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Infected Paw",
@@ -240,7 +263,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Innothule Swamp",
@@ -253,7 +277,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Kaladim",
@@ -263,7 +288,8 @@
     "zone_type": "City",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Kedge Keep",
@@ -273,7 +299,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Kithicor Forest",
@@ -286,7 +313,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Lake Rathetear",
@@ -296,7 +324,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Lavastorm Mountains",
@@ -309,7 +338,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Lesser Faydark",
@@ -326,7 +356,8 @@
       "Mistmoore Castle"
     ],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Lower Guk",
@@ -336,7 +367,8 @@
     "zone_type": "Dungeon",
     "connections": ["Upper Guk"],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": true
   },
   {
     "name": "Misty Thicket",
@@ -346,7 +378,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Nagafen's Lair",
@@ -356,7 +389,8 @@
     "zone_type": "Dungeon",
     "connections": ["Lavastorm Mountains", "Solusek's Eye"],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Najena",
@@ -366,7 +400,8 @@
     "zone_type": "Dungeon",
     "connections": ["Lavastorm Mountains"],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Nektulos Forest",
@@ -379,7 +414,8 @@
     "zone_type": "Outdoor",
     "connections": ["Lavastorm Mountains", "Commonlands", "Neriak"],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Neriak",
@@ -389,7 +425,8 @@
     "zone_type": "City",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "North Karana",
@@ -399,7 +436,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "North Ro",
@@ -409,7 +447,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Ocean of Tears",
@@ -419,7 +458,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Oggok",
@@ -429,7 +469,8 @@
     "zone_type": "City",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Paineel",
@@ -439,7 +480,8 @@
     "zone_type": "City",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Permafrost Keep",
@@ -449,7 +491,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Plane of Fear",
@@ -459,7 +502,8 @@
     "zone_type": "Raid",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Plane of Hate",
@@ -469,7 +513,8 @@
     "zone_type": "Raid",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Plane of Sky",
@@ -479,7 +524,8 @@
     "zone_type": "Raid",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Qeynos",
@@ -489,7 +535,8 @@
     "zone_type": "City",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Qeynos Catacombs",
@@ -499,7 +546,8 @@
     "zone_type": "Indoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Qeynos Hills",
@@ -509,7 +557,8 @@
     "zone_type": "Outdoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Rathe Mountains",
@@ -519,7 +568,8 @@
     "zone_type": "Outdoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Rivervale",
@@ -529,7 +579,8 @@
     "zone_type": "City",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Solusek's Eye",
@@ -539,7 +590,8 @@
     "zone_type": "Dungeon",
     "connections": ["Nagafen's Lair", "Lavastorm Mountains"],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "South Karana",
@@ -549,7 +601,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": true
   },
   {
     "name": "South Ro",
@@ -559,7 +612,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Steamfont Mountains",
@@ -572,7 +626,8 @@
     "zone_type": "Outdoor",
     "connections": ["Lesser Faydark", "Ak'Anon"],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Surefall Glade",
@@ -582,7 +637,8 @@
     "zone_type": "City",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Temple of Cazic-Thule",
@@ -592,7 +648,8 @@
     "zone_type": "Dungeon",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Temple of Solusek Ro",
@@ -602,7 +659,8 @@
     "zone_type": "City",
     "connections": ["Lavastorm Mountains"],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "The Feerrott",
@@ -620,7 +678,8 @@
       "Rathe Mountains"
     ],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Toxxulia Forest",
@@ -630,7 +689,8 @@
     "zone_type": "Outdoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Upper Guk",
@@ -640,7 +700,8 @@
     "zone_type": "Dungeon",
     "connections": ["Lower Guk", "Innothule Swamp"],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "West Karana",
@@ -650,6 +711,7 @@
     "zone_type": "Outdoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   }
 ]

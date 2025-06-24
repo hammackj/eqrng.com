@@ -7,7 +7,8 @@
     "zone_type": "City",
     "connections": ["Blightfire Moors", "Bixie Warfront"],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Highpass (revamp)",
@@ -17,7 +18,8 @@
     "zone_type": "Outdoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Blightfire Moors",
@@ -27,7 +29,8 @@
     "zone_type": "Outdoors",
     "connections": ["Crescent Reach", "Goru'kar Mesa", "Stone Hive"],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Stone Hive",
@@ -37,7 +40,8 @@
     "zone_type": "Outdoors",
     "connections": ["Blightfire Moors", "Goru'kar Mesa"],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Goru'kar Mesa",
@@ -47,7 +51,8 @@
     "zone_type": "Outdoors",
     "connections": ["Blightfire Moors", "Stone Hive"],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Blackfeather Roost",
@@ -57,7 +62,8 @@
     "zone_type": "Outdoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "The Steppes",
@@ -67,7 +73,8 @@
     "zone_type": "Outdoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Sunderock Springs",
@@ -77,7 +84,8 @@
     "zone_type": "Outdoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Vergalid Mines",
@@ -87,7 +95,8 @@
     "zone_type": "Outdoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Direwind Cliffs",
@@ -97,7 +106,8 @@
     "zone_type": "Outdoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Icefall Glacier",
@@ -107,7 +117,8 @@
     "zone_type": "Outdoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Ashengate, Reliquary of the Scale",
@@ -117,7 +128,8 @@
     "zone_type": "Raid",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Valdeholm",
@@ -127,7 +139,8 @@
     "zone_type": "Outdoors",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Frostcrypt, Throne of the Shade King",
@@ -137,6 +150,7 @@
     "zone_type": "Raid",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   }
 ]

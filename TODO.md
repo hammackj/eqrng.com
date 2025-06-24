@@ -6,3 +6,5 @@
   -  Generates a random a viable class/race combo
 - Generate Random Zone by Expansion
 - Generate Random Zone by Server Type (Live/TLP/EMU)
+- Add /random_mission to get a random mission from a Level range for zone_type of "Mission"
+- Add support for hot_zone tag

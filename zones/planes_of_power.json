@@ -7,7 +7,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Drunder, Fortress of Zek (Plane of Tactics)",
@@ -17,7 +18,8 @@
     "zone_type": "Indoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Eryslai, the Kingdom of Wind (Plane of Air)",
@@ -27,7 +29,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Halls of Honor",
@@ -37,7 +40,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Lair of Terris Thule",
@@ -47,7 +51,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Plane of Disease",
@@ -57,7 +62,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Plane of Innovation",
@@ -67,7 +73,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Plane of Justice",
@@ -77,7 +84,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Plane of Knowledge",
@@ -87,7 +95,8 @@
     "zone_type": "City",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Plane of Nightmare",
@@ -97,7 +106,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Plane of Storms",
@@ -107,7 +117,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Plane of Time A",
@@ -117,7 +128,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Plane of Time B",
@@ -127,7 +139,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Plane of Torment",
@@ -137,7 +150,8 @@
     "zone_type": "Indoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Plane of Tranquility",
@@ -147,7 +161,8 @@
     "zone_type": "Outdoor City/Plane",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Plane of Valor",
@@ -157,7 +172,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Plane of War",
@@ -167,7 +183,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Ragrax, Stronghold of the Twelve",
@@ -177,7 +194,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Reef of Coirnav (Plane of Water)",
@@ -187,7 +205,8 @@
     "zone_type": "Indoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Ruins of Lxanvom (Crypt of Decay)",
@@ -197,7 +216,8 @@
     "zone_type": "Indoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Solusek Ro's Tower",
@@ -207,7 +227,8 @@
     "zone_type": "Indoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Temple of Marr",
@@ -217,7 +238,8 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   },
   {
     "name": "Torden, the Bastion of Thunder",
@@ -227,6 +249,7 @@
     "zone_type": "Outdoor",
     "connections": [],
     "image_url": "",
-    "map_url": ""
+    "map_url": "",
+    "hot_zone": false
   }
 ]
