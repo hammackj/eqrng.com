@@ -4,3 +4,5 @@
 - /random_race
 - /random_character
   -  Generates a random a viable class/race combo
+- Generate Random Zone by Expansion
+- Generate Random Zone by Server Type (Live/TLP/EMU)

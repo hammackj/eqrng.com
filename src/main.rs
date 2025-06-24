@@ -42,6 +42,8 @@ fn load_zones() -> Arc<Vec<Zone>> {
         "zones/loy.json",
         "zones/ldon.json",
         "zones/god.json",
+        "zones/oow.json",
+        "zones/don.json",
         "zones/tss.json",
     ];
 
@@ -50,6 +52,7 @@ fn load_zones() -> Arc<Vec<Zone>> {
     for file in zone_files {
         let content = fs::read_to_string(file).expect(format!("{} missing", file).as_str());
         let zone_data: Vec<Zone> = serde_json::from_str(&content).expect("Invalid JSON");
+
         zones.extend(zone_data);
     }
 
