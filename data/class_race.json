@@ -31,7 +31,8 @@
     "Wizard",
     "Magician",
     "Enchanter",
-    "Necromancer"
+    "Necromancer",
+    "Ranger"
   ],
   "Wood Elf": ["Bard", "Beastlord", "Ranger", "Warrior", "Druid", "Rogue"],
   "Half Elf": ["Bard", "Druid", "Paladin", "Ranger", "Rogue", "Warrior"],
