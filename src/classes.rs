@@ -22,9 +22,6 @@ impl FromRef<crate::AppState> for ClassRaceState {
 
 pub type RaceClassMap = HashMap<String, Vec<String>>;
 
-#[derive(Debug, Deserialize)]
-pub struct RaceClasses(pub RaceClassMap);
-
 pub const CLASSES: &[&str] = &[
     "Warrior",
     "Cleric",
@@ -78,6 +75,5 @@ pub async fn random_class(
 
     let class_name = CLASSES.choose(&mut rng).unwrap().to_string();
 
-    // All classes (flattened)
     Json(Some(class_name))
 }
