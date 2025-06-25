@@ -1,0 +1,63 @@
+{
+  "Human": [
+    "Warrior",
+    "Cleric",
+    "Paladin",
+    "Rogue",
+    "Bard",
+    "Wizard",
+    "Enchanter",
+    "Magician",
+    "Necromancer",
+    "Shadow Knight",
+    "Druid"
+  ],
+  "Erudite": [
+    "Cleric",
+    "Paladin",
+    "Wizard",
+    "Magician",
+    "Enchanter",
+    "Necromancer"
+  ],
+  "Troll": ["Warrior", "Shadow Knight", "Shaman"],
+  "Iksar": ["Warrior", "Monk", "Necromancer", "Shaman", "Shadow Knight"],
+  "High Elf": ["Cleric", "Paladin", "Wizard", "Enchanter", "Magician"],
+  "Dark Elf": [
+    "Warrior",
+    "Cleric",
+    "Rogue",
+    "Shadow Knight",
+    "Wizard",
+    "Magician",
+    "Enchanter",
+    "Necromancer"
+  ],
+  "Wood Elf": ["Bard", "Beastlord", "Ranger", "Warrior", "Druid", "Rogue"],
+  "Half Elf": ["Bard", "Druid", "Paladin", "Ranger", "Rogue", "Warrior"],
+  "Dwarf": ["Cleric", "Paladin", "Rogue", "Warrior"],
+  "Ogre": ["Shadow Knight", "Shaman", "Warrior"],
+  "Halfling": ["Cleric", "Druid", "Paladin", "Rogue", "Warrior"],
+  "Gnome": [
+    "Cleric",
+    "Enchanter",
+    "Magician",
+    "Necromancer",
+    "Rogue",
+    "Warrior",
+    "Wizard"
+  ],
+  "Vah Shir": ["Beastlord", "Berserker", "Rogue", "Warrior"],
+  "Drakkin": [
+    "Cleric",
+    "Enchanter",
+    "Magician",
+    "Monk",
+    "Necromancer",
+    "Paladin",
+    "Rogue",
+    "Shadow Knight",
+    "Warrior",
+    "Wizard"
+  ]
+}

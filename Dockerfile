@@ -18,6 +18,7 @@ RUN mkdir -p /opt/eq_rng
 # Copy in the binary and static assets
 COPY --from=builder /usr/src/eq_rng/target/release/eq_rng  /opt/eq_rng/eq_rng
 COPY --from=builder /usr/src/eq_rng/zones             /opt/eq_rng/zones
+COPY --from=builder /usr/src/eq_rng/data             /opt/eq_rng/data
 COPY --from=builder /usr/src/eq_rng/public            /opt/eq_rng/public
 
 # Make sure the binary is executable

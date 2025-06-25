@@ -31,32 +31,53 @@
         <link rel="icon" href="assets/images/eq_rng.png" type="image/png" />
     </head>
     <body>
-        <h1>Random EverQuest Zone</h1>
-        <label>
-            Min Level:
-            <input type="number" id="min" value="1" min="1" max="125" />
-        </label>
-        <label>
-            Max Level:
-            <input type="number" id="max" value="125" min="1" max="125" />
-        </label>
-        <label
-            >Type:
-            <select id="zone-type">
-                <option value="">Any</option>
-                <option>Outdoor</option>
-                <option>Dungeon</option>
-                <option>City</option>
-                <option>Raid</option>
-                <option>Indoor</option>
-            </select>
-        </label>
-        <button id="go">Get Random Zone</button>
+        <div id="section">
+            <h1>Random EverQuest Zone</h1>
+            <label>
+                Min Level:
+                <input type="number" id="min" value="1" min="1" max="125" />
+            </label>
+            <label>
+                Max Level:
+                <input type="number" id="max" value="125" min="1" max="125" />
+            </label>
+            <label
+                >Type:
+                <select id="zone-type">
+                    <option value="">Any</option>
+                    <option>Outdoor</option>
+                    <option>Dungeon</option>
+                    <option>City</option>
+                    <option>Raid</option>
+                    <option>Indoor</option>
+                </select>
+            </label>
+            <button id="go-zone">Get Random Zone</button>
 
-        <div id="result" style="margin-top: 2em"></div>
+            <div id="result" style="margin-top: 2em"></div>
+        </div>
+
+        <!-- Random Race Section -->
+        <div class="section">
+            <h2>Random Race</h2>
+            <button id="go-race">Get Random Race</button>
+
+            <div id="race-result" style="margin-top: 1em"></div>
+        </div>
+
+        <!-- Random Class Section -->
+        <div class="section">
+            <h2>Random Class</h2>
+            <label>
+                Optional Race Filter:
+                <input type="text" id="class-race" />
+            </label>
+            <button id="go-class">Get Random Class</button>
+            <div id="class-result" style="margin-top: 1em"></div>
+        </div>
 
         <script>
-            document.getElementById("go").onclick = async () => {
+            document.getElementById("go-zone").onclick = async () => {
                 const min = document.getElementById("min").value;
                 const max = document.getElementById("max").value;
                 const zt = document.getElementById("zone-type").value;
@@ -85,6 +106,40 @@
         <img src="${z.image_url}" alt="Zone image">
         <img src="${z.map_url}" alt="Zone map">
       `;
+            };
+
+            document.getElementById("go-race").onclick = async () => {
+                const res = await fetch("/random_race");
+                const out = document.getElementById("race-result");
+                const class_out = document.getElementById("class-race");
+
+                if (!res.ok) {
+                    out.textContent = "Error fetching race.";
+                    return;
+                }
+
+                const race = await res.json();
+                out.innerHTML = `<h3>${race}</h3>`;
+                class_out.value = race;
+            };
+
+            document.getElementById("go-class").onclick = async () => {
+                const race = document.getElementById("class-race").value;
+                const params = new URLSearchParams();
+                if (race) params.set("race", race);
+
+                const res = await fetch(`/random_class?${params}`);
+                const out = document.getElementById("class-result");
+
+                if (!res.ok) {
+                    out.textContent = "Error fetching class.";
+                    return;
+                }
+
+                const result = await res.json();
+                out.innerHTML = result
+                    ? `<h3>${result}</h3>`
+                    : `<p>No class available for that race.</p>`;
             };
         </script>
     </body>
