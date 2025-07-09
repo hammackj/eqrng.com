@@ -101,7 +101,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Stillmoon Temple: Best Laid Plans",
@@ -114,7 +114,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Stillmoon Temple: Diseased Pumas",
@@ -127,7 +127,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Stillmoon Temple: Guardian of the Sands",
@@ -140,7 +140,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Stillmoon Temple: Scales of Justice",
