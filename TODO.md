@@ -25,4 +25,3 @@
 "Torment of Velious",
 "Claws of Veeshan",
 "Terror of Luclin",
-"Night of Shadows",
