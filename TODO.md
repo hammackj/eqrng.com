@@ -1,3 +1,4 @@
+# TODO
 - Add zone_rating 0 to 5 Pickles
 - /random_character
   -  Generates a random a viable class/race combo
@@ -5,3 +6,24 @@
 - Generate Random Zone by Server Type (Live/TLP/EMU)
 - Add /random_mission to get a random mission from a Level range for zone_type of "Mission"
 - Fill in data for hot zone support, hot_zone tag exists
+- Add links for EQResource
+- Add links for Alla
+- Move missions to their respective tables
+- Add tag system
+
+# Expansions To Add
+"Seeds of Destruction",
+"Underfoot",
+"House of Thule",
+"Veil of Alaris",
+"Rain of Fear",
+"Call of the Forsaken",
+"The Darkened Sea",
+"The Broken Mirror",
+"Empires of Kunark",
+"Ring of Scale",
+"The Burning Lands",
+"Torment of Velious",
+"Claws of Veeshan",
+"Terror of Luclin",
+"Night of Shadows",
