@@ -1,0 +1,93 @@
+[
+  {
+    "name": "Maiden's Eye",
+    "level_ranges": [[114, 121]],
+    "expansion": "Terror of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Outdoors",
+    "connections": ["Ka Vethan", "Umbral Plains"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Umbral Plains",
+    "level_ranges": [[50, 65]],
+    "expansion": "Terror of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Outdoors",
+    "connections": ["Maiden's Eye", "Vex Thal"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Ka Vethan",
+    "level_ranges": [[115, 120]],
+    "expansion": "Terror of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Indoors",
+    "connections": ["Maiden's Eye", "Shadow Valley"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Vex Thal",
+    "level_ranges": [[115, 120]],
+    "expansion": "Terror of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Outdoors",
+    "connections": ["Umbral Plains"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Shadow Valley",
+    "level_ranges": [[117, 120]],
+    "expansion": "Terror of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Outdoors",
+    "connections": ["Basilica of Adumbration", "Ka Vethan"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Basilica of Adumbration",
+    "level_ranges": [[117, 120]],
+    "expansion": "Terror of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Indoors",
+    "connections": ["Shadow Valley"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Bloodfalls",
+    "level_ranges": [[117, 121]],
+    "expansion": "Terror of Luclin",
+    "continent": "Luclin",
+    "zone_type": "Outdoors",
+    "connections": ["Castle Mistmoore"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  }
+]
