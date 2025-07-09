@@ -1,6 +1,6 @@
 [
   {
-    "name": "Maiden's Eye",
+    "name": "Maiden's Eye (TOL)",
     "level_ranges": [[114, 121]],
     "expansion": "Terror of Luclin",
     "continent": "Luclin",
@@ -13,8 +13,8 @@
     "mission": false
   },
   {
-    "name": "Umbral Plains",
-    "level_ranges": [[50, 65]],
+    "name": "Umbral Plains (TOL)",
+    "level_ranges": [[115, 120]],
     "expansion": "Terror of Luclin",
     "continent": "Luclin",
     "zone_type": "Outdoors",
@@ -39,7 +39,7 @@
     "mission": false
   },
   {
-    "name": "Vex Thal",
+    "name": "Vex Thal (TOL)",
     "level_ranges": [[115, 120]],
     "expansion": "Terror of Luclin",
     "continent": "Luclin",

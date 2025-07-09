@@ -152,7 +152,7 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false,
+    "hot_zone": true,
     "mission": false
   },
   {

@@ -53,7 +53,9 @@ pub fn load_zones() -> Arc<Vec<Zone>> {
         "data/zones/loy.json",
         "data/zones/ldon.json",
         "data/zones/god.json",
+        "data/zones/god_missions.json",
         "data/zones/oow.json",
+        "data/zones/oow_missions.json",
         "data/zones/don.json",
         "data/zones/don_missions.json",
         "data/zones/dodh.json",
@@ -66,10 +68,12 @@ pub fn load_zones() -> Arc<Vec<Zone>> {
         "data/zones/sof_missions.json",
         "data/zones/sod.json",
         "data/zones/sod_missions.json",
+        "data/zones/cov.json",
         "data/zones/tol.json",
         "data/zones/nos.json",
         "data/zones/ls.json",
         "data/zones/tob.json",
+        "data/zones/tob_missions.json",
     ];
 
     let mut zones: Vec<Zone> = Vec::new();

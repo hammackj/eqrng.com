@@ -3,7 +3,7 @@
 ## July 9, 2025 - Update 1
 ### New Features
 - Added initial Zone support for more zones, contact me if any missing/incorrect data.
-  - The Outer Brood
+  - The Outer Brood Zones and Missions (120-125)
   - Laurion Song
   - The Buried Sea
   - Prophocy of Ro
@@ -11,6 +11,8 @@
   - Seeds of Destruction
   - Night of Shadows
   - Terror of Luclin
+  - Claws of Veeshan
+  - Torment of Velious
 - Added Filter for Expansion
 - Added Filter for Missions
 

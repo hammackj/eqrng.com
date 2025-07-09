@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Brood Architect Hazuri",
+    "level_ranges": [[120, 125]],
+    "expansion": "The Outer Brood",
+    "continent": "Antonica",
+    "zone_type": "indoor",
+    "connections": ["The Theater of Eternity"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": true,
+    "task_giver": "Alchemist Balino Frugrin",
+    "links": ["https://tob.eqresource.com/broodarchitecthazuri.php"]
+  },
+  {
+    "name": "The Leviathan's Heart",
+    "level_ranges": [[120, 125]],
+    "expansion": "The Outer Brood",
+    "continent": "Antonica",
+    "zone_type": "indoor",
+    "connections": ["The Chamber of Puissance"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": true,
+    "task_giver": "Master Alchemist Penigan",
+    "links": ["https://tob.eqresource.com/theleviathansheart.php"]
+  },
+  {
+    "name": "The Control Room",
+    "level_ranges": [[120, 125]],
+    "expansion": "The Outer Brood",
+    "continent": "Antonica",
+    "zone_type": "indoor",
+    "connections": ["Aureate Covert"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": true,
+    "task_giver": "Lokta Geroth",
+    "links": ["https://tob.eqresource.com/thecontrolroom.php"]
+  },
+  {
+    "name": "The High Priest",
+    "level_ranges": [[120, 125]],
+    "expansion": "The Outer Brood",
+    "continent": "Antonica",
+    "zone_type": "indoor",
+    "connections": ["Aureate Covert"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": true,
+    "task_giver": "Lokta Geroth",
+    "links": ["https://tob.eqresource.com/thehighpriest.php"]
+  }
+]

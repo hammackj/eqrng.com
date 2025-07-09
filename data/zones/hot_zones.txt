@@ -1,0 +1,46 @@
+25 	Nedaria's Landing
+30 	Blightfire Moors 	Tear of Wandering Souls
+30 	Solusek's Eye 	Warforged Emerald Hoop
+30 	Crypt of Dalnir
+35 	Great Divide 	Curious Ice Shard
+35 	Stone Hive
+35 	Dreadlands
+40 	Mons Letalis
+40 	City of Mist
+40 	Emerald Jungle
+45 	Dulak's Harbor 	Grim Memento
+45 	Dranik's Scar 	Twilight Adornment
+45 	Scarlet Desert
+50 	Velketor's Labyrinth 	Bottled Frost Essence
+50 	Old Sebilis 	Pickled Froglok Eye
+50 	Skyfire Mountains 	Molten Salve
+55 	The Deep
+55 	Plane of Innovation 	Clockwork Reinforcement
+55 	Riwwi, Coliseum of Games 	Brawler's Last Grasp
+60 	Veksar 	Corpse-fed Blossom
+60 	Blackfeather Roost
+60 	Barindu, Hanging Gardens 	Bloody Signet
+65 	Barren Coast 	Barkmelter Beetle
+65 	Drunder, Fortress of Zek 	Elemental Core
+65 	Torden, The Bastion of Thunder 	Frozen Ball Lightning
+70 	Arcstone, Isle of Spirits
+70 	Stoneroot Falls 	Phosphorescent Powder
+75 	Direwind Cliffs 	Oceangreen Clover
+75 	Jewel of Atiiki 	Rune of the Oasis
+75 	The Buried Sea 	Pirate's Medallion
+80 	Valdeholm 	Shard of Living Ice
+80 	Fortress Mechanotus 	Dark Black Gem
+80 	Silyssar, new Chelsith 	Slithering Vapor
+85 	Meldrath's Majestic Mansion 	Gears of the Mansion
+85 	The Foundation 	Dragorn Fang
+85 	Gyrospire Zeka 	Gnomework Gaskets
+90 	Fear Itself 	Frightening Salve
+90 	Arthicrex 	Sentinel's Claw
+90 	Argath, Bastion of Illdaera 	Imbued Feather
+95 	Pillars of Alra
+95 	Sarith, City of Tides
+95 	Resplendent Temple
+100 	Shard's Landing
+100 	Tempest Temple
+105 	Neriak Fourth Gate
+105 	Tower of Rot
