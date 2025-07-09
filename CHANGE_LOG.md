@@ -8,6 +8,7 @@
   - The Buried Sea
   - Prophocy of Ro
   - Secrets of Faydwer
+  - Seeds of Destruction
 - Added Filter for Expansion
 - Added Filter for Missions
 

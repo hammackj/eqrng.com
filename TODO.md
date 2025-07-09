@@ -12,7 +12,6 @@
 - Add tag system
 
 # Expansions To Add
-"Seeds of Destruction",
 "Underfoot",
 "House of Thule",
 "Veil of Alaris",
