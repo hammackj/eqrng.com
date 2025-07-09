@@ -50,5 +50,97 @@
     "rating": 0,
     "hot_zone": false,
     "mission": false
+  },
+
+  {
+    "name": "The Void \"A\"",
+    "level_ranges": [[75, 85]],
+    "expansion": "Seeds of Destruction",
+    "continent": "Luclin",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "The Void \"B\"",
+    "level_ranges": [[75, 85]],
+    "expansion": "Seeds of Destruction",
+    "continent": "Luclin",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "The Void \"C\"",
+    "level_ranges": [[75, 85]],
+    "expansion": "Seeds of Destruction",
+    "continent": "Luclin",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "The Void \"D\"",
+    "level_ranges": [[75, 85]],
+    "expansion": "Seeds of Destruction",
+    "continent": "Luclin",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "The Void \"E\"",
+    "level_ranges": [[75, 85]],
+    "expansion": "Seeds of Destruction",
+    "continent": "Luclin",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "The Void \"F\"",
+    "level_ranges": [[75, 85]],
+    "expansion": "Seeds of Destruction",
+    "continent": "Luclin",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "The Void \"G\"",
+    "level_ranges": [[75, 85]],
+    "expansion": "Seeds of Destruction",
+    "continent": "Luclin",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   }
 ]
