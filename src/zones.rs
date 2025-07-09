@@ -29,7 +29,9 @@ pub struct Zone {
     connections: Vec<String>,
     image_url: String,
     map_url: String,
+    rating: u8,
     hot_zone: bool,
+    mission: bool,
 }
 
 #[derive(Deserialize)]
@@ -37,6 +39,8 @@ pub struct RangeQuery {
     min: u8,
     max: u8,
     zone_type: Option<String>,
+    expansion: Option<String>,
+    pub mission: Option<bool>,
 }
 
 pub fn load_zones() -> Arc<Vec<Zone>> {
@@ -51,15 +55,23 @@ pub fn load_zones() -> Arc<Vec<Zone>> {
         "data/zones/god.json",
         "data/zones/oow.json",
         "data/zones/don.json",
+        "data/zones/don_missions.json",
         "data/zones/dodh.json",
+        "data/zones/ro.json",
         "data/zones/tss.json",
+        "data/zones/tbs.json",
+        "data/zones/sof.json",
+        "data/zones/sof_missions.json",
+        "data/zones/ls.json",
+        "data/zones/tob.json",
     ];
 
     let mut zones: Vec<Zone> = Vec::new();
 
     for file in zone_files {
         let content = fs::read_to_string(file).expect(format!("{} missing", file).as_str());
-        let zone_data: Vec<Zone> = serde_json::from_str(&content).expect("Invalid JSON");
+        let zone_data: Vec<Zone> =
+            serde_json::from_str(&content).expect(format!("Invalid JSON File: {}", file).as_str());
 
         zones.extend(zone_data);
     }
@@ -82,6 +94,20 @@ pub async fn random_zone(
         .filter(|z| {
             if let Some(ref t) = params.zone_type {
                 if !z.zone_type.eq_ignore_ascii_case(t) {
+                    return false;
+                }
+            }
+
+            // filter by expansion
+            if let Some(ref exp) = params.expansion {
+                if !z.expansion.eq_ignore_ascii_case(exp) {
+                    return false;
+                }
+            }
+
+            // mission filter
+            if let Some(mission_flag) = params.mission {
+                if z.mission != mission_flag {
                     return false;
                 }
             }
