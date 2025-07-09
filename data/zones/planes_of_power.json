@@ -8,7 +8,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Drunder, Fortress of Zek (Plane of Tactics)",
@@ -19,7 +21,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Eryslai, the Kingdom of Wind (Plane of Air)",
@@ -30,7 +34,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Halls of Honor",
@@ -41,7 +47,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Lair of Terris Thule",
@@ -52,7 +60,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Plane of Disease",
@@ -63,7 +73,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Plane of Innovation",
@@ -74,7 +86,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Plane of Justice",
@@ -85,7 +99,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Plane of Knowledge",
@@ -96,7 +112,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Plane of Nightmare",
@@ -107,7 +125,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Plane of Storms",
@@ -118,7 +138,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Plane of Time A",
@@ -129,7 +151,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Plane of Time B",
@@ -140,7 +164,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Plane of Torment",
@@ -151,18 +177,22 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Plane of Tranquility",
-    "level_ranges": [[46, 105]],
+    "level_ranges": [[0, 0]],
     "expansion": "Planes of Power",
     "continent": "Power",
     "zone_type": "Outdoor City/Plane",
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Plane of Valor",
@@ -173,7 +203,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Plane of War",
@@ -184,7 +216,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Ragrax, Stronghold of the Twelve",
@@ -195,7 +229,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Reef of Coirnav (Plane of Water)",
@@ -206,7 +242,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Ruins of Lxanvom (Crypt of Decay)",
@@ -217,7 +255,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Solusek Ro's Tower",
@@ -228,7 +268,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Temple of Marr",
@@ -239,7 +281,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Torden, the Bastion of Thunder",
@@ -250,6 +294,8 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   }
 ]

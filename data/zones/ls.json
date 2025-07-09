@@ -1,0 +1,101 @@
+[
+  {
+    "name": "Laurion Inn",
+    "level_ranges": [[120, 125]],
+    "expansion": "Laurion's Song",
+    "continent": "Realm of Heroes",
+    "zone_type": "Outdoors",
+    "connections": [
+      "Ankexfen Keep",
+      "Moors of Nokk",
+      "Pal'Lomen",
+      "The Hero's Forge",
+      "The Plane of Tranquility",
+      "Timorous Falls",
+      "Unkempt Woods"
+    ],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Timorous Falls",
+    "level_ranges": [[120, 125]],
+    "expansion": "Laurion's Song",
+    "continent": "Realm of Heroes",
+    "zone_type": "Outdoors",
+    "connections": ["Laurion Inn"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Ankexfen Keep",
+    "level_ranges": [[120, 125]],
+    "expansion": "Laurion's Song",
+    "continent": "Antonica",
+    "zone_type": "Outdoors",
+    "connections": ["Laurion Inn"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Moors of Nokk",
+    "level_ranges": [[120, 125]],
+    "expansion": "Laurion's Song",
+    "continent": "Realm of Heroes",
+    "zone_type": "Outdoors",
+    "connections": ["Laurion Inn"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Unkempt Woods",
+    "level_ranges": [[120, 125]],
+    "expansion": "Laurion's Song",
+    "continent": "Realm of Heroes",
+    "zone_type": "Outdoors",
+    "connections": ["Laurion Inn"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "The Hero's Forge",
+    "level_ranges": [[120, 125]],
+    "expansion": "Laurion's Song",
+    "continent": "Realm of Heroes",
+    "zone_type": "Indoors",
+    "connections": ["Laurion Inn"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Pal'Lomen",
+    "level_ranges": [[120, 125]],
+    "expansion": "Laurion's Song",
+    "continent": "Realm of Heroes",
+    "zone_type": "Indoors",
+    "connections": ["Laurion Inn"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  }
+]

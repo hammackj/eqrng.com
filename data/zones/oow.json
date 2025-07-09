@@ -8,7 +8,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Dranik's Hollows A (Watering Hole)",
@@ -19,7 +21,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Dranik's Hollows B (Fire Pit)",
@@ -30,7 +34,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Dranik's Hollows C (Murkglider Hive)",
@@ -41,7 +47,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Catacombs of Dranik A",
@@ -52,7 +60,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Catacombs of Dranik B",
@@ -63,7 +73,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Catacombs of Dranik C",
@@ -74,7 +86,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Catacombs of Dranik: Redemption",
@@ -85,7 +99,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Harbinger's Spire",
@@ -96,7 +112,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "The Bloodfields",
@@ -107,7 +125,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Ruined City of Dranik",
@@ -118,7 +138,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Sewers of Dranik A",
@@ -129,7 +151,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Sewers of Dranik B",
@@ -140,7 +164,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Sewers of Dranik C",
@@ -151,7 +177,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Nobles' Causeway",
@@ -162,7 +190,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Wall of Slaughter",
@@ -173,7 +203,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Muramite Proving Grounds",
@@ -184,7 +216,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Plane of Hate: Innoruuk's Realm",
@@ -195,7 +229,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Proving Grounds: The Mastery of Destruction",
@@ -206,7 +242,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Proving Grounds: The Mastery of Efficiency",
@@ -217,7 +255,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Proving Grounds: The Mastery of Fear",
@@ -228,7 +268,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Proving Grounds: The Mastery of Ingenuity",
@@ -239,7 +281,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Proving Grounds: The Mastery of Subversion",
@@ -250,7 +294,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Proving Grounds: The Mastery of Weaponry",
@@ -261,7 +307,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Proving Grounds: The Mastery of Adaptation",
@@ -272,7 +320,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Proving Grounds: The Mastery of Corruption",
@@ -283,7 +333,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Proving Grounds: The Mastery of Endurance",
@@ -294,7 +346,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Proving Grounds: The Mastery of Foresight",
@@ -305,7 +359,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Proving Grounds: The Mastery of Hate",
@@ -316,7 +372,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Proving Grounds: The Mastery of Specialization",
@@ -327,7 +385,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Riftseeker's Sanctum",
@@ -338,7 +398,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Asylum of Anguish",
@@ -349,6 +411,8 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   }
 ]

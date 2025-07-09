@@ -1,0 +1,92 @@
+[
+  {
+    "name": "Hodstock Hills",
+    "level_ranges": [[120, 125]],
+    "expansion": "The Outer Brood",
+    "continent": "Antonica",
+    "zone_type": "outdoor",
+    "connections": ["The Theater of Eternity"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "The Theater of Eternity",
+    "level_ranges": [[120, 125]],
+    "expansion": "The Outer Brood",
+    "continent": "Antonica",
+    "zone_type": "outdoor",
+    "connections": [
+      "Hodstock Hills",
+      "The Harbinger's Cradle",
+      "Aureate Covert"
+    ],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Aureate Covert",
+    "level_ranges": [[120, 125]],
+    "expansion": "The Outer Brood",
+    "continent": "Antonica",
+    "zone_type": "outdoor",
+    "connections": [
+      "The Theater of Eternity",
+      "The Harbinger's Cradle",
+      "The Gilded Spire"
+    ],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "The Harbinger's Cradle",
+    "level_ranges": [[120, 125]],
+    "expansion": "The Outer Brood",
+    "continent": "Antonica",
+    "zone_type": "indoor",
+    "connections": [
+      "The Theater of Eternity",
+      "Aureate Covert",
+      "The Chambers of Puissance"
+    ],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "The Chambers of Puissance",
+    "level_ranges": [[120, 125]],
+    "expansion": "The Outer Brood",
+    "continent": "Antonica",
+    "zone_type": "outdoor",
+    "connections": ["The Harbinger's Cradle"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "The Gilded Spire",
+    "level_ranges": [[120, 125]],
+    "expansion": "The Outer Brood",
+    "continent": "Antonica",
+    "zone_type": "indoor",
+    "connections": ["Aureate Covert"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  }
+]

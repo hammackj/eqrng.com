@@ -8,7 +8,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Chardok",
@@ -19,7 +21,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "City of Mist",
@@ -30,7 +34,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Dalnir",
@@ -41,7 +47,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Dreadlands",
@@ -52,7 +60,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "East Cabilis",
@@ -63,7 +73,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Firiona Vie",
@@ -74,7 +86,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Frontier Mountains",
@@ -85,7 +99,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Howling Stones",
@@ -96,7 +112,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Kaesora",
@@ -107,7 +125,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Karnor's Castle",
@@ -118,7 +138,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Kurn's Tower",
@@ -129,7 +151,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Lake of Ill Omen",
@@ -140,7 +164,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": true
+    "rating": 0,
+    "hot_zone": true,
+    "mission": false
   },
   {
     "name": "Mines of Nurga",
@@ -151,7 +177,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Old Sebilis",
@@ -162,7 +190,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Skyfire Mountains",
@@ -173,7 +203,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Swamp of No Hope",
@@ -184,7 +216,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Temple of Droga",
@@ -195,7 +229,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "The Emerald Jungle",
@@ -206,7 +242,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "The Field of Bone",
@@ -217,7 +255,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "The Overthere",
@@ -231,7 +271,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Trakanon's Teeth",
@@ -242,7 +284,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Veeshan's Peak",
@@ -253,7 +297,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Veksar",
@@ -264,7 +310,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Warsliks Wood",
@@ -275,7 +323,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "West Cabilis",
@@ -286,6 +336,8 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   }
 ]

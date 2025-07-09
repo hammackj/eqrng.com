@@ -1,0 +1,54 @@
+[
+  {
+    "name": "Crystallos: Raid Instance",
+    "level_ranges": [[70, 80]],
+    "expansion": "Secrets of Faydwer",
+    "continent": "Faydwer",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Meldrath's Mansion: Raid Instance",
+    "level_ranges": [[70, 80]],
+    "expansion": "Secrets of Faydwer",
+    "continent": "Faydwer",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Sandkeep Endurance Raid",
+    "level_ranges": [[70, 80]],
+    "expansion": "Secrets of Faydwer",
+    "continent": "Faydwer",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "The Steam Factory: Raid Instance",
+    "level_ranges": [[70, 80]],
+    "expansion": "Secrets of Faydwer",
+    "continent": "Faydwer",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  }
+]

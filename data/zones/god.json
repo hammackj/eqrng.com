@@ -8,7 +8,9 @@
     "connections": ["Natimbi, The Broken Shores", "Nedaria's Landing"],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Nedaria's Landing",
@@ -25,7 +27,9 @@
     ],
     "image_url": "",
     "map_url": "",
-    "hot_zone": true
+    "rating": 0,
+    "hot_zone": true,
+    "mission": false
   },
   {
     "name": "Natimbi, The Broken Shores",
@@ -42,7 +46,9 @@
     ],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Qinimi, Court of Nihilia",
@@ -58,7 +64,9 @@
     ],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Riwwi, Coliseum of Games",
@@ -69,7 +77,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Barindu, Hanging Gardens",
@@ -80,7 +90,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Sewers of Nihilia, Purifying Plant",
@@ -91,7 +103,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Sewers of Nihilia, the Crematory",
@@ -102,7 +116,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Sewers of Nihilia, Lair of Trapped Ones",
@@ -113,7 +129,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Sewers of Nihilia, Pool of Sludge",
@@ -124,7 +142,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Vixed, The Crumbling Caverns",
@@ -135,7 +155,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Tipt, Treacherous Crags",
@@ -146,7 +168,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Ferubi, Forgotten Temple of Taelosia",
@@ -157,7 +181,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Kod'Taz, Broken Trial Grounds",
@@ -168,7 +194,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Ikkinz: Trial of Singular Might",
@@ -179,7 +207,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Ikkinz: Trial of Twin Struggles",
@@ -190,7 +220,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Ikkinz: Trial of Tri-Fates",
@@ -201,7 +233,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Ikkinz: Trial of Righteousness",
@@ -212,7 +246,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Ikkinz: Trial of Glorification",
@@ -223,7 +259,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Ikkinz: Trial of Transcendence",
@@ -234,7 +272,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Ikkinz: Chambers of Destruction",
@@ -245,7 +285,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Yxtta, Pulpit of Exiles",
@@ -256,7 +298,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Uqua, The Ocean God Chantry",
@@ -267,7 +311,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Qvic, Prayer Grounds of Calling",
@@ -278,7 +324,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Inku'Ta, The Unmasked Chapel",
@@ -289,7 +337,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Txevu, Lair of the Elite",
@@ -300,7 +350,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Tacvi, Seat of the Slaver",
@@ -311,6 +363,8 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   }
 ]

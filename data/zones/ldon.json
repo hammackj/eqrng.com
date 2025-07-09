@@ -8,7 +8,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Miragul's Menagerie",
@@ -19,7 +21,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Mistmoore Catacombs",
@@ -30,7 +34,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Rujarkin Hills",
@@ -41,7 +47,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Takish-Hiz",
@@ -52,6 +60,8 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   }
 ]

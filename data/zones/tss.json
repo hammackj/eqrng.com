@@ -8,7 +8,9 @@
     "connections": ["Blightfire Moors", "Bixie Warfront"],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Highpass (revamp)",
@@ -19,7 +21,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Blightfire Moors",
@@ -30,7 +34,9 @@
     "connections": ["Crescent Reach", "Goru'kar Mesa", "Stone Hive"],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Stone Hive",
@@ -41,7 +47,9 @@
     "connections": ["Blightfire Moors", "Goru'kar Mesa"],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Goru'kar Mesa",
@@ -49,10 +57,18 @@
     "expansion": "The Serpent's Spine",
     "continent": "Antonica",
     "zone_type": "Outdoors",
-    "connections": ["Blightfire Moors", "Stone Hive"],
+    "connections": [
+      "Blightfire Moors",
+      "Blackfeather Roost",
+      "Guild Hall",
+      "Sunderock Springs",
+      "The Steppes"
+    ],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Blackfeather Roost",
@@ -63,7 +79,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "The Steppes",
@@ -74,7 +92,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Sunderock Springs",
@@ -85,7 +105,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Vergalid Mines",
@@ -96,7 +118,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Direwind Cliffs",
@@ -107,7 +131,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Icefall Glacier",
@@ -118,7 +144,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Ashengate, Reliquary of the Scale",
@@ -129,7 +157,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Valdeholm",
@@ -140,7 +170,9 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Frostcrypt, Throne of the Shade King",
@@ -151,6 +183,8 @@
     "connections": [],
     "image_url": "",
     "map_url": "",
-    "hot_zone": false
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
   }
 ]
