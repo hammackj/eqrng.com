@@ -1,0 +1,93 @@
+[
+  {
+    "name": "Firefall Pass",
+    "level_ranges": [[115, 120]],
+    "expansion": "Night of Shadows",
+    "continent": "Luclin",
+    "zone_type": "Outdoors",
+    "connections": ["Umbral Plains", "Shadeweaver's Tangle"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Shadeweaver's Tangle",
+    "level_ranges": [[115, 120]],
+    "expansion": "Night of Shadows",
+    "continent": "Luclin",
+    "zone_type": "Outdoors",
+    "connections": ["Firefall Pass", "Shar Vahl, Divided"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Shar Vahl, Divided",
+    "level_ranges": [[115, 120]],
+    "expansion": "Night of Shadows",
+    "continent": "Luclin",
+    "zone_type": "Outdoors",
+    "connections": ["Shadeweaver's Tangle", "Ruins of Shadow Haven"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Ruins of Shadow Haven",
+    "level_ranges": [[115, 120]],
+    "expansion": "Night of Shadows",
+    "continent": "Luclin",
+    "zone_type": "Outdoors",
+    "connections": ["Shar Vahl, Divided", "Deepshade"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Deepshade",
+    "level_ranges": [[115, 120]],
+    "expansion": "Night of Shadows",
+    "continent": "Luclin",
+    "zone_type": "Outdoors",
+    "connections": ["Ruins of Shadow Haven", "Darklight Caverns"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Darklight Caverns",
+    "level_ranges": [[115, 120]],
+    "expansion": "Night of Shadows",
+    "continent": "Luclin",
+    "zone_type": "Outdoors",
+    "connections": ["Deepshade"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Paludal Depths",
+    "level_ranges": [[115, 120]],
+    "expansion": "Night of Shadows",
+    "continent": "Luclin",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  }
+]

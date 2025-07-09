@@ -209,7 +209,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Ikkinz: Trial of Twin Struggles",
@@ -222,7 +222,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Ikkinz: Trial of Tri-Fates",
@@ -235,7 +235,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Ikkinz: Trial of Righteousness",
@@ -248,7 +248,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Ikkinz: Trial of Glorification",
@@ -261,7 +261,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Ikkinz: Trial of Transcendence",
@@ -274,7 +274,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Ikkinz: Chambers of Destruction",
@@ -287,7 +287,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Yxtta, Pulpit of Exiles",
@@ -313,7 +313,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Qvic, Prayer Grounds of Calling",
@@ -326,7 +326,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Inku'Ta, The Unmasked Chapel",
@@ -339,7 +339,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Txevu, Lair of the Elite",
@@ -352,7 +352,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Tacvi, Seat of the Slaver",
@@ -365,6 +365,6 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   }
 ]
