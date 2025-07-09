@@ -18,6 +18,10 @@
             .zone-data li {
                 margin-bottom: 0.5em;
             }
+            label {
+                display: block;
+                margin-top: 1em;
+            }
         </style>
         <!-- Standard favicon link -->
         <link rel="icon" href="assets/images/eq_rng.ico" type="image/x-icon" />
@@ -41,8 +45,8 @@
                 Max Level:
                 <input type="number" id="max" value="125" min="1" max="125" />
             </label>
-            <label
-                >Type:
+            <label>
+                Type:
                 <select id="zone-type">
                     <option value="">Any</option>
                     <option>Outdoor</option>
@@ -52,6 +56,54 @@
                     <option>Indoor</option>
                 </select>
             </label>
+            <label>
+                Expansion:
+                <select id="expansion">
+                    <option value="">Any</option>
+                    <option>Classic</option>
+                    <option>The Ruins of Kunark</option>
+                    <option>The Scars of Velious</option>
+                    <option>The Shadows of Luclin</option>
+                    <option>The Planes of Power</option>
+                    <option>The Legacy of Ykesha</option>
+                    <option>Lost Dungeons of Norrath</option>
+                    <option>Gates of Discord</option>
+                    <option>Omens of War</option>
+                    <option>Dragons of Norrath</option>
+                    <option>Depths of Darkhollow</option>
+                    <option>Prophecy of Ro</option>
+                    <option>The Serpent's Spine</option>
+                    <option>The Buried Sea</option>
+                    <option>Secrets of Faydwer</option>
+                    <option>Seeds of Destruction</option>
+                    <option>Underfoot</option>
+                    <option>House of Thule</option>
+                    <option>Veil of Alaris</option>
+                    <option>Rain of Fear</option>
+                    <option>Call of the Forsaken</option>
+                    <option>The Darkened Sea</option>
+                    <option>The Broken Mirror</option>
+                    <option>Empires of Kunark</option>
+                    <option>Ring of Scale</option>
+                    <option>The Burning Lands</option>
+                    <option>Torment of Velious</option>
+                    <option>Claws of Veeshan</option>
+                    <option>Terror of Luclin</option>
+                    <option>Night of Shadows</option>
+                    <option>Laurion's Song</option>
+                    <option>The Outer Brood</option>
+                </select>
+            </label>
+
+            <label>
+                Mission Zones:
+                <select id="mission">
+                    <option value="">Any</option>
+                    <option value="true">Only Mission Zones</option>
+                    <option value="false">Exclude Mission Zones</option>
+                </select>
+            </label>
+
             <button id="go-zone">Get Random Zone</button>
 
             <div id="result" style="margin-top: 2em"></div>
@@ -81,31 +133,37 @@
                 const min = document.getElementById("min").value;
                 const max = document.getElementById("max").value;
                 const zt = document.getElementById("zone-type").value;
+                const exp = document.getElementById("expansion").value;
+                const mission = document.getElementById("mission").value;
                 const params = new URLSearchParams({ min, max });
 
                 if (zt) params.set("zone_type", zt);
+                if (exp) params.set("expansion", exp);
+                if (mission) params.set("mission", mission);
 
                 const res = await fetch(`/random_zone?${params}`);
-
                 const out = document.getElementById("result");
+
                 if (!res.ok) {
                     out.textContent = "No zone found.";
                     return;
                 }
+
                 const z = await res.json();
                 out.innerHTML = `
-        <h2>${z.name}</h2>
-        <ul class="zone-data">
-          <li><strong>Levels:</strong> ${z.level_ranges.map((r) => r.join("–")).join(", ")}</li>
-          <li><strong>Expansion:</strong> ${z.expansion}</li>
-          <li><strong>Continent:</strong> ${z.continent}</li>
-          <li><strong>Type:</strong> ${z.zone_type}</li>
-          <li><strong>Connections:</strong> ${z.connections.join(", ")}</li>
-          <li><strong>Hot Zone?:</strong> ${z.hot_zone ? "Yes" : "No"}</li>
-        </ul>
-        <img src="${z.image_url}" alt="Zone image">
-        <img src="${z.map_url}" alt="Zone map">
-      `;
+                    <h2>${z.name}</h2>
+                    <ul class="zone-data">
+                      <li><strong>Levels:</strong> ${z.level_ranges.map((r) => r.join("–")).join(", ")}</li>
+                      <li><strong>Expansion:</strong> ${z.expansion}</li>
+                      <li><strong>Continent:</strong> ${z.continent}</li>
+                      <li><strong>Type:</strong> ${z.zone_type}</li>
+                      <li><strong>Mission Zone?:</strong> ${z.mission ? "Yes" : "No"}</li>
+                      <li><strong>Connections:</strong> ${z.connections.join(", ")}</li>
+                      <li><strong>Hot Zone?:</strong> ${z.hot_zone ? "Yes" : "No"}</li>
+                    </ul>
+                    <img src="${z.image_url}" alt="Zone image">
+                    <img src="${z.map_url}" alt="Zone map">
+                `;
             };
 
             document.getElementById("go-race").onclick = async () => {
@@ -142,5 +200,7 @@
                     : `<p>No class available for that race.</p>`;
             };
         </script>
+
+        <span>Version: July 8, 2025 - Update 1</span>
     </body>
 </html>
