@@ -10,7 +10,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Bloodmoon Keep: Crazok Moonfang",
@@ -23,7 +23,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Bloodmoon Keep: Moonfang",
@@ -36,7 +36,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Bloodmoon Keep: Ralkor's Crystals",
@@ -49,7 +49,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Bloodmoon Keep: The Bloodmoon",
@@ -62,7 +62,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Bloodmoon Keep: The Broodmother",
@@ -75,7 +75,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Bloodmoon Keep: The Dark Crystals",
@@ -88,7 +88,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Bloodmoon Keep: The Departed",
@@ -101,7 +101,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Bloodmoon Keep: The Fanged Moon",
@@ -114,7 +114,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Bloodmoon Keep: Walking Into Spider Webs",
@@ -127,7 +127,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Gyrospire Beza: End the Return",
@@ -140,7 +140,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Gyrospire Beza: How Does Your Garden Grow",
@@ -153,7 +153,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Gyrospire Beza: It's All in Your Head",
@@ -166,7 +166,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Gyrospire Beza: Sand in the Gears",
@@ -179,7 +179,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Gyrospire Beza: Scout Gyrospire Beza",
@@ -192,7 +192,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Gyrospire Zeka: Cut Off the Head",
@@ -205,7 +205,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Gyrospire Zeka: Did We Forget the Cheese",
@@ -218,7 +218,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Gyrospire Zeka: Intelligence Gathering",
@@ -231,7 +231,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Gyrospire Zeka: To Climb a Spire",
@@ -244,7 +244,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "Gyrospire Zeka: You Might Poke an Eye Out",
@@ -257,7 +257,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "S.H.I.P Workshop: Administrative Assassination",
@@ -270,7 +270,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "S.H.I.P Workshop: Deception and Interception",
@@ -283,7 +283,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "S.H.I.P Workshop: Kill Ungracious",
@@ -296,7 +296,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "S.H.I.P Workshop: Mechalossus",
@@ -309,7 +309,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "S.H.I.P Workshop: S.H.I.P Sabotage",
@@ -322,7 +322,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "S.H.I.P Workshop: Tactical Teleportation",
@@ -335,7 +335,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "The Mechamatic Guardian: Disposing of Things",
@@ -348,7 +348,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "The Mechamatic Guardian: Engine Room",
@@ -361,7 +361,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "The Mechamatic Guardian: Infiltrating the Guardian",
@@ -374,7 +374,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "The Mechamatic Guardian: Mechamatic Memory",
@@ -387,7 +387,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "The Mechamatic Guardian: Security, Yeah Right",
@@ -400,7 +400,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "The Mechamatic Guardian: Solo Tasks",
@@ -413,7 +413,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "The Mechamatic Guardian: Tracking the Steamworks",
@@ -426,7 +426,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   },
   {
     "name": "The Mechamatic Guardian: Tinmizer's Wunderwerks",
@@ -439,6 +439,6 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": false
+    "mission": true
   }
 ]
