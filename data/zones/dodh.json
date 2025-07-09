@@ -9,7 +9,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Corathus Creep",
@@ -21,7 +22,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Corathus Lair: The Mines",
@@ -33,7 +35,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Corathus Lair: The Rescue",
@@ -45,7 +48,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Coven of the Skinwalkers: Rescue Cicero",
@@ -57,7 +61,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Coven of the Skinwalkers: Spies Like Them",
@@ -69,7 +74,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Dreadspire Keep",
@@ -81,7 +87,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Dreadspire Keep: Demi-Plane of Blood",
@@ -93,7 +100,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Illsalin Marketplace",
@@ -105,7 +113,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Lair of the Creep Beast",
@@ -117,7 +126,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Lair of the Korlach: Discovering the Secret",
@@ -129,7 +139,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Lair of the Korlach: Into the Leviathan's Lair",
@@ -141,7 +152,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Lair of the Korlach: Learning the Power",
@@ -153,7 +165,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Lair of the Korlach: Raid Instance",
@@ -165,7 +178,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Lair of the Korlach: Taking Control",
@@ -177,7 +191,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Lair of the Korlach: The Search for Coral",
@@ -189,7 +204,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Living Larder: Find Fiddlebrap 3, The Hive",
@@ -201,7 +217,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Living Larder: The Lost Gnomes",
@@ -213,7 +230,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Living Larder: The Search for Clues",
@@ -225,7 +243,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Lodge of the Fang",
@@ -237,7 +256,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Nagafen's Lair: Defending the Lair",
@@ -249,7 +269,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Prince's Manor: The Rage of Kelliad",
@@ -261,7 +282,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Prince's Manor: The Search for Ilsuras",
@@ -273,7 +295,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Queen Sendaii's Lair",
@@ -285,7 +308,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Ruins of Illsalin",
@@ -297,7 +321,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Shadow Spine",
@@ -309,7 +334,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Snarlstone Dens: A Plea for Help",
@@ -321,7 +347,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Snarlstone Dens: Bloodeye",
@@ -333,7 +360,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Snarlstone Dens: Confronting a Traitor",
@@ -345,7 +373,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Snarlstone Dens: Shadowmane Invasion",
@@ -357,7 +386,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Sporali Caverns: Antraygus, the Sporali King",
@@ -369,7 +399,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Sporali Caverns: Cavern Botany",
@@ -381,7 +412,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Sporali Caverns: Defending the Grove",
@@ -393,7 +425,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Sporali Caverns: Sporali Mind Meld",
@@ -405,7 +438,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Sporali Caverns: Way of the Freemind",
@@ -417,7 +451,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Stoneroot Falls",
@@ -429,7 +464,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Stoneroot Falls: A Rogue's Trust",
@@ -441,7 +477,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Stoneroot Falls: Building the Disguise",
@@ -453,7 +490,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Stoneroot Falls: Scouting the City",
@@ -465,7 +503,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Temple of the Korlach: Last of the Legion",
@@ -477,7 +516,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Temple of the Korlach: Praetorian Guard",
@@ -489,7 +529,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Temple of the Korlach: Shiliskin Subterfuge",
@@ -501,7 +542,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Temple of the Korlach: The Council of Nine",
@@ -513,7 +555,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Temple of the Korlach: The Korlach",
@@ -525,7 +568,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "The Hive",
@@ -537,7 +581,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "The Hive: Freeing an Elder",
@@ -549,7 +594,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "The Hive: Hides You Seek",
@@ -561,7 +607,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "The Hive: Infiltrating the Hive",
@@ -573,7 +620,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "The Hive: Sabotage!",
@@ -585,7 +633,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "The Hive: The Accursed Book",
@@ -597,7 +646,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "The Hive: The Lost Notebook",
@@ -609,7 +659,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "The Hive: The Orb of Subversion",
@@ -621,7 +672,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "The Liberation of Runnyeye",
@@ -633,7 +685,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "The Nargilor Pits: Deserting the Ranks",
@@ -645,7 +698,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "The Nargilor Pits: Emperor Draygun",
@@ -657,7 +711,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "The Nargilor Pits: Preemptive Strike",
@@ -669,7 +724,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "The Nargilor Pits: The Last Migration",
@@ -681,7 +737,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Undershore",
@@ -693,7 +750,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Undershore: Trailing Longshadow",
@@ -705,6 +763,7 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   }
 ]
