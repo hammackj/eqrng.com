@@ -9,7 +9,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Befallen",
@@ -21,7 +22,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Blackburrow",
@@ -33,7 +35,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Castle Mistmoore",
@@ -45,7 +48,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Clan Runnyeye",
@@ -57,7 +61,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Commonlands",
@@ -72,7 +77,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Crushbone",
@@ -84,7 +90,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Dagnor's Cauldron",
@@ -96,7 +103,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "East Karana",
@@ -108,7 +116,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Erud's Crossing",
@@ -120,7 +129,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Erudin",
@@ -132,7 +142,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Erudin Palace",
@@ -144,7 +155,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Estate of Unrest",
@@ -156,7 +168,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Everfrost Peaks",
@@ -168,7 +181,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Felwithe",
@@ -180,7 +194,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Freeport",
@@ -192,7 +207,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Freeport Sewers",
@@ -204,7 +220,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Gorge of King Xorbb",
@@ -216,7 +233,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Greater Faydark",
@@ -228,7 +246,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Grobb",
@@ -240,7 +259,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Halas",
@@ -252,7 +272,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "High Keep",
@@ -264,7 +285,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Highpass Hold",
@@ -276,7 +298,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Infected Paw",
@@ -288,7 +311,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Innothule Swamp",
@@ -303,7 +327,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Kaladim",
@@ -315,7 +340,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Kedge Keep",
@@ -327,7 +353,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Kithicor Forest",
@@ -342,7 +369,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Lake Rathetear",
@@ -354,7 +382,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Lavastorm Mountains",
@@ -369,7 +398,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Lesser Faydark",
@@ -388,7 +418,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Lower Guk",
@@ -400,7 +431,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": true
+    "hot_zone": true,
+    "mission": false
   },
   {
     "name": "Misty Thicket",
@@ -412,7 +444,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Nagafen's Lair",
@@ -424,7 +457,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Najena",
@@ -436,7 +470,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Nektulos Forest",
@@ -451,7 +486,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Neriak",
@@ -463,7 +499,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "North Karana",
@@ -475,7 +512,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "North Ro",
@@ -487,7 +525,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Ocean of Tears",
@@ -499,7 +538,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Oggok",
@@ -511,7 +551,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Paineel",
@@ -523,7 +564,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Permafrost Keep",
@@ -535,7 +577,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Plane of Fear",
@@ -547,7 +590,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Plane of Hate",
@@ -559,7 +603,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Plane of Sky",
@@ -571,7 +616,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Qeynos",
@@ -583,7 +629,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Qeynos Catacombs",
@@ -595,7 +642,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Qeynos Hills",
@@ -607,7 +655,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Rathe Mountains",
@@ -619,7 +668,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Rivervale",
@@ -631,7 +681,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Solusek's Eye",
@@ -643,7 +694,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "South Karana",
@@ -655,7 +707,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": true
+    "hot_zone": true,
+    "mission": false
   },
   {
     "name": "South Ro",
@@ -667,7 +720,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Steamfont Mountains",
@@ -687,7 +741,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Surefall Glade",
@@ -699,7 +754,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Temple of Cazic-Thule",
@@ -711,7 +767,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Temple of Solusek Ro",
@@ -723,7 +780,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "The Feerrott",
@@ -743,7 +801,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Toxxulia Forest",
@@ -755,7 +814,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "Upper Guk",
@@ -767,7 +827,8 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   },
   {
     "name": "West Karana",
@@ -779,6 +840,7 @@
     "image_url": "",
     "map_url": "",
     "rating": 0,
-    "hot_zone": false
+    "hot_zone": false,
+    "mission": false
   }
 ]
