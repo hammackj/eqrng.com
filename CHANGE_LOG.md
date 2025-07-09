@@ -1,5 +1,10 @@
 # Change Log
 
+## - Update 2 ---WIP---
+- Added initial Zone support for more zones:
+  - Torment of Velious (Yes actually this time)
+  - Added Laurion Song Missions
+
 ## July 9, 2025 - Update 1
 ### New Features
 - Added initial Zone support for more zones, contact me if any missing/incorrect data.

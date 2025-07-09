@@ -1,0 +1,93 @@
+[
+  {
+    "name": "The Eastern Wastes",
+    "level_ranges": [[110, 115]],
+    "expansion": "Torment of Velious",
+    "continent": "Velious",
+    "zone_type": "Outdoors",
+    "connections": ["The Ry'Gorr Mines", "Crystal Caverns", "The Great Divide"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "The Ry'Gorr Mines",
+    "level_ranges": [[110, 115]],
+    "expansion": "Torment of Velious",
+    "continent": "Velious",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Crystal Caverns",
+    "level_ranges": [[110, 115]],
+    "expansion": "Torment of Velious",
+    "continent": "Velious",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "The Great Divide",
+    "level_ranges": [[110, 115]],
+    "expansion": "Torment of Velious",
+    "continent": "Velious",
+    "zone_type": "Outdoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "The Tower of Frozen Shadow",
+    "level_ranges": [[110, 115]],
+    "expansion": "Torment of Velious",
+    "continent": "Velious",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Velketor's Labyrinth",
+    "level_ranges": [[110, 115]],
+    "expansion": "Torment of Velious",
+    "continent": "Velious",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Kael Drakkel",
+    "level_ranges": [[110, 115]],
+    "expansion": "Torment of Velious",
+    "continent": "Velious",
+    "zone_type": "Indoors",
+    "connections": [],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  }
+]

@@ -68,10 +68,12 @@ pub fn load_zones() -> Arc<Vec<Zone>> {
         "data/zones/sof_missions.json",
         "data/zones/sod.json",
         "data/zones/sod_missions.json",
+        "data/zones/tov.json",
         "data/zones/cov.json",
         "data/zones/tol.json",
         "data/zones/nos.json",
         "data/zones/ls.json",
+        "data/zones/ls_missions.json",
         "data/zones/tob.json",
         "data/zones/tob_missions.json",
     ];
