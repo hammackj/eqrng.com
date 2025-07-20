@@ -8,6 +8,7 @@ use crate::zones::ZoneState;
 
 mod classes;
 mod races;
+mod version;
 mod zones;
 
 #[derive(Clone)]
@@ -33,6 +34,7 @@ async fn main() {
         .route("/random_zone", get(zones::random_zone))
         .route("/random_race", get(races::random_race))
         .route("/random_class", get(classes::random_class))
+        .route("/version", get(version::version))
         .nest_service("/", ServeDir::new("public"))
         .with_state(state);
 
