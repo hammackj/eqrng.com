@@ -10,7 +10,6 @@ Server runs on port 3000 this is exported from docker to the host machine. The h
 
 This endpoint will return a random zone based on the given parameters.
 
-
 # Deployment
 
   cd /home/deploy/eq_rng
