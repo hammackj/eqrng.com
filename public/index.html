@@ -37,14 +37,48 @@
     <body>
         <div id="section">
             <h1>Random EverQuest Zone</h1>
-            <label>
+            <!-- <label>
                 Min Level:
-                <input type="number" id="min" value="1" min="1" max="125" />
+                <input type="number" id="min" value="-1" min="1" max="125" />
             </label>
             <label>
                 Max Level:
-                <input type="number" id="max" value="125" min="1" max="125" />
+                <input type="number" id="max" value="-1" min="1" max="125" />
+            </label> -->
+
+            <label>
+              Min Level:
+              <select id="min"></select>
             </label>
+            <label>
+              Max Level:
+              <select id="max"></select>
+            </label>
+
+            <script>
+              // populate both min and max selects with "Any" + 1..125
+              ['min','max'].forEach(id => {
+                const sel = document.getElementById(id);
+                sel.innerHTML = '<option value="">Any</option>';
+                for (let i = 1; i <= 125; i++) {
+                  const opt = document.createElement('option');
+                  opt.value = i;
+                  opt.textContent = i;
+                  sel.appendChild(opt);
+                }
+              });
+
+              // …then the rest of your existing handlers go here…
+              document.getElementById("go-zone").onclick = async () => {
+                const min = document.getElementById("min").value;
+                const max = document.getElementById("max").value;
+                // …etc…
+              };
+              // etc.
+            </script>
+
+
+
             <label>
                 Type:
                 <select id="zone-type">
@@ -135,36 +169,40 @@
                 const zt = document.getElementById("zone-type").value;
                 const exp = document.getElementById("expansion").value;
                 const mission = document.getElementById("mission").value;
-                const params = new URLSearchParams({ min, max });
 
-                if (zt) params.set("zone_type", zt);
-                if (exp) params.set("expansion", exp);
-                if (mission) params.set("mission", mission);
+                const params = new URLSearchParams();
+
+                // only set if non‐empty
+                if (min)     params.set("min",      min);
+                if (max)     params.set("max",      max);
+                if (zt)      params.set("zone_type",zt);
+                if (exp)     params.set("expansion",exp);
+                if (mission) params.set("mission",  mission);
 
                 const res = await fetch(`/random_zone?${params}`);
                 const out = document.getElementById("result");
 
                 if (!res.ok) {
-                    out.textContent = "No zone found.";
-                    return;
+                  out.textContent = "No zone found.";
+                  return;
                 }
 
                 const z = await res.json();
                 out.innerHTML = `
-                    <h2>${z.name}</h2>
-                    <ul class="zone-data">
-                      <li><strong>Levels:</strong> ${z.level_ranges.map((r) => r.join("–")).join(", ")}</li>
-                      <li><strong>Expansion:</strong> ${z.expansion}</li>
-                      <li><strong>Continent:</strong> ${z.continent}</li>
-                      <li><strong>Type:</strong> ${z.zone_type}</li>
-                      <li><strong>Mission Zone?:</strong> ${z.mission ? "Yes" : "No"}</li>
-                      <li><strong>Connections:</strong> ${z.connections.join(", ")}</li>
-                      <li><strong>Hot Zone?:</strong> ${z.hot_zone ? "Yes" : "No"}</li>
-                    </ul>
-                    <img src="${z.image_url}" alt="Zone image">
-                    <img src="${z.map_url}" alt="Zone map">
+                  <h2>${z.name}</h2>
+                  <ul class="zone-data">
+                    <li><strong>Levels:</strong> ${z.level_ranges.map(r => r.join("–")).join(", ")}</li>
+                    <li><strong>Expansion:</strong> ${z.expansion}</li>
+                    <li><strong>Continent:</strong> ${z.continent}</li>
+                    <li><strong>Type:</strong> ${z.zone_type}</li>
+                    <li><strong>Mission Zone?:</strong> ${z.mission ? "Yes" : "No"}</li>
+                    <li><strong>Hot Zone?:</strong> ${z.hot_zone ? "Yes" : "No"}</li>
+                    <li><strong>Connections:</strong> ${z.connections.join(", ")}</li>
+                  </ul>
+                  <img src="${z.image_url}" alt="Zone image">
+                  <img src="${z.map_url}" alt="Zone map">
                 `;
-            };
+              };
 
             document.getElementById("go-race").onclick = async () => {
                 const res = await fetch("/random_race");
@@ -199,8 +237,21 @@
                     ? `<h3>${result}</h3>`
                     : `<p>No class available for that race.</p>`;
             };
+
+            window.addEventListener("DOMContentLoaded", async () => {
+              try {
+                const res = await fetch("/version");
+                if (!res.ok) throw new Error("no version");
+                const { version } = await res.json();
+                document.getElementById("app-version").textContent = version;
+              } catch {
+                document.getElementById("app-version").textContent = "n/a";
+              }
+            });
         </script>
 
-        <span>Version: July 9, 2025 - Update 2</span>
+        <footer style="text-align:center; margin-top:2em;">
+          Version: <span id="app-version">…</span>
+        </footer>
     </body>
 </html>
