@@ -1,7 +1,11 @@
 # Change Log
 
-## - Update 3 ---WIP---
+## July XX, 2025 - Update 3 ---WIP---
+- Changed the Zone Picking Any/Any will return ANY ZONE from min to max level
 
+- Added initial Zone support for more zones:
+  - House of Thule
+  - House of The Missions
 
 ## July 9, 2025 - Update 2
 - Added initial Zone support for more zones:
