@@ -36,8 +36,8 @@ pub struct Zone {
 
 #[derive(Deserialize)]
 pub struct RangeQuery {
-    min: u8,
-    max: u8,
+    pub min: Option<u8>,
+    pub max: Option<u8>,
     zone_type: Option<String>,
     expansion: Option<String>,
     pub mission: Option<bool>,
@@ -68,6 +68,8 @@ pub fn load_zones() -> Arc<Vec<Zone>> {
         "data/zones/sof_missions.json",
         "data/zones/sod.json",
         "data/zones/sod_missions.json",
+        "data/zones/hot.json",
+        "data/zones/hot_missions.json",
         "data/zones/tov.json",
         "data/zones/cov.json",
         "data/zones/tol.json",
@@ -124,9 +126,33 @@ pub async fn random_zone(
                 }
             }
 
-            z.level_ranges
-                .iter()
-                .any(|&[lmin, lmax]| lmin <= params.min && lmax >= params.max)
+            // 4) level filtering — *only* if at least one bound is set
+            if params.min.is_some() || params.max.is_some() {
+                // both bounds present → must cover entire interval
+                if let (Some(min), Some(max)) = (params.min, params.max) {
+                    if !z
+                        .level_ranges
+                        .iter()
+                        .any(|&[lmin, lmax]| lmin <= min && lmax >= max)
+                    {
+                        return false;
+                    }
+                }
+                // only min present → any range that goes up to at least min
+                else if let Some(min) = params.min {
+                    if !z.level_ranges.iter().any(|&[_lmin, lmax]| lmax >= min) {
+                        return false;
+                    }
+                }
+                // only max present → any range that starts at or below max
+                else if let Some(max) = params.max {
+                    if !z.level_ranges.iter().any(|&[lmin, _lmax]| lmin <= max) {
+                        return false;
+                    }
+                }
+            }
+            // if neither min nor max is set, we skip level checks entirely
+            true
         })
         .cloned()
         .collect();
