@@ -68,6 +68,7 @@ pub fn load_zones() -> Arc<Vec<Zone>> {
         "data/zones/sof_missions.json",
         "data/zones/sod.json",
         "data/zones/sod_missions.json",
+        "data/zones/uf.json",
         "data/zones/hot.json",
         "data/zones/hot_missions.json",
         "data/zones/tov.json",
@@ -100,9 +101,7 @@ pub async fn random_zone(
     State(state): State<crate::AppState>,
 ) -> Result<Json<Zone>, StatusCode> {
     let mut rng = rand::thread_rng();
-
     let zones = state.zone_state.zones.clone();
-
     let matches: Vec<Zone> = zones
         .iter()
         .filter(|z| {
@@ -126,7 +125,7 @@ pub async fn random_zone(
                 }
             }
 
-            // 4) level filtering — *only* if at least one bound is set
+            // level filtering — *only* if at least one bound is set
             if params.min.is_some() || params.max.is_some() {
                 // both bounds present → must cover entire interval
                 if let (Some(min), Some(max)) = (params.min, params.max) {
