@@ -10,7 +10,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": true,
-    "mission": true
+    "mission": false
   },
   {
     "name": "Valley of Lunanyn",
@@ -40,7 +40,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": true
+    "mission": false
   },
   {
     "name": "Rubak Oseka, Temple of the Sea",
@@ -53,7 +53,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": true
+    "mission": false
   },
   {
     "name": "The Resplendent Temple",
@@ -66,7 +66,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": true
+    "mission": false
   },
   {
     "name": "Beasts' Domain",
@@ -92,7 +92,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": true
+    "mission": false
   },
   {
     "name": "City of Bronze",
@@ -105,7 +105,7 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": true
+    "mission": false
   },
   {
     "name": "Windsong Sanctuary",
@@ -131,6 +131,6 @@
     "map_url": "",
     "rating": 0,
     "hot_zone": false,
-    "mission": true
+    "mission": false
   }
 ]
