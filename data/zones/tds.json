@@ -1,0 +1,84 @@
+[
+  {
+    "name": "Tempest Temple",
+    "level_ranges": [[100, 105]],
+    "expansion": "The Darkened Sea",
+    "continent": "Buried Sea",
+    "zone_type": "outdoor",
+    "connections": [
+      "Brother Island",
+      "Caverns of Endless Song",
+      "Thuliasaur Island"
+    ],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": true,
+    "mission": false
+  },
+  {
+    "name": "Brother Island",
+    "level_ranges": [[100, 105]],
+    "expansion": "The Darkened Sea",
+    "continent": "Buried Sea",
+    "zone_type": "outdoor",
+    "connections": ["Tempest Temple"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Caverns of Endless Song",
+    "level_ranges": [[100, 105]],
+    "expansion": "The Darkened Sea",
+    "continent": "Buried Sea",
+    "zone_type": "dungeon",
+    "connections": ["Tempest Temple"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Thuliasaur Island",
+    "level_ranges": [[100, 105]],
+    "expansion": "The Darkened Sea",
+    "continent": "Buried Sea",
+    "zone_type": "outdoor",
+    "connections": ["Tempest Temple", "Degmar, the Lost Castle"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Degmar, the Lost Castle",
+    "level_ranges": [[100, 105]],
+    "expansion": "The Darkened Sea",
+    "continent": "Buried Sea",
+    "zone_type": "dungeon",
+    "connections": ["Thuliasaur Island", "Arx Mentis"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Arx Mentis",
+    "level_ranges": [[103, 105]],
+    "expansion": "The Darkened Sea",
+    "continent": "Buried Sea",
+    "zone_type": "raid",
+    "connections": ["Degmar, the Lost Castle"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  }
+]
