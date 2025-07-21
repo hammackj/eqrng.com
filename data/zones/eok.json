@@ -1,0 +1,80 @@
+[
+  {
+    "name": "Lceanium",
+    "level_ranges": [[100, 105]],
+    "expansion": "Empires of Kunark",
+    "continent": "Kunark",
+    "zone_type": "outdoor",
+    "connections": ["Scorched Woods", "Chardok"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": true,
+    "mission": false
+  },
+  {
+    "name": "Scorched Woods",
+    "level_ranges": [[100, 105]],
+    "expansion": "Empires of Kunark",
+    "continent": "Kunark",
+    "zone_type": "outdoor",
+    "connections": ["Lceanium", "Frontier Mountains"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": true,
+    "mission": false
+  },
+  {
+    "name": "Frontier Mountains",
+    "level_ranges": [[103, 105]],
+    "expansion": "Empires of Kunark",
+    "continent": "Kunark",
+    "zone_type": "outdoor",
+    "connections": ["Scorched Woods", "Kor-Sha Laboratory", "Droga"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": true,
+    "mission": false
+  },
+  {
+    "name": "Chardok",
+    "level_ranges": [[103, 105]],
+    "expansion": "Empires of Kunark",
+    "continent": "Kunark",
+    "zone_type": "dungeon",
+    "connections": ["Lceanium"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Kor-Sha Laboratory",
+    "level_ranges": [[104, 105]],
+    "expansion": "Empires of Kunark",
+    "continent": "Kunark",
+    "zone_type": "dungeon",
+    "connections": ["Frontier Mountains"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Droga",
+    "level_ranges": [[104, 105]],
+    "expansion": "Empires of Kunark",
+    "continent": "Kunark",
+    "zone_type": "dungeon",
+    "connections": ["Frontier Mountains"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  }
+]

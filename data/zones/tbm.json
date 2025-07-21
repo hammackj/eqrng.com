@@ -1,0 +1,84 @@
+[
+  {
+    "name": "Plane of Health",
+    "level_ranges": [[105, 110]],
+    "expansion": "The Broken Mirror",
+    "continent": "Planes",
+    "zone_type": "outdoor",
+    "connections": [
+      "Crypt of Decay",
+      "Plane of Fear: Revisited",
+      "Plane of Hate: Revisited"
+    ],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": true,
+    "mission": false
+  },
+  {
+    "name": "Crypt of Decay",
+    "level_ranges": [[105, 110]],
+    "expansion": "The Broken Mirror",
+    "continent": "Planes",
+    "zone_type": "dungeon",
+    "connections": ["Plane of Health"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Plane of Fear: Revisited",
+    "level_ranges": [[105, 110]],
+    "expansion": "The Broken Mirror",
+    "continent": "Planes",
+    "zone_type": "raid",
+    "connections": ["Plane of Health"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Plane of Hate: Revisited",
+    "level_ranges": [[105, 110]],
+    "expansion": "The Broken Mirror",
+    "continent": "Planes",
+    "zone_type": "raid",
+    "connections": ["Plane of Health"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Demiplane of Life",
+    "level_ranges": [[105, 110]],
+    "expansion": "The Broken Mirror",
+    "continent": "Planes",
+    "zone_type": "raid",
+    "connections": ["Plane of Health"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Demiplane of Decay",
+    "level_ranges": [[105, 110]],
+    "expansion": "The Broken Mirror",
+    "continent": "Planes",
+    "zone_type": "raid",
+    "connections": ["Crypt of Decay"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  }
+]

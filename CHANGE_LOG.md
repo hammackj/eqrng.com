@@ -11,6 +11,8 @@
   - Rain of Fear Missions
   - Call of the Forsaken
   - The Darkened Sea
+  - The Broken Mirror
+  - Empires of Kunark
 
 ## July 9, 2025 - Update 2
 - Added initial Zone support for more zones:
