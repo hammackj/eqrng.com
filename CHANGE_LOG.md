@@ -13,6 +13,8 @@
   - The Darkened Sea
   - The Broken Mirror
   - Empires of Kunark
+  - Ring of Scale
+  - The Burning Lands
 
 ## July 9, 2025 - Update 2
 - Added initial Zone support for more zones:
