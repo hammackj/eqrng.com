@@ -120,23 +120,19 @@ pub async fn random_zone(
                 }
             }
 
-            // filter by expansion
             if let Some(ref exp) = params.expansion {
                 if !z.expansion.eq_ignore_ascii_case(exp) {
                     return false;
                 }
             }
 
-            // mission filter
             if let Some(mission_flag) = params.mission {
                 if z.mission != mission_flag {
                     return false;
                 }
             }
 
-            // level filtering — *only* if at least one bound is set
             if params.min.is_some() || params.max.is_some() {
-                // both bounds present → must cover entire interval
                 if let (Some(min), Some(max)) = (params.min, params.max) {
                     if !z
                         .level_ranges
@@ -145,21 +141,17 @@ pub async fn random_zone(
                     {
                         return false;
                     }
-                }
-                // only min present → any range that goes up to at least min
-                else if let Some(min) = params.min {
+                } else if let Some(min) = params.min {
                     if !z.level_ranges.iter().any(|&[_lmin, lmax]| lmax >= min) {
                         return false;
                     }
-                }
-                // only max present → any range that starts at or below max
-                else if let Some(max) = params.max {
+                } else if let Some(max) = params.max {
                     if !z.level_ranges.iter().any(|&[lmin, _lmax]| lmin <= max) {
                         return false;
                     }
                 }
             }
-            // if neither min nor max is set, we skip level checks entirely
+
             true
         })
         .cloned()

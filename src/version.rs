@@ -2,7 +2,7 @@ use axum::Json;
 use serde::Serialize;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
-const UPDATE_VERSION: &str = "Update 3 - July 19, 2025";
+const UPDATE_VERSION: &str = "Update 3 - July 20, 2025";
 
 #[derive(Serialize)]
 pub struct VersionResponse {

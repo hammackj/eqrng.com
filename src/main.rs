@@ -19,8 +19,6 @@ struct AppState {
 
 #[tokio::main]
 async fn main() {
-    // Load all the zone jsom and merge them together
-    // TODO: Move to sqlite once all data is entered and validated
     let state = AppState {
         zone_state: ZoneState {
             zones: zones::load_zones(),
@@ -38,8 +36,6 @@ async fn main() {
         .nest_service("/", ServeDir::new("public"))
         .with_state(state);
 
-    // bind via TcpListener
-    // TODO: Add CLI Options for Host / Port
     let addr: SocketAddr = "0.0.0.0:3000".parse().unwrap();
     let listener = TcpListener::bind(addr).await.unwrap();
     println!("Listening on {}", listener.local_addr().unwrap());

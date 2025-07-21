@@ -23,29 +23,17 @@
                 margin-top: 1em;
             }
         </style>
-        <!-- Standard favicon link -->
         <link rel="icon" href="assets/images/eq_rng.ico" type="image/x-icon" />
-        <!-- Legacy support for IE -->
         <link
             rel="shortcut icon"
             href="assets/images/eq_rng.ico"
             type="image/x-icon"
         />
-        <!-- (Optional) PNG fallback -->
         <link rel="icon" href="assets/images/eq_rng.png" type="image/png" />
     </head>
     <body>
         <div id="section">
             <h1>Random EverQuest Zone</h1>
-            <!-- <label>
-                Min Level:
-                <input type="number" id="min" value="-1" min="1" max="125" />
-            </label>
-            <label>
-                Max Level:
-                <input type="number" id="max" value="-1" min="1" max="125" />
-            </label> -->
-
             <label>
               Min Level:
               <select id="min"></select>
@@ -56,7 +44,6 @@
             </label>
 
             <script>
-              // populate both min and max selects with "Any" + 1..125
               ['min','max'].forEach(id => {
                 const sel = document.getElementById(id);
                 sel.innerHTML = '<option value="">Any</option>';
@@ -68,16 +55,11 @@
                 }
               });
 
-              // …then the rest of your existing handlers go here…
               document.getElementById("go-zone").onclick = async () => {
                 const min = document.getElementById("min").value;
                 const max = document.getElementById("max").value;
-                // …etc…
               };
-              // etc.
             </script>
-
-
 
             <label>
                 Type:
@@ -143,7 +125,6 @@
             <div id="result" style="margin-top: 2em"></div>
         </div>
 
-        <!-- Random Race Section -->
         <div class="section">
             <h2>Random Race</h2>
             <button id="go-race">Get Random Race</button>
@@ -151,7 +132,6 @@
             <div id="race-result" style="margin-top: 1em"></div>
         </div>
 
-        <!-- Random Class Section -->
         <div class="section">
             <h2>Random Class</h2>
             <label>
@@ -172,7 +152,6 @@
 
                 const params = new URLSearchParams();
 
-                // only set if non‐empty
                 if (min)     params.set("min",      min);
                 if (max)     params.set("max",      max);
                 if (zt)      params.set("zone_type",zt);
