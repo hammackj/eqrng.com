@@ -9,6 +9,7 @@
   - Veil of Alaris
   - Rain of Fear
   - Rain of Fear Missions
+  - Call of the Forsaken
 
 ## July 9, 2025 - Update 2
 - Added initial Zone support for more zones:

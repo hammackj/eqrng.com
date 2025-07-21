@@ -1,0 +1,80 @@
+[
+  {
+    "name": "Ethernere Tainted West Karana",
+    "level_ranges": [[95, 100]],
+    "expansion": "Call of the Forsaken",
+    "continent": "Antonica",
+    "zone_type": "outdoor",
+    "connections": ["Neriak Fourth Gate", "Dead Hills"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": true,
+    "mission": false
+  },
+  {
+    "name": "Neriak - Fourth Gate",
+    "level_ranges": [[95, 100]],
+    "expansion": "Call of the Forsaken",
+    "continent": "Faydwer",
+    "zone_type": "city",
+    "connections": ["Ethernere Tainted West Karana"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Dead Hills",
+    "level_ranges": [[95, 100]],
+    "expansion": "Call of the Forsaken",
+    "continent": "Antonica",
+    "zone_type": "outdoor",
+    "connections": ["Ethernere Tainted West Karana", "Bixie Warfront"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": true,
+    "mission": false
+  },
+  {
+    "name": "Bixie Warfront",
+    "level_ranges": [[96, 100]],
+    "expansion": "Call of the Forsaken",
+    "continent": "Faydwer",
+    "zone_type": "outdoor",
+    "connections": ["Dead Hills", "Ethernere Tainted West Karana"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Tower of Rot",
+    "level_ranges": [[100, 100]],
+    "expansion": "Call of the Forsaken",
+    "continent": "Planes",
+    "zone_type": "dungeon",
+    "connections": ["Argin-Hiz"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  },
+  {
+    "name": "Argin-Hiz",
+    "level_ranges": [[100, 100]],
+    "expansion": "Call of the Forsaken",
+    "continent": "Planes",
+    "zone_type": "city",
+    "connections": ["Tower of Rot"],
+    "image_url": "",
+    "map_url": "",
+    "rating": 0,
+    "hot_zone": false,
+    "mission": false
+  }
+]
