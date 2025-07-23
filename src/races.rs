@@ -38,16 +38,14 @@ pub async fn random_race() -> Json<RaceResult> {
 
     let race_name = RACES.choose(&mut rng).unwrap();
 
-    // Find available genders for this race
     let available_genders = RACE_GENDERS
         .iter()
         .find(|(name, _)| name == race_name)
         .map(|(_, genders)| *genders)
-        .unwrap_or(&["male"]); // Default to male if not found
+        .unwrap_or(&["male"]);
 
     let selected_gender = available_genders.choose(&mut rng).unwrap();
 
-    // Convert race name to image filename format (lowercase, spaces to hyphens)
     let image_filename = format!(
         "{}-{}.png",
         race_name.to_lowercase().replace(" ", "-"),

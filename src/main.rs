@@ -84,7 +84,6 @@ async fn main() {
                 .allow_headers(Any)
                 .allow_credentials(false),
         )
-        //.nest_service("/", ServeDir::new("public"))
         .nest_service("/", ServeDir::new("dist"));
 
     let addr: SocketAddr = format!("0.0.0.0:{}", args.port).parse().unwrap();
