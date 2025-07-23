@@ -3,6 +3,7 @@ use std::path::Path;
 
 pub mod admin;
 pub mod classes;
+pub mod links;
 pub mod races;
 pub mod ratings;
 pub mod version;
@@ -218,6 +219,48 @@ async fn create_tables(pool: &SqlitePool) -> Result<(), sqlx::Error> {
         println!("Zone notes table and indexes created successfully");
     } else {
         println!("Zone notes table already exists");
+    }
+
+    // Check if links table exists
+    let links_table_exists =
+        sqlx::query("SELECT name FROM sqlite_master WHERE type='table' AND name='links'")
+            .fetch_optional(pool)
+            .await?
+            .is_some();
+
+    if !links_table_exists {
+        println!("Creating links table...");
+
+        sqlx::query(
+            r#"
+            CREATE TABLE links (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                url TEXT NOT NULL,
+                category TEXT NOT NULL,
+                description TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+            "#,
+        )
+        .execute(pool)
+        .await?;
+
+        // Create indexes for links
+        let link_indexes = [
+            "CREATE INDEX IF NOT EXISTS idx_links_category ON links(category)",
+            "CREATE INDEX IF NOT EXISTS idx_links_name ON links(name)",
+            "CREATE INDEX IF NOT EXISTS idx_links_created_at ON links(created_at)",
+        ];
+
+        for index_sql in &link_indexes {
+            sqlx::query(index_sql).execute(pool).await?;
+        }
+
+        println!("Links table and indexes created successfully");
+    } else {
+        println!("Links table already exists");
     }
 
     Ok(())
