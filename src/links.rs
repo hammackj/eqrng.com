@@ -32,7 +32,6 @@ pub struct LinksQuery {
     pub category: Option<String>,
 }
 
-// Get all links, optionally filtered by category
 pub async fn get_links(
     State(state): State<AppState>,
     Query(query): Query<LinksQuery>,
@@ -79,7 +78,6 @@ pub async fn get_links(
     }
 }
 
-// Get links grouped by category
 pub async fn get_links_by_category(
     State(state): State<AppState>,
 ) -> Result<Json<HashMap<String, Vec<Link>>>, StatusCode> {
@@ -119,7 +117,6 @@ pub async fn get_links_by_category(
     }
 }
 
-// Get a single link by ID
 pub async fn get_link(
     State(state): State<AppState>,
     Path(id): Path<i64>,
@@ -152,14 +149,12 @@ pub async fn get_link(
     }
 }
 
-// Create a new link
 pub async fn create_link(
     State(state): State<AppState>,
     Json(form): Json<LinkForm>,
 ) -> Result<Json<Link>, StatusCode> {
     let pool = &state.zone_state.pool;
 
-    // Validate category
     let valid_categories = ["General", "Class Discords", "Content Creators"];
     if !valid_categories.contains(&form.category.as_str()) {
         return Err(StatusCode::BAD_REQUEST);
@@ -193,7 +188,6 @@ pub async fn create_link(
     }
 }
 
-// Update an existing link
 pub async fn update_link(
     State(state): State<AppState>,
     Path(id): Path<i64>,
@@ -201,7 +195,6 @@ pub async fn update_link(
 ) -> Result<Json<Link>, StatusCode> {
     let pool = &state.zone_state.pool;
 
-    // Validate category
     let valid_categories = ["General", "Class Discords", "Content Creators"];
     if !valid_categories.contains(&form.category.as_str()) {
         return Err(StatusCode::BAD_REQUEST);
@@ -238,7 +231,6 @@ pub async fn update_link(
     }
 }
 
-// Delete a link
 pub async fn delete_link(
     State(state): State<AppState>,
     Path(id): Path<i64>,
@@ -262,7 +254,6 @@ pub async fn delete_link(
     }
 }
 
-// Get available categories
 pub async fn get_categories() -> Result<Json<Vec<String>>, StatusCode> {
     let categories = vec![
         "General".to_string(),
