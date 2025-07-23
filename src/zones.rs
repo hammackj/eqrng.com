@@ -70,11 +70,9 @@ pub async fn random_zone(
 ) -> Result<Json<Zone>, StatusCode> {
     let pool = &*state.zone_state.pool;
 
-    // Build the query dynamically based on filters
     let mut query = String::from("SELECT * FROM zones WHERE 1=1");
     let mut bindings: Vec<String> = Vec::new();
 
-    // Add filters
     if let Some(ref zone_type) = params.zone_type {
         query.push_str(" AND LOWER(zone_type) = LOWER(?)");
         bindings.push(zone_type.clone());
@@ -100,10 +98,8 @@ pub async fn random_zone(
         bindings.push(if hot_zone { "1" } else { "0" }.to_string());
     }
 
-    // For level range filtering, we'll need to do it in Rust since SQLite JSON handling is limited
-    query.push_str(" ORDER BY RANDOM() LIMIT 100"); // Get a random sample to filter from
+    query.push_str(" ORDER BY RANDOM() LIMIT 100");
 
-    // Execute query
     let mut sql_query = sqlx::query(&query);
     for binding in &bindings {
         sql_query = sql_query.bind(binding);
@@ -114,7 +110,6 @@ pub async fn random_zone(
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
-    // Convert rows to zones and apply level range filtering
     let mut matching_zones: Vec<Zone> = Vec::new();
 
     for row in rows {
@@ -139,10 +134,9 @@ pub async fn random_zone(
             rating: row.get::<i32, _>("rating") as u8,
             hot_zone: row.get("hot_zone"),
             mission: row.get("mission"),
-            notes: Vec::new(), // Will be populated later
+            notes: Vec::new(),
         };
 
-        // Apply level range filtering
         let mut level_match = true;
         if params.min.is_some() || params.max.is_some() {
             level_match = false;
@@ -173,7 +167,6 @@ pub async fn random_zone(
         return Err(StatusCode::NOT_FOUND);
     }
 
-    // Use Rust's random selection since we already have the filtered zones
     use rand::seq::SliceRandom;
     let mut rng = rand::thread_rng();
 
@@ -184,7 +177,6 @@ pub async fn random_zone(
     }
 }
 
-// Endpoint to get notes for a specific zone
 pub async fn get_zone_notes_endpoint(
     Path(zone_id): Path<i64>,
     State(state): State<crate::AppState>,
@@ -197,7 +189,6 @@ pub async fn get_zone_notes_endpoint(
     }
 }
 
-// Helper function to get all zones (for debugging/admin purposes)
 pub async fn get_all_zones(pool: &SqlitePool) -> Result<Vec<Zone>, sqlx::Error> {
     let rows = sqlx::query("SELECT * FROM zones ORDER BY name")
         .fetch_all(pool)
@@ -233,7 +224,6 @@ pub async fn get_all_zones(pool: &SqlitePool) -> Result<Vec<Zone>, sqlx::Error> 
     Ok(zones)
 }
 
-// Helper function to get notes for a specific zone
 pub async fn get_zone_notes(pool: &SqlitePool, zone_id: i64) -> Result<Vec<ZoneNote>, sqlx::Error> {
     let rows = sqlx::query(
         r#"
@@ -275,7 +265,6 @@ pub async fn get_zone_notes(pool: &SqlitePool, zone_id: i64) -> Result<Vec<ZoneN
     Ok(notes)
 }
 
-// Helper function to get all note types
 pub async fn get_note_types(pool: &SqlitePool) -> Result<Vec<NoteType>, sqlx::Error> {
     let rows = sqlx::query(
         "SELECT id, name, display_name, color_class FROM note_types ORDER BY display_name",
