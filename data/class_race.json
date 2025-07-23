@@ -60,5 +60,6 @@
     "Shadow Knight",
     "Warrior",
     "Wizard"
-  ]
+  ],
+  "Froglok": ["Cleric", "Paladin", "Rogue", "Shaman", "Warrior", "Wizard"]
 }

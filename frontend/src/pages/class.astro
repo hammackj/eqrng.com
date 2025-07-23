@@ -1,0 +1,344 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="EQRng.com - Random Class Generator" currentPage="class">
+    <div class="max-w-2xl mx-auto px-4 py-8">
+        <div
+            class="bg-slate-800 rounded-lg shadow-xl border border-slate-600/20 p-6"
+        >
+            <h1 class="text-3xl font-bold text-white mb-6 text-center">
+                Random EverQuest Class
+            </h1>
+
+            <div id="result" class="mb-6"></div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-slate-300 mb-2">
+                    Race Option
+                </label>
+                <div class="space-y-3">
+                    <label
+                        class="flex items-center p-3 border border-slate-600 rounded-lg hover:bg-slate-700/50 cursor-pointer transition-colors"
+                    >
+                        <input
+                            type="radio"
+                            name="race-option"
+                            value="any"
+                            checked
+                            class="mr-3 text-purple-600 focus:ring-purple-500 focus:ring-2"
+                        />
+                        <div>
+                            <span class="font-medium text-white">Any Race</span>
+                            <p class="text-sm text-slate-400">
+                                Get a random class without race restrictions
+                            </p>
+                        </div>
+                    </label>
+                    <label
+                        class="flex items-center p-3 border border-slate-600 rounded-lg hover:bg-slate-700/50 cursor-pointer transition-colors"
+                    >
+                        <input
+                            type="radio"
+                            name="race-option"
+                            value="random"
+                            class="mr-3 text-purple-600 focus:ring-purple-500 focus:ring-2"
+                        />
+                        <div>
+                            <span class="font-medium text-white"
+                                >Random Race + Class</span
+                            >
+                            <p class="text-sm text-slate-400">
+                                Get a random race and compatible class
+                                combination
+                            </p>
+                        </div>
+                    </label>
+                </div>
+                <div
+                    class="mt-4 p-3 bg-purple-900/20 border border-purple-600/30 rounded-lg"
+                >
+                    <div class="flex items-start">
+                        <span class="text-purple-400 mr-2">💡</span>
+                        <p class="text-sm text-purple-200">
+                            <strong>Tip:</strong> Choose "Random Race + Class" for
+                            a complete character combination that ensures the race
+                            can actually play the selected class!
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <button
+                id="generate-class"
+                class="w-full bg-purple-600 hover:bg-purple-500 text-white font-medium py-3 px-6 rounded-md transition-colors text-lg shadow-lg"
+            >
+                Generate Random Class
+            </button>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Maps EverQuest class names to their corresponding image filenames
+         * @param {string} className - The class name returned from the API (e.g., "Shadow Knight", "Beastlord")
+         * @returns {string} The corresponding image filename (e.g., "shadowknight.png", "beastlord.png")
+         */
+        function getClassImagePath(className) {
+            // Map class names from the backend API to image filenames
+            // Note: Image files use lowercase with no spaces, backend returns proper case with spaces
+            const classImageMap = {
+                Warrior: "warrior.png",
+                Cleric: "cleric.png",
+                Paladin: "paladin.png",
+                Ranger: "ranger.png",
+                "Shadow Knight": "shadowknight.png", // Note: space in API response, no space in filename
+                Druid: "druid.png",
+                Monk: "monk.png",
+                Bard: "bard.png",
+                Rogue: "rogue.png",
+                Shaman: "shaman.png",
+                Necromancer: "necromancer.png",
+                Wizard: "wizard.png",
+                Magician: "magician.png",
+                Enchanter: "enchanter.png",
+                Beastlord: "beastlord.png",
+                Berserker: "warrior.png", // Fallback: no berserker.png exists, use warrior
+            };
+
+            // Return mapped image or fallback to warrior.png if class not found
+            return classImageMap[className] || "warrior.png";
+        }
+
+        // Main event handler for the generate button
+        const generateButton = document.getElementById("generate-class");
+        if (generateButton) {
+            generateButton.onclick = async () => {
+                const resultDiv = document.getElementById("result");
+                if (!resultDiv) return;
+
+                // Show initial loading state
+                resultDiv.innerHTML =
+                    '<div class="text-center text-purple-400">Loading...</div>';
+
+                try {
+                    // Check which race option is selected
+                    const raceOption = document.querySelector(
+                        'input[name="race-option"]:checked',
+                    ) as HTMLInputElement;
+                    const useRandomRace = raceOption?.value === "random";
+
+                    let selectedRace = "";
+                    let originalRace = "";
+                    let selectedRaceImage = "";
+
+                    // If user wants random race + class combo, fetch race first
+                    if (useRandomRace) {
+                        // Show intermediate loading for race selection
+                        resultDiv.innerHTML =
+                            '<div class="text-center text-purple-400"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-400"></div><p class="mt-2">Getting random race...</p></div>';
+
+                        // Try up to 3 times to get a race with available classes
+                        for (
+                            let raceAttempt = 0;
+                            raceAttempt < 3;
+                            raceAttempt++
+                        ) {
+                            // Fetch a random race from the API
+                            const raceResponse = await fetch("/random_race");
+                            if (!raceResponse.ok)
+                                throw new Error("Failed to fetch race");
+                            const raceData = await raceResponse.json();
+                            const candidateRace = raceData.name;
+                            const candidateRaceImage = raceData.image_path;
+
+                            // Test if this race has available classes
+                            const testResponse = await fetch(
+                                `/random_class?race=${encodeURIComponent(candidateRace)}`,
+                            );
+                            if (testResponse.ok) {
+                                const testResult = await testResponse.json();
+                                if (testResult) {
+                                    selectedRace = candidateRace;
+                                    selectedRaceImage = candidateRaceImage;
+                                    originalRace = candidateRace;
+                                    break;
+                                }
+                            }
+
+                            // If this is our last attempt and we still don't have a good race
+                            if (raceAttempt === 2) {
+                                console.log(
+                                    "Could not find a race with available classes after 3 attempts, will fall back to any race",
+                                );
+                                originalRace = candidateRace; // Keep track of what we tried
+                                selectedRace = ""; // Clear to trigger fallback
+                            }
+                        }
+
+                        // Update loading message to show race found
+                        if (selectedRace) {
+                            resultDiv.innerHTML = `<div class="text-center text-purple-400"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-400"></div><p class="mt-2">Got ${selectedRace}! Finding compatible class...</p></div>`;
+                        } else {
+                            resultDiv.innerHTML = `<div class="text-center text-purple-400"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-400"></div><p class="mt-2">Finding any available class...</p></div>`;
+                        }
+                    }
+
+                    // Fetch a random class, optionally filtered by the selected race
+                    const params = new URLSearchParams();
+                    if (selectedRace) params.set("race", selectedRace);
+
+                    const response = await fetch(`/random_class?${params}`);
+                    if (!response.ok) throw new Error("Failed to fetch class");
+
+                    let result = await response.json();
+
+                    // Fallback logic: if no result for specific race, try again without race filter
+                    if (!result && selectedRace) {
+                        console.log(
+                            `No classes found for race "${selectedRace}", falling back to any race`,
+                        );
+                        const fallbackResponse = await fetch("/random_class");
+                        if (fallbackResponse.ok) {
+                            result = await fallbackResponse.json();
+                            // Keep the race info for display but mark as fallback
+                            // Don't clear selectedRace so we can show the note
+                        }
+                    }
+
+                    if (result) {
+                        // Get the correct image path for this class
+                        const imagePath = getClassImagePath(result);
+
+                        // Build the result HTML with class image and details
+                        resultDiv.innerHTML = `
+            <div class="bg-slate-700 border border-purple-600/30 rounded-lg p-8 text-center transform transition-all duration-300 hover:scale-105">
+              <div class="mb-6">
+                ${
+                    selectedRace && selectedRaceImage
+                        ? `
+                <div class="flex justify-center items-center gap-8 mb-4">
+                  <div class="text-center">
+                    <img src="${selectedRaceImage}" alt="${selectedRace}" class="w-24 h-24 mx-auto rounded-lg shadow-xl border-2 border-blue-500/30 object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                    <div class="w-24 h-24 mx-auto rounded-lg shadow-xl border-2 border-blue-500/30 bg-slate-600 hidden items-center justify-center">
+                      <span class="text-3xl">👤</span>
+                    </div>
+                    <p class="text-blue-300 text-sm mt-2 font-medium">${selectedRace}</p>
+                  </div>
+                  <div class="text-purple-400 text-2xl">+</div>
+                  <div class="text-center">
+                    <img src="/assets/images/classes/${imagePath}" alt="${result}" class="w-24 h-24 mx-auto rounded-lg shadow-xl border-2 border-purple-500/30 object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                    <div class="w-24 h-24 mx-auto rounded-lg shadow-xl border-2 border-purple-500/30 bg-slate-600 hidden items-center justify-center">
+                      <span class="text-3xl">⚔️</span>
+                    </div>
+                    <p class="text-purple-300 text-sm mt-2 font-medium">${result}</p>
+                  </div>
+                </div>
+                `
+                        : `
+                <div class="relative inline-block">
+                  <img src="/assets/images/classes/${imagePath}" alt="${result}" class="w-32 h-32 mx-auto rounded-lg shadow-xl border-2 border-purple-500/30 object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                  <div class="w-32 h-32 mx-auto rounded-lg shadow-xl border-2 border-purple-500/30 bg-slate-600 hidden items-center justify-center">
+                    <span class="text-4xl">⚔️</span>
+                  </div>
+                </div>
+                `
+                }
+              </div>
+              <h2 class="text-4xl font-bold text-purple-400 mb-3">${result}</h2>
+              ${
+                  selectedRace
+                      ? `
+                <div class="mt-6 p-4 bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-lg border border-purple-500/30">
+                  <p class="text-purple-300 text-xl font-medium">${selectedRace} <span class="text-purple-100">${result}</span></p>
+                  <p class="text-purple-400 text-sm mt-2">Perfect character combination!</p>
+                </div>
+              `
+                      : originalRace
+                        ? `
+                <div class="mt-6 p-3 bg-orange-900/20 border border-orange-600/30 rounded-lg">
+                  <p class="text-orange-200 text-sm">Note: ${originalRace} had no compatible classes, showing random class instead</p>
+                </div>
+                <p class="text-purple-300 text-lg mt-3">Ready for adventure!</p>
+              `
+                        : `<p class="text-purple-300 text-lg mt-3">Ready for adventure!</p>`
+              }
+            </div>
+          `;
+                    } else {
+                        // Final fallback: if still no result, try one more time with any race
+                        console.log(
+                            "No class result found, attempting final fallback",
+                        );
+                        try {
+                            const finalFallbackResponse =
+                                await fetch("/random_class");
+                            if (finalFallbackResponse.ok) {
+                                const finalResult =
+                                    await finalFallbackResponse.json();
+                                if (finalResult) {
+                                    const imagePath =
+                                        getClassImagePath(finalResult);
+                                    resultDiv.innerHTML = `
+            <div class="bg-slate-700 border border-purple-600/30 rounded-lg p-8 text-center transform transition-all duration-300 hover:scale-105">
+              <div class="mb-6">
+                ${
+                    selectedRace && selectedRaceImage
+                        ? `
+                <div class="flex justify-center items-center gap-8 mb-4 opacity-60">
+                  <div class="text-center">
+                    <img src="${selectedRaceImage}" alt="${selectedRace}" class="w-20 h-20 mx-auto rounded-lg shadow-xl border-2 border-gray-500/30 object-cover grayscale" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                    <div class="w-20 h-20 mx-auto rounded-lg shadow-xl border-2 border-gray-500/30 bg-slate-600 hidden items-center justify-center">
+                      <span class="text-2xl">👤</span>
+                    </div>
+                    <p class="text-gray-400 text-xs mt-1">${selectedRace}</p>
+                  </div>
+                  <div class="text-gray-400 text-xl">✗</div>
+                  <div class="text-center">
+                    <img src="/assets/images/classes/${imagePath}" alt="${finalResult}" class="w-20 h-20 mx-auto rounded-lg shadow-xl border-2 border-purple-500/30 object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                    <div class="w-20 h-20 mx-auto rounded-lg shadow-xl border-2 border-purple-500/30 bg-slate-600 hidden items-center justify-center">
+                      <span class="text-2xl">⚔️</span>
+                    </div>
+                    <p class="text-purple-300 text-xs mt-1">${finalResult}</p>
+                  </div>
+                </div>
+                `
+                        : `
+                <div class="relative inline-block">
+                  <img src="/assets/images/classes/${imagePath}" alt="${finalResult}" class="w-32 h-32 mx-auto rounded-lg shadow-xl border-2 border-purple-500/30 object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                  <div class="w-32 h-32 mx-auto rounded-lg shadow-xl border-2 border-purple-500/30 bg-slate-600 hidden items-center justify-center">
+                    <span class="text-4xl">⚔️</span>
+                  </div>
+                </div>
+                `
+                }
+              </div>
+              <h2 class="text-4xl font-bold text-purple-400 mb-3">${finalResult}</h2>
+              <p class="text-purple-300 text-lg mt-3">Ready for adventure!</p>
+              <div class="mt-4 p-3 bg-orange-900/20 border border-orange-600/30 rounded-lg">
+                <p class="text-orange-200 text-sm">Note: Fallback result (original race/class combo unavailable)</p>
+              </div>
+            </div>
+          `;
+                                    return;
+                                }
+                            }
+                        } catch (fallbackError) {
+                            console.error(
+                                "Final fallback failed:",
+                                fallbackError,
+                            );
+                        }
+
+                        resultDiv.innerHTML =
+                            '<div class="bg-red-900/50 border border-red-600 text-red-200 px-6 py-4 rounded-lg"><div class="flex items-center justify-center"><span class="text-red-400 mr-3 text-xl">❌</span><span>Unable to generate class. Please try again.</span></div></div>';
+                    }
+                } catch (error) {
+                    console.error("Error generating class:", error);
+                    resultDiv.innerHTML =
+                        '<div class="bg-red-900/50 border border-red-600 text-red-200 px-6 py-4 rounded-lg"><div class="flex items-center justify-center"><span class="text-red-400 mr-3 text-xl">❌</span><span>Error loading class. Please check your connection and try again.</span></div></div>';
+                }
+            };
+        }
+    </script>
+</Layout>

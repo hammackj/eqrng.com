@@ -1,10 +1,26 @@
-# ─── BUILD ─────────────────────────────────────────────
-FROM rust:1.87 AS builder
+# ─── FRONTEND BUILD ────────────────────────────────────
+FROM node:18-alpine AS frontend-builder
+WORKDIR /usr/src/frontend
+
+# Copy frontend package files
+COPY frontend/package*.json ./
+RUN npm ci
+
+# Copy frontend source and build
+COPY frontend/ ./
+RUN npm run build
+
+# ─── BACKEND BUILD ─────────────────────────────────────
+FROM rust:1.87 AS backend-builder
 WORKDIR /usr/src/eq_rng
 
-# Copy in your entire project and build
-COPY . .
-RUN cargo build --release
+# Copy backend files
+COPY Cargo.toml Cargo.lock ./
+COPY src/ ./src/
+COPY migrations/ ./migrations/
+
+# Build the backend without admin features for production
+RUN cargo build --release --no-default-features
 
 # ─── RUNTIME ───────────────────────────────────────────
 FROM debian:bookworm-slim
@@ -12,25 +28,30 @@ RUN apt-get update \
     && apt-get install -y ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Create a single install directory under /opt
+# Create install directory
 RUN mkdir -p /opt/eq_rng
 
-# Copy in the binary and static assets
-COPY --from=builder /usr/src/eq_rng/target/release/eq_rng  /opt/eq_rng/eq_rng
-COPY --from=builder /usr/src/eq_rng/data             /opt/eq_rng/data
-COPY --from=builder /usr/src/eq_rng/public            /opt/eq_rng/public
+# Copy backend binary
+COPY --from=backend-builder /usr/src/eq_rng/target/release/eq_rng /opt/eq_rng/eq_rng
 
-# Make sure the binary is executable
+# Copy backend data and assets
+COPY --from=backend-builder /usr/src/eq_rng/data /opt/eq_rng/data
+COPY public/ /opt/eq_rng/public/
+
+# Copy built frontend assets
+COPY --from=frontend-builder /usr/src/frontend/dist /opt/eq_rng/dist
+
+# Make binary executable
 RUN chmod +x /opt/eq_rng/eq_rng
 
-# Optionally add a symlink into /usr/local/bin for convenience
+# Create symlink for convenience
 RUN ln -s /opt/eq_rng/eq_rng /usr/local/bin/eq_rng
 
-# Set working directory to /opt/eq_rng
+# Set working directory
 WORKDIR /opt/eq_rng
 
-# Expose your port
+# Expose port
 EXPOSE 3000
 
-# Run your server directly
+# Run the server
 CMD ["./eq_rng"]

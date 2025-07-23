@@ -1,0 +1,209 @@
+---
+import "../styles/pickle-rating.css";
+
+export interface Props {
+    title: string;
+    description?: string;
+    currentPage?: string;
+}
+
+const {
+    title,
+    description = "Random EverQuest generators for zones, races, and classes",
+    currentPage = "",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="description" content={description} />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link
+            rel="icon"
+            href="/assets/images/eq_rng.ico?v=20250721"
+            type="image/x-icon"
+        />
+        <link
+            rel="shortcut icon"
+            href="/assets/images/eq_rng.ico?v=20250721"
+            type="image/x-icon"
+        />
+        <link
+            rel="icon"
+            href="/assets/images/eq_rng.png?v=20250721"
+            type="image/png"
+        />
+
+        <title>{title}</title>
+        <style>
+            /* Custom gradient background - dark mode */
+            .bg-gradient-eq {
+                background: linear-gradient(
+                    135deg,
+                    #0f172a 0%,
+                    #1e293b 50%,
+                    #334155 100%
+                );
+            }
+            .glass-effect {
+                backdrop-filter: blur(10px);
+                background: rgba(15, 23, 42, 0.95);
+            }
+        </style>
+    </head>
+    <body
+        class="min-h-screen flex flex-col bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700"
+    >
+        <!-- Navigation -->
+        <nav class="bg-gradient-eq shadow-xl border-b border-slate-600/30">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center">
+                        <a
+                            href="/"
+                            class="flex items-center hover:opacity-80 transition-opacity duration-200"
+                        >
+                            <img
+                                src="/assets/images/eq_rng.png"
+                                alt="EQRng.com Logo"
+                                class="h-10 w-auto"
+                            />
+                        </a>
+                        <span
+                            class="ml-3 text-slate-300 text-sm hidden sm:block"
+                            >EverQuest Random Generators</span
+                        >
+                    </div>
+                    <div class="flex space-x-1">
+                        <a
+                            href="/"
+                            class={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${currentPage === "zone" ? "bg-slate-600/40 text-white shadow-lg" : "text-slate-300 hover:text-white hover:bg-slate-600/20"}`}
+                        >
+                            <img
+                                src="/assets/images/zone.png"
+                                alt="Zone"
+                                class="w-5 h-5 inline-block mr-2"
+                            />
+                            Zone
+                        </a>
+                        <a
+                            href="/race"
+                            class={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${currentPage === "race" ? "bg-slate-600/40 text-white shadow-lg" : "text-slate-300 hover:text-white hover:bg-slate-600/20"}`}
+                        >
+                            <img
+                                src="/assets/images/race.png"
+                                alt="Race"
+                                class="w-5 h-5 inline-block mr-2"
+                            />
+                            Race
+                        </a>
+                        <a
+                            href="/class"
+                            class={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${currentPage === "class" ? "bg-slate-600/40 text-white shadow-lg" : "text-slate-300 hover:text-white hover:bg-slate-600/20"}`}
+                        >
+                            <img
+                                src="/assets/images/class.png"
+                                alt="Class"
+                                class="w-5 h-5 inline-block mr-2"
+                            />
+                            Class
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-grow py-8">
+            <slot />
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gradient-eq border-t border-slate-600/30">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div class="text-center">
+                    <p class="text-slate-300 text-sm">
+                        &copy; 2025 EQRng.com - Random EverQuest Generators
+                    </p>
+                    <p class="text-slate-300 text-sm mt-1">
+                        Everquest is a registered trademark of Daybreak Game
+                        Company LLC.
+                    </p>
+                    <p class="text-slate-300 text-sm mt-1">
+                        EQRNG is not associated or affiliated in any way with
+                        Daybreak Game Company, LLC or its subsidiaries.
+                    </p>
+                    <p class="text-slate-300 text-sm mt-1">
+                        EQrng.com is provided by
+                        <a
+                            href="https://ko-fi.com/hammackj"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="text-slate-200 hover:text-white underline transition-colors"
+                        >
+                            hammackj
+                        </a> -
+                        <a
+                            href="http://www.youtube.com/@hammackj"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="text-slate-200 hover:text-white underline transition-colors"
+                        >
+                            youtube
+                        </a> -
+                        <a
+                            href="https://hammackj.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="text-slate-200 hover:text-white underline transition-colors"
+                        >
+                            web
+                        </a>
+                    </p>
+                    <p class="text-slate-300 text-sm mt-1">
+                        <a
+                            href="https://ko-fi.com/hammackj"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="text-slate-200 hover:text-white underline transition-colors inline-flex items-center"
+                        >
+                            <img
+                                src="/assets/images/kofi_logo.webp"
+                                alt="Ko-fi"
+                                class="w-4 h-4 mr-2"
+                            />
+                            Support hammackj on ko-fi
+                        </a>
+                    </p>
+                    <p class="text-slate-300 text-sm mt-1">
+                        Version: <span id="app-version" class="font-mono"
+                            >Loading...</span
+                        >
+                    </p>
+                </div>
+            </div>
+        </footer>
+
+        <script>
+            // Load version info
+            fetch("/version")
+                .then((res) => res.json())
+                .then((data) => {
+                    const versionElement =
+                        document.getElementById("app-version");
+                    if (versionElement) {
+                        versionElement.textContent = data.version;
+                    }
+                })
+                .catch(() => {
+                    const versionElement =
+                        document.getElementById("app-version");
+                    if (versionElement) {
+                        versionElement.textContent = "Unknown";
+                    }
+                });
+        </script>
+    </body>
+</html>

@@ -1,0 +1,59 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="EQRng.com - Random Race Generator" currentPage="race">
+    <div class="max-w-2xl mx-auto px-4 py-8">
+        <div
+            class="bg-slate-800 rounded-lg shadow-xl border border-slate-600/20 p-6 text-center"
+        >
+            <h1 class="text-3xl font-bold text-white mb-6">
+                Random EverQuest Race
+            </h1>
+
+            <div id="result" class="mb-6"></div>
+
+            <button
+                id="generate-race"
+                class="bg-green-600 hover:bg-green-500 text-white font-medium py-3 px-6 rounded-md transition-colors text-lg shadow-lg"
+            >
+                Generate Random Race
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const generateButton = document.getElementById("generate-race");
+        if (generateButton) {
+            generateButton.onclick = async () => {
+                const resultDiv = document.getElementById("result");
+                if (!resultDiv) return;
+
+                resultDiv.innerHTML =
+                    '<div class="text-center text-green-400">Loading...</div>';
+
+                try {
+                    const response = await fetch("/random_race");
+                    if (!response.ok) throw new Error("Failed to fetch");
+
+                    const raceData = await response.json();
+
+                    const imageHtml = raceData.image_path
+                        ? `<img src="${raceData.image_path}" alt="${raceData.name} ${raceData.gender}" class="w-48 h-48 object-cover rounded-lg mx-auto mb-4 border-2 border-green-600/30">`
+                        : "";
+
+                    resultDiv.innerHTML = `
+            <div class="bg-slate-700 border border-green-600/30 rounded-lg p-8 mt-6">
+              ${imageHtml}
+              <h2 class="text-4xl font-bold text-green-400">${raceData.name}</h2>
+              <p class="text-lg text-slate-300 mt-2">${raceData.gender.charAt(0).toUpperCase() + raceData.gender.slice(1)}</p>
+            </div>
+          `;
+                } catch (error) {
+                    resultDiv.innerHTML =
+                        '<div class="bg-red-900/50 border border-red-600 text-red-200 px-4 py-3 rounded">Error loading race. Please try again.</div>';
+                }
+            };
+        }
+    </script>
+</Layout>

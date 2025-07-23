@@ -1,0 +1,41 @@
+# ─── BACKEND BUILD ─────────────────────────────────────
+FROM rust:1.87 AS builder
+WORKDIR /usr/src/eq_rng
+
+# Copy backend files
+COPY Cargo.toml Cargo.lock ./
+COPY src/ ./src/
+COPY migrations/ ./migrations/
+
+# Build the backend
+RUN cargo build --release
+
+# ─── RUNTIME ───────────────────────────────────────────
+FROM debian:bookworm-slim
+RUN apt-get update \
+    && apt-get install -y ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create install directory
+RUN mkdir -p /opt/eq_rng
+
+# Copy backend binary
+COPY --from=builder /usr/src/eq_rng/target/release/eq_rng /opt/eq_rng/eq_rng
+
+# Copy backend data
+COPY data/ /opt/eq_rng/data/
+
+# Make binary executable
+RUN chmod +x /opt/eq_rng/eq_rng
+
+# Create symlink for convenience
+RUN ln -s /opt/eq_rng/eq_rng /usr/local/bin/eq_rng
+
+# Set working directory
+WORKDIR /opt/eq_rng
+
+# Expose port
+EXPOSE 3000
+
+# Run the server
+CMD ["./eq_rng"]

@@ -1,0 +1,189 @@
+/* Pickle Rating System Styles */
+
+.rating-container {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #475569;
+}
+
+.pickle-rating {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  margin: 0 1px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.pickle-rating:hover {
+  transform: scale(1.1);
+  background-color: rgba(34, 197, 94, 0.1);
+}
+
+.pickle-rating:active {
+  transform: scale(0.95);
+}
+
+.pickle-icon {
+  width: 24px;
+  height: 24px;
+  transition: all 0.2s ease;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+.pickle-rating:hover .pickle-icon {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Rating stats styling */
+.rating-stats {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #94a3b8;
+  text-align: left;
+}
+
+.rating-stats .rating-average {
+  font-weight: 600;
+  color: #22c55e;
+}
+
+.rating-stats .rating-count {
+  color: #64748b;
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+  .pickle-rating {
+    padding: 4px;
+    margin: 0 2px;
+  }
+
+  .pickle-icon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Accessibility improvements */
+.pickle-rating:focus {
+  outline: 2px solid #22c55e;
+  outline-offset: 2px;
+}
+
+/* Animation for rating submission */
+@keyframes pickle-bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-6px);
+  }
+  60% {
+    transform: translateY(-3px);
+  }
+}
+
+.pickle-rating.submitted {
+  animation: pickle-bounce 0.6s ease;
+}
+
+/* Loading state */
+.rating-container.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.rating-container.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid #22c55e;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error state */
+.rating-error {
+  color: #ef4444;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+/* Success state */
+.rating-success {
+  color: #22c55e;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+/* Gradient backgrounds for different rating levels */
+.pickle-rating[data-rating="1"]:hover {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+}
+
+.pickle-rating[data-rating="2"]:hover {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05));
+}
+
+.pickle-rating[data-rating="3"]:hover {
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.1), rgba(234, 179, 8, 0.05));
+}
+
+.pickle-rating[data-rating="4"]:hover {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05));
+}
+
+.pickle-rating[data-rating="5"]:hover {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.08));
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .pickle-icon {
+    filter: contrast(1.5);
+  }
+
+  .pickle-rating:focus {
+    outline: 3px solid #22c55e;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .pickle-rating,
+  .pickle-icon {
+    transition: none;
+  }
+
+  .pickle-rating:hover {
+    transform: none;
+  }
+
+  .pickle-rating.submitted {
+    animation: none;
+  }
+}
+
+/* Dark mode adjustments (if needed) */
+@media (prefers-color-scheme: dark) {
+  .rating-stats {
+    color: #94a3b8;
+  }
+
+  .pickle-rating:hover {
+    background-color: rgba(34, 197, 94, 0.15);
+  }
+}

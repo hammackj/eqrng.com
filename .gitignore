@@ -1,1 +1,14 @@
 /target
+/dist
+
+# Frontend build artifacts
+node_modules/
+.astro/
+
+# Include the main database file but exclude SQLite temporary files
+data/zones.db-shm
+data/zones.db-wal
+
+# Development files
+*.log
+nohup.out
