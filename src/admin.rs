@@ -6,7 +6,7 @@ use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
     response::{Html, Redirect},
-    routing::{delete, get, post, put},
+    routing::{get, post},
 };
 #[cfg(feature = "admin")]
 use serde::{Deserialize, Serialize};
@@ -17,6 +17,9 @@ use std::collections::HashMap;
 #[cfg(feature = "admin")]
 use urlencoding;
 
+#[cfg(not(feature = "admin"))]
+use crate::AppState;
+#[cfg(feature = "admin")]
 use crate::AppState;
 
 #[cfg(feature = "admin")]
@@ -78,6 +81,16 @@ pub struct NoteTypeForm {
 }
 
 #[cfg(feature = "admin")]
+#[derive(Deserialize)]
+pub struct LinkForm {
+    pub name: String,
+    pub url: String,
+    pub category: String,
+    pub description: Option<String>,
+    pub _method: Option<String>,
+}
+
+#[cfg(feature = "admin")]
 pub fn admin_routes() -> Router<AppState> {
     Router::new()
         .route("/admin", get(admin_dashboard))
@@ -86,17 +99,25 @@ pub fn admin_routes() -> Router<AppState> {
         .route("/admin/zones", post(create_zone))
         .route("/admin/zones/:id", get(edit_zone_form))
         .route("/admin/zones/:id", post(handle_zone_update_or_delete))
-        .route("/admin/zones/:id", put(update_zone))
-        .route("/admin/zones/:id", delete(delete_zone))
+        .route("/admin/zones/:id/delete", post(delete_zone))
         .route("/admin/zones/:id/ratings", get(zone_ratings))
         .route("/admin/zones/:id/notes", get(zone_notes))
         .route("/admin/zones/:id/notes", post(create_zone_note))
-        .route("/admin/zones/:id/notes/:note_id", delete(delete_zone_note))
+        .route(
+            "/admin/zones/:id/notes/:note_id/delete",
+            post(delete_zone_note),
+        )
         .route("/admin/note-types", get(list_note_types))
         .route("/admin/note-types", post(create_note_type))
-        .route("/admin/note-types/:id", delete(delete_note_type))
+        .route("/admin/note-types/:id/delete", post(delete_note_type))
         .route("/admin/ratings", get(list_all_ratings))
-        .route("/admin/ratings/:id", post(handle_rating_delete))
+        .route("/admin/ratings/:id/delete", post(handle_rating_delete))
+        .route("/admin/links", get(list_links))
+        .route("/admin/links/new", get(new_link_form))
+        .route("/admin/links", post(create_link_admin))
+        .route("/admin/links/:id", get(edit_link_form))
+        .route("/admin/links/:id", post(handle_link_update_or_delete))
+        .route("/admin/links/:id/delete", post(delete_link_admin))
 }
 
 #[cfg(not(feature = "admin"))]
@@ -160,6 +181,7 @@ async fn admin_dashboard(State(state): State<AppState>) -> Result<Html<String>, 
         <a href="/admin/zones/new">Add New Zone</a>
         <a href="/admin/note-types">Manage Note Types</a>
         <a href="/admin/ratings">Manage Ratings</a>
+        <a href="/admin/links">Manage Links</a>
     </div>
 
     <h1>EQ RNG Admin Dashboard</h1>
@@ -189,6 +211,7 @@ async fn admin_dashboard(State(state): State<AppState>) -> Result<Html<String>, 
         <p><a href="/admin/zones/new">Add new zone</a> - Create a new zone entry</p>
         <p><a href="/admin/note-types">Manage note types</a> - Configure pill icons for zone notes</p>
         <p><a href="/admin/ratings">Manage all ratings</a> - View and delete zone ratings</p>
+        <p><a href="/admin/links">Manage links</a> - View, edit, and delete links organized by category</p>
     </div>
 
     <div class="card">
@@ -1523,4 +1546,368 @@ async fn handle_rating_delete(
     } else {
         Err(StatusCode::METHOD_NOT_ALLOWED)
     }
+}
+
+#[cfg(feature = "admin")]
+async fn list_links(State(state): State<AppState>) -> Result<Html<String>, StatusCode> {
+    let pool = &state.zone_state.pool;
+
+    let links = sqlx::query(
+        "SELECT id, name, url, category, description, created_at
+         FROM links
+         ORDER BY category, name COLLATE NOCASE",
+    )
+    .fetch_all(pool.as_ref())
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let mut html = String::from(
+        r#"
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Links - EQ RNG Admin</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .nav { background: #f5f5f5; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+        .nav a { margin-right: 15px; text-decoration: none; color: #333; font-weight: bold; }
+        .nav a:hover { color: #007bff; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f5f5f5; }
+        .btn { display: inline-block; padding: 6px 12px; margin: 2px; text-decoration: none; border-radius: 4px; font-size: 12px; }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-danger { background-color: #dc3545; color: white; }
+        .btn-success { background-color: #28a745; color: white; }
+        .category-header { background-color: #e9ecef; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/zones">Manage Zones</a>
+        <a href="/admin/note-types">Manage Note Types</a>
+        <a href="/admin/ratings">Manage Ratings</a>
+        <a href="/admin/links">Manage Links</a>
+    </div>
+
+    <h1>Manage Links</h1>
+    <p><a href="/admin/links/new" class="btn btn-success">Add New Link</a></p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Name</th>
+                <th>URL</th>
+                <th>Description</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+    "#,
+    );
+
+    let mut current_category = String::new();
+    for row in links {
+        let id: i32 = row.get("id");
+        let name: String = row.get("name");
+        let url: String = row.get("url");
+        let category: String = row.get("category");
+        let description: Option<String> = row.get("description");
+        let created_at: String = row.get("created_at");
+
+        if category != current_category {
+            current_category = category.clone();
+        }
+
+        html.push_str(&format!(
+            r#"
+            <tr>
+                <td>{}</td>
+                <td>{}</td>
+                <td><a href="{}" target="_blank">{}</a></td>
+                <td>{}</td>
+                <td>{}</td>
+                <td>
+                    <a href="/admin/links/{}" class="btn btn-primary">Edit</a>
+                    <form style="display: inline;" method="post" action="/admin/links/{}/delete" onsubmit="return confirm('Are you sure you want to delete this link?');">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            "#,
+            category,
+            name,
+            url,
+            if url.len() > 50 { &url[..50] } else { &url },
+            description.unwrap_or("".to_string()),
+            created_at.split('T').next().unwrap_or(&created_at),
+            id,
+            id
+        ));
+    }
+
+    html.push_str(
+        r#"
+        </tbody>
+    </table>
+</body>
+</html>
+    "#,
+    );
+
+    Ok(Html(html))
+}
+
+#[cfg(feature = "admin")]
+async fn new_link_form() -> Result<Html<String>, StatusCode> {
+    let html = r#"
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add New Link - EQ RNG Admin</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .nav { background: #f5f5f5; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+        .nav a { margin-right: 15px; text-decoration: none; color: #333; font-weight: bold; }
+        .nav a:hover { color: #007bff; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        textarea { height: 80px; resize: vertical; }
+        .btn { display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; }
+        .btn:hover { background-color: #0056b3; }
+        .btn-secondary { background-color: #6c757d; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/zones">Manage Zones</a>
+        <a href="/admin/note-types">Manage Note Types</a>
+        <a href="/admin/ratings">Manage Ratings</a>
+        <a href="/admin/links">Manage Links</a>
+    </div>
+
+    <h1>Add New Link</h1>
+
+    <form method="post" action="/admin/links">
+        <div class="form-group">
+            <label for="name">Name *</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+
+        <div class="form-group">
+            <label for="url">URL *</label>
+            <input type="url" id="url" name="url" required>
+        </div>
+
+        <div class="form-group">
+            <label for="category">Category *</label>
+            <select id="category" name="category" required>
+                <option value="">Select a category</option>
+                <option value="General">General</option>
+                <option value="Class Discords">Class Discords</option>
+                <option value="Content Creators">Content Creators</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" placeholder="Optional description"></textarea>
+        </div>
+
+        <button type="submit" class="btn">Create Link</button>
+        <a href="/admin/links" class="btn btn-secondary">Cancel</a>
+    </form>
+</body>
+</html>
+    "#;
+
+    Ok(Html(html.to_string()))
+}
+
+#[cfg(feature = "admin")]
+async fn edit_link_form(
+    State(state): State<AppState>,
+    Path(id): Path<i32>,
+) -> Result<Html<String>, StatusCode> {
+    let pool = &state.zone_state.pool;
+
+    let link = sqlx::query("SELECT * FROM links WHERE id = ?")
+        .bind(id)
+        .fetch_optional(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+        .ok_or(StatusCode::NOT_FOUND)?;
+
+    let name: String = link.get("name");
+    let url: String = link.get("url");
+    let category: String = link.get("category");
+    let description: Option<String> = link.get("description");
+
+    let html = format!(
+        r#"
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Link - EQ RNG Admin</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }}
+        .nav {{ background: #f5f5f5; padding: 15px; margin-bottom: 20px; border-radius: 5px; }}
+        .nav a {{ margin-right: 15px; text-decoration: none; color: #333; font-weight: bold; }}
+        .nav a:hover {{ color: #007bff; }}
+        .form-group {{ margin-bottom: 15px; }}
+        label {{ display: block; margin-bottom: 5px; font-weight: bold; }}
+        input, select, textarea {{ width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }}
+        textarea {{ height: 80px; resize: vertical; }}
+        .btn {{ display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; }}
+        .btn:hover {{ background-color: #0056b3; }}
+        .btn-secondary {{ background-color: #6c757d; }}
+        .btn-danger {{ background-color: #dc3545; }}
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/zones">Manage Zones</a>
+        <a href="/admin/note-types">Manage Note Types</a>
+        <a href="/admin/ratings">Manage Ratings</a>
+        <a href="/admin/links">Manage Links</a>
+    </div>
+
+    <h1>Edit Link</h1>
+
+    <form method="post" action="/admin/links/{}">
+        <div class="form-group">
+            <label for="name">Name *</label>
+            <input type="text" id="name" name="name" value="{}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="url">URL *</label>
+            <input type="url" id="url" name="url" value="{}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="category">Category *</label>
+            <select id="category" name="category" required>
+                <option value="General"{}>General</option>
+                <option value="Class Discords"{}>Class Discords</option>
+                <option value="Content Creators"{}>Content Creators</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" placeholder="Optional description">{}</textarea>
+        </div>
+
+        <input type="hidden" name="_method" value="PUT">
+        <button type="submit" class="btn">Update Link</button>
+        <a href="/admin/links" class="btn btn-secondary">Cancel</a>
+    </form>
+
+    <form style="margin-top: 20px;" method="post" action="/admin/links/{}/delete" onsubmit="return confirm('Are you sure you want to delete this link?');">
+        <button type="submit" class="btn btn-danger">Delete Link</button>
+    </form>
+</body>
+</html>
+    "#,
+        id,
+        name,
+        url,
+        if category == "General" {
+            " selected"
+        } else {
+            ""
+        },
+        if category == "Class Discords" {
+            " selected"
+        } else {
+            ""
+        },
+        if category == "Content Creators" {
+            " selected"
+        } else {
+            ""
+        },
+        description.unwrap_or("".to_string()),
+        id
+    );
+
+    Ok(Html(html))
+}
+
+#[cfg(feature = "admin")]
+async fn create_link_admin(
+    State(state): State<AppState>,
+    Form(form): Form<LinkForm>,
+) -> Result<axum::response::Redirect, StatusCode> {
+    let pool = &state.zone_state.pool;
+
+    sqlx::query("INSERT INTO links (name, url, category, description) VALUES (?, ?, ?, ?)")
+        .bind(&form.name)
+        .bind(&form.url)
+        .bind(&form.category)
+        .bind(&form.description)
+        .execute(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    Ok(axum::response::Redirect::to("/admin/links"))
+}
+
+#[cfg(feature = "admin")]
+async fn handle_link_update_or_delete(
+    State(state): State<AppState>,
+    Path(id): Path<i32>,
+    Form(form): Form<LinkForm>,
+) -> Result<axum::response::Redirect, StatusCode> {
+    if form._method.as_deref() == Some("PUT") {
+        update_link_admin(State(state), Path(id), Form(form)).await
+    } else {
+        Err(StatusCode::METHOD_NOT_ALLOWED)
+    }
+}
+
+#[cfg(feature = "admin")]
+async fn update_link_admin(
+    State(state): State<AppState>,
+    Path(id): Path<i32>,
+    Form(form): Form<LinkForm>,
+) -> Result<axum::response::Redirect, StatusCode> {
+    let pool = &state.zone_state.pool;
+
+    sqlx::query(
+        "UPDATE links SET name = ?, url = ?, category = ?, description = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?"
+    )
+    .bind(&form.name)
+    .bind(&form.url)
+    .bind(&form.category)
+    .bind(&form.description)
+    .bind(id)
+    .execute(pool.as_ref())
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    Ok(axum::response::Redirect::to("/admin/links"))
+}
+
+#[cfg(feature = "admin")]
+async fn delete_link_admin(
+    State(state): State<AppState>,
+    Path(id): Path<i32>,
+) -> Result<axum::response::Redirect, StatusCode> {
+    let pool = &state.zone_state.pool;
+
+    sqlx::query("DELETE FROM links WHERE id = ?")
+        .bind(id)
+        .execute(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    Ok(axum::response::Redirect::to("/admin/links"))
 }

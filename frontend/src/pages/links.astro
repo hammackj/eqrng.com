@@ -1,0 +1,185 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="EQRng.com - Links" currentPage="links">
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <div
+            class="bg-slate-800 rounded-lg shadow-xl border border-slate-600/20 p-6"
+        >
+            <h1 class="text-3xl font-bold text-white mb-6 text-center">
+                EverQuest Links
+            </h1>
+
+            <div id="loading" class="text-center text-slate-300 mb-6">
+                <div
+                    class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"
+                >
+                </div>
+                <p class="mt-2">Loading links...</p>
+            </div>
+
+            <div id="links-container" class="hidden space-y-8">
+                <!-- Links will be populated here -->
+            </div>
+
+            <div id="error" class="hidden text-center text-red-400 mb-6">
+                <p>Failed to load links. Please try again later.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        interface Link {
+            id: number;
+            name: string;
+            url: string;
+            category: string;
+            description: string | null;
+            created_at: string;
+        }
+
+        interface LinksByCategory {
+            [category: string]: Link[];
+        }
+
+        const loadingElement = document.getElementById("loading");
+        const linksContainer = document.getElementById("links-container");
+        const errorElement = document.getElementById("error");
+
+        async function loadLinks() {
+            try {
+                console.log("Starting to load links...");
+                console.log("Fetching from: /api/links/by-category");
+
+                const response = await fetch("/api/links/by-category");
+                console.log("Response status:", response.status);
+                console.log("Response ok:", response.ok);
+                console.log("Response headers:", response.headers);
+
+                if (!response.ok) {
+                    throw new Error(
+                        `Failed to fetch links: ${response.status} ${response.statusText}`,
+                    );
+                }
+
+                const linksByCategory: LinksByCategory = await response.json();
+                console.log("Received data:", linksByCategory);
+                console.log("Data keys:", Object.keys(linksByCategory));
+
+                if (loadingElement) loadingElement.classList.add("hidden");
+
+                if (Object.keys(linksByCategory).length === 0) {
+                    console.log("No links found in response");
+                    if (linksContainer) {
+                        linksContainer.innerHTML =
+                            '<p class="text-center text-slate-300">No links available yet.</p>';
+                        linksContainer.classList.remove("hidden");
+                    }
+                    return;
+                }
+
+                console.log("Displaying links...");
+                displayLinks(linksByCategory);
+
+                if (linksContainer) linksContainer.classList.remove("hidden");
+                console.log("Links loaded successfully!");
+            } catch (error) {
+                console.error("Error loading links:", error);
+                console.error("Error details:", error.message);
+                console.error("Error stack:", error.stack);
+                if (loadingElement) loadingElement.classList.add("hidden");
+                if (errorElement) errorElement.classList.remove("hidden");
+            }
+        }
+
+        function displayLinks(linksByCategory: LinksByCategory) {
+            if (!linksContainer) return;
+
+            // Define the order of categories
+            const categoryOrder = [
+                "General",
+                "Class Discords",
+                "Content Creators",
+            ];
+
+            let html = "";
+
+            categoryOrder.forEach((category) => {
+                const links = linksByCategory[category];
+                if (!links || links.length === 0) return;
+
+                // Sort links alphabetically by name
+                const sortedLinks = links.sort((a, b) =>
+                    a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
+                );
+
+                html += `
+                    <div class="category-section">
+                        <h2 class="text-2xl font-bold text-white mb-4 border-b border-slate-600 pb-2">
+                            ${category}
+                        </h2>
+                        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                `;
+
+                sortedLinks.forEach((link) => {
+                    const description = link.description
+                        ? `<p class="text-slate-400 text-sm mt-2">${escapeHtml(link.description)}</p>`
+                        : "";
+
+                    html += `
+                        <div class="bg-slate-700/50 rounded-lg p-4 border border-slate-600/30 hover:bg-slate-700/70 transition-colors">
+                            <h3 class="text-lg font-semibold text-white mb-2">
+                                <a href="${escapeHtml(link.url)}"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   class="text-purple-400 hover:text-purple-300 transition-colors">
+                                    ${escapeHtml(link.name)}
+                                    <svg class="inline-block w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                    </svg>
+                                </a>
+                            </h3>
+                            ${description}
+                        </div>
+                    `;
+                });
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            linksContainer.innerHTML = html;
+        }
+
+        function escapeHtml(text: string): string {
+            const div = document.createElement("div");
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Load links when the page loads
+        loadLinks();
+    </script>
+
+    <style>
+        .category-section:not(:last-child) {
+            margin-bottom: 2rem;
+        }
+
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</Layout>
