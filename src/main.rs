@@ -7,6 +7,7 @@ use tower_http::services::ServeDir;
 
 use eq_rng::admin;
 use eq_rng::classes::{self, ClassRaceState};
+use eq_rng::links::{self};
 use eq_rng::ratings::{self};
 use eq_rng::zones::{self, ZoneState};
 use eq_rng::{AppState, races, version};
@@ -60,6 +61,13 @@ async fn main() {
         )
         .route("/zones/:zone_id/ratings", get(ratings::get_zone_ratings))
         .route("/zones/:zone_id/notes", get(zones::get_zone_notes_endpoint))
+        .route("/api/links", get(links::get_links))
+        .route("/api/links/by-category", get(links::get_links_by_category))
+        .route("/api/links/categories", get(links::get_categories))
+        .route("/api/links", axum::routing::post(links::create_link))
+        .route("/api/links/:id", get(links::get_link))
+        .route("/api/links/:id", axum::routing::put(links::update_link))
+        .route("/api/links/:id", axum::routing::delete(links::delete_link))
         .merge(admin::admin_routes())
         .with_state(state)
         .layer(
