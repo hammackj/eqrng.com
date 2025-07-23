@@ -12,6 +12,14 @@
     "Shadow Knight",
     "Druid"
   ],
+  "Barbarian": [
+    "Warrior",
+    "Rogue",
+    "Shaman",
+    "Berserker",
+    "Beastlord",
+    "Ranger"
+  ],
   "Erudite": [
     "Cleric",
     "Paladin",

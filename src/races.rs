@@ -11,13 +11,28 @@ pub struct RaceResult {
 }
 
 pub const RACES: &[&str] = &[
-    "Human", "Erudite", "Wood Elf", "High Elf", "Dark Elf", "Half Elf", "Dwarf", "Troll", "Ogre",
-    "Halfling", "Gnome", "Vah Shir", "Drakkin", "Froglok",
+    "Human",
+    "Barbarian",
+    "Erudite",
+    "Wood Elf",
+    "High Elf",
+    "Dark Elf",
+    "Half Elf",
+    "Dwarf",
+    "Troll",
+    "Ogre",
+    "Halfling",
+    "Gnome",
+    "Iksar",
+    "Vah Shir",
+    "Drakkin",
+    "Froglok",
 ];
 
 // Define which races have which gender images available
 pub const RACE_GENDERS: &[(&str, &[&str])] = &[
     ("Human", &["male", "female"]),
+    ("Barbarian", &["male", "female"]),
     ("Erudite", &["male", "female"]),
     ("Wood Elf", &["male", "female"]),
     ("High Elf", &["male", "female"]),
@@ -28,6 +43,7 @@ pub const RACE_GENDERS: &[(&str, &[&str])] = &[
     ("Ogre", &["male", "female"]),
     ("Halfling", &["male", "female"]),
     ("Gnome", &["male", "female"]),
+    ("Iksar", &["male", "female"]),
     ("Vah Shir", &["male", "female"]),
     ("Drakkin", &["male", "female"]),
     ("Froglok", &["male", "female"]),
@@ -137,6 +153,18 @@ mod tests {
             ),
             ("Half Elf", "male", "/assets/images/races/half-elf-male.png"),
             ("Vah Shir", "male", "/assets/images/races/vah-shir-male.png"),
+            (
+                "Barbarian",
+                "male",
+                "/assets/images/races/barbarian-male.png",
+            ),
+            (
+                "Barbarian",
+                "female",
+                "/assets/images/races/barbarian-female.png",
+            ),
+            ("Iksar", "male", "/assets/images/races/iksar-male.png"),
+            ("Iksar", "female", "/assets/images/races/iksar-female.png"),
         ];
 
         for (race, gender, expected_path) in test_cases {
