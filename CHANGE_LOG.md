@@ -1,7 +1,7 @@
 # Change Log
 
 ## July XX, 2025 - Update 4
-- Added new front end, yes the front is 95% AI generated lol
+- Added new front end, yes the front is 90% AI generated lol
 - Added a new "zone notes" to provide additional information about zones.
 - Moved all json files to sqlite
 - Added Race Images with Male / Female Versions that show when generating a race.

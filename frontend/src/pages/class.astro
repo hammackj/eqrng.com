@@ -11,7 +11,7 @@ import Layout from "../layouts/Layout.astro";
                 Random EverQuest Class
             </h1>
 
-            <div id="result" class="mb-6"></div>
+            <div id="result" class="mb-6 transition-opacity duration-300"></div>
 
             <div class="mb-6">
                 <label class="block text-sm font-medium text-slate-300 mb-2">
@@ -118,8 +118,8 @@ import Layout from "../layouts/Layout.astro";
                 if (!resultDiv) return;
 
                 // Show initial loading state
-                resultDiv.innerHTML =
-                    '<div class="text-center text-purple-400">Loading...</div>';
+                // Add loading state with smooth transition
+                resultDiv.style.opacity = "0.5";
 
                 try {
                     // Check which race option is selected
@@ -134,9 +134,7 @@ import Layout from "../layouts/Layout.astro";
 
                     // If user wants random race + class combo, fetch race first
                     if (useRandomRace) {
-                        // Show intermediate loading for race selection
-                        resultDiv.innerHTML =
-                            '<div class="text-center text-purple-400"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-400"></div><p class="mt-2">Getting random race...</p></div>';
+                        // Keep existing content visible during loading
 
                         // Try up to 3 times to get a race with available classes
                         for (
@@ -177,11 +175,7 @@ import Layout from "../layouts/Layout.astro";
                         }
 
                         // Update loading message to show race found
-                        if (selectedRace) {
-                            resultDiv.innerHTML = `<div class="text-center text-purple-400"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-400"></div><p class="mt-2">Got ${selectedRace}! Finding compatible class...</p></div>`;
-                        } else {
-                            resultDiv.innerHTML = `<div class="text-center text-purple-400"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-400"></div><p class="mt-2">Finding any available class...</p></div>`;
-                        }
+                        // Continue with existing content visible during class search
                     }
 
                     // Fetch a random class, optionally filtered by the selected race
@@ -265,6 +259,9 @@ import Layout from "../layouts/Layout.astro";
               }
             </div>
           `;
+
+                        // Smooth transition to new content
+                        resultDiv.style.opacity = "1";
                     } else {
                         // Final fallback: if still no result, try one more time with any race
                         console.log(
@@ -320,6 +317,8 @@ import Layout from "../layouts/Layout.astro";
               </div>
             </div>
           `;
+                                    // Smooth transition to new content
+                                    resultDiv.style.opacity = "1";
                                     return;
                                 }
                             }
@@ -330,11 +329,13 @@ import Layout from "../layouts/Layout.astro";
                             );
                         }
 
+                        resultDiv.style.opacity = "1";
                         resultDiv.innerHTML =
                             '<div class="bg-red-900/50 border border-red-600 text-red-200 px-6 py-4 rounded-lg"><div class="flex items-center justify-center"><span class="text-red-400 mr-3 text-xl">❌</span><span>Unable to generate class. Please try again.</span></div></div>';
                     }
                 } catch (error) {
                     console.error("Error generating class:", error);
+                    resultDiv.style.opacity = "1";
                     resultDiv.innerHTML =
                         '<div class="bg-red-900/50 border border-red-600 text-red-200 px-6 py-4 rounded-lg"><div class="flex items-center justify-center"><span class="text-red-400 mr-3 text-xl">❌</span><span>Error loading class. Please check your connection and try again.</span></div></div>';
                 }
