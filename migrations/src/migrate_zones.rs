@@ -16,6 +16,8 @@ pub struct Zone {
     rating: u8,
     hot_zone: bool,
     mission: bool,
+    #[serde(default)]
+    verified: bool,
 }
 
 pub async fn migrate_zones_to_db() -> Result<(), Box<dyn std::error::Error>> {
@@ -122,8 +124,8 @@ pub async fn migrate_zones_to_db() -> Result<(), Box<dyn std::error::Error>> {
             r#"
             INSERT INTO zones (
                 name, level_ranges, expansion, continent, zone_type,
-                connections, image_url, map_url, rating, hot_zone, mission
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                connections, image_url, map_url, rating, hot_zone, mission, verified
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             "#,
         )
         .bind(&zone.name)
@@ -137,6 +139,7 @@ pub async fn migrate_zones_to_db() -> Result<(), Box<dyn std::error::Error>> {
         .bind(zone.rating as i32)
         .bind(zone.hot_zone)
         .bind(zone.mission)
+        .bind(zone.verified)
         .execute(&mut *transaction)
         .await?;
     }

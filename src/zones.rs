@@ -50,6 +50,7 @@ pub struct Zone {
     pub rating: u8,
     pub hot_zone: bool,
     pub mission: bool,
+    pub verified: bool,
     pub notes: Vec<ZoneNote>,
 }
 
@@ -134,6 +135,7 @@ pub async fn random_zone(
             rating: row.get::<i32, _>("rating") as u8,
             hot_zone: row.get("hot_zone"),
             mission: row.get("mission"),
+            verified: row.get("verified"),
             notes: Vec::new(),
         };
 
@@ -217,6 +219,7 @@ pub async fn get_all_zones(pool: &SqlitePool) -> Result<Vec<Zone>, sqlx::Error> 
             rating: row.get::<i32, _>("rating") as u8,
             hot_zone: row.get("hot_zone"),
             mission: row.get("mission"),
+            verified: row.get("verified"),
             notes: Vec::new(), // Notes not loaded for bulk operations
         });
     }

@@ -37,6 +37,7 @@ pub struct Zone {
     pub rating: i32,
     pub hot_zone: bool,
     pub mission: bool,
+    pub verified: bool,
     pub notes: Vec<crate::zones::ZoneNote>,
 }
 
@@ -54,7 +55,8 @@ pub struct ZoneForm {
     pub rating: i32,
     pub hot_zone: Option<String>, // HTML forms send "on" or nothing
     pub mission: Option<String>,
-    pub _method: Option<String>, // For method override
+    pub verified: Option<String>, // HTML forms send "on" or nothing
+    pub _method: Option<String>,  // For method override
 }
 
 #[cfg(feature = "admin")]
@@ -314,6 +316,7 @@ async fn list_zones(
             rating: row.get("rating"),
             hot_zone: row.get("hot_zone"),
             mission: row.get("mission"),
+            verified: row.get("verified"),
             notes,
         });
     }
@@ -386,6 +389,7 @@ async fn list_zones(
                 <th>Rating</th>
                 <th>Hot Zone</th>
                 <th>Mission</th>
+                <th>Verified</th>
                 <th>Notes</th>
                 <th>Actions</th>
             </tr>
@@ -407,6 +411,7 @@ async fn list_zones(
                 <td>{}</td>
                 <td>{}</td>
                 <td>{}</td>
+                <td>{}</td>
                 <td>
                     <a href="/admin/zones/{}" class="btn btn-small">Edit</a>
                     <a href="/admin/zones/{}/ratings" class="btn btn-small">Ratings</a>
@@ -424,8 +429,9 @@ async fn list_zones(
             zone.zone_type,
             zone.level_ranges,
             zone.rating,
-            if zone.hot_zone { "Yes" } else { "No" },
-            if zone.mission { "Yes" } else { "No" },
+            if zone.hot_zone { "✓" } else { "✗" },
+            if zone.mission { "✓" } else { "✗" },
+            if zone.verified { "✓" } else { "✗" },
             zone.notes.len(),
             zone.id.unwrap_or(0),
             zone.id.unwrap_or(0),
@@ -501,6 +507,7 @@ async fn new_zone_form() -> Html<String> {
                 rating: 0,
                 hot_zone: false,
                 mission: false,
+                verified: false,
             },
             "/admin/zones",
             "POST",
@@ -537,6 +544,7 @@ async fn edit_zone_form(
         rating: zone_row.get("rating"),
         hot_zone: zone_row.get("hot_zone"),
         mission: zone_row.get("mission"),
+        verified: zone_row.get("verified"),
         notes: Vec::new(),
     };
 
@@ -666,6 +674,11 @@ fn get_zone_form_body(
             <label for="mission">Mission Zone</label>
         </div>
 
+        <div class="form-group checkbox-group">
+            <input type="checkbox" id="verified" name="verified" {} />
+            <label for="verified">Verified</label>
+        </div>
+
         <button type="submit" class="btn">{}</button>
         <a href="/admin/zones" class="btn btn-secondary">Cancel</a>
     </form>
@@ -715,6 +728,7 @@ fn get_zone_form_body(
         zone.rating,
         if zone.hot_zone { "checked" } else { "" },
         if zone.mission { "checked" } else { "" },
+        if zone.verified { "checked" } else { "" },
         button_text
     )
 }
@@ -743,8 +757,8 @@ async fn create_zone(
         r#"
         INSERT INTO zones (
             name, level_ranges, expansion, continent, zone_type,
-            connections, image_url, map_url, rating, hot_zone, mission
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            connections, image_url, map_url, rating, hot_zone, mission, verified
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         "#,
     )
     .bind(&form.name)
@@ -758,6 +772,7 @@ async fn create_zone(
     .bind(form.rating)
     .bind(form.hot_zone.is_some())
     .bind(form.mission.is_some())
+    .bind(form.verified.is_some())
     .execute(pool.as_ref())
     .await;
 
@@ -799,7 +814,7 @@ async fn update_zone(
         r#"
         UPDATE zones SET
             name = ?, level_ranges = ?, expansion = ?, continent = ?, zone_type = ?,
-            connections = ?, image_url = ?, map_url = ?, rating = ?, hot_zone = ?, mission = ?
+            connections = ?, image_url = ?, map_url = ?, rating = ?, hot_zone = ?, mission = ?, verified = ?
         WHERE id = ?
         "#,
     )
@@ -814,6 +829,7 @@ async fn update_zone(
     .bind(form.rating)
     .bind(form.hot_zone.is_some())
     .bind(form.mission.is_some())
+    .bind(form.verified.is_some())
     .bind(id)
     .execute(pool.as_ref())
     .await;

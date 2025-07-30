@@ -61,6 +61,7 @@ async fn create_tables(pool: &SqlitePool) -> Result<(), sqlx::Error> {
                 rating INTEGER NOT NULL DEFAULT 0,
                 hot_zone BOOLEAN NOT NULL DEFAULT FALSE,
                 mission BOOLEAN NOT NULL DEFAULT FALSE,
+                verified BOOLEAN NOT NULL DEFAULT FALSE,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
             "#,
@@ -76,6 +77,7 @@ async fn create_tables(pool: &SqlitePool) -> Result<(), sqlx::Error> {
             "CREATE INDEX IF NOT EXISTS idx_zones_hot_zone ON zones(hot_zone)",
             "CREATE INDEX IF NOT EXISTS idx_zones_rating ON zones(rating)",
             "CREATE INDEX IF NOT EXISTS idx_zones_continent ON zones(continent)",
+            "CREATE INDEX IF NOT EXISTS idx_zones_verified ON zones(verified)",
         ];
 
         for index_sql in &indexes {
@@ -85,6 +87,26 @@ async fn create_tables(pool: &SqlitePool) -> Result<(), sqlx::Error> {
         println!("Zones table and indexes created successfully");
     } else {
         println!("Zones table already exists");
+
+        // Check if verified column exists, if not add it
+        let verified_column_exists =
+            sqlx::query("SELECT name FROM pragma_table_info('zones') WHERE name='verified'")
+                .fetch_optional(pool)
+                .await?
+                .is_some();
+
+        if !verified_column_exists {
+            println!("Adding verified column to zones table...");
+            sqlx::query("ALTER TABLE zones ADD COLUMN verified BOOLEAN NOT NULL DEFAULT FALSE")
+                .execute(pool)
+                .await?;
+
+            sqlx::query("CREATE INDEX IF NOT EXISTS idx_zones_verified ON zones(verified)")
+                .execute(pool)
+                .await?;
+
+            println!("Verified column added successfully");
+        }
     }
 
     // Check if zone_ratings table exists

@@ -183,6 +183,7 @@ import Layout from "../layouts/Layout.astro";
                 <div class="flex justify-between"><span class="font-medium text-slate-300">Type:</span> <span class="text-white">${zone.zone_type}</span></div>
                 <div class="flex justify-between"><span class="font-medium text-slate-300">Mission Zone:</span> <span class="${zone.mission ? "text-green-400" : "text-slate-400"}">${zone.mission ? "Yes" : "No"}</span></div>
                 <div class="flex justify-between"><span class="font-medium text-slate-300">Hot Zone:</span> <span class="${zone.hot_zone ? "text-orange-400" : "text-slate-400"}">${zone.hot_zone ? "Yes" : "No"}</span></div>
+                <div class="flex justify-between items-center"><span class="font-medium text-slate-300">Verified:</span> <img src="/assets/images/gouda.png" alt="Verified" class="w-6 h-6 ${zone.verified ? "opacity-100" : "opacity-30"}" /></div>
               </div>
               ${
                   zone.connections.length > 0
