@@ -1,11 +1,12 @@
 # Change Log
 
-## July XX, 2025 - Update 4
+## July 30, 2025 - Update 4
 - Added new front end, yes the front is 90% AI generated lol
 - Added a new "zone notes" to provide additional information about zones.
 - Moved all json files to sqlite
 - Added Race Images with Male / Female Versions that show when generating a race.
-
+- Changed Drop downs to text boxes on the Zones
+- Many other changes, please report any issues on GitHub or Discord
 
 ## July 20, 2025 - Update 3
 - Changed the Zone Picking Any/Any will return ANY ZONE from min to max level
