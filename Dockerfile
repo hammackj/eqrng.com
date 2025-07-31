@@ -18,6 +18,7 @@ WORKDIR /usr/src/eq_rng
 COPY Cargo.toml Cargo.lock ./
 COPY src/ ./src/
 COPY migrations/ ./migrations/
+COPY tests/ ./tests/
 
 # Build the backend without admin features for production
 RUN cargo build --release --no-default-features
