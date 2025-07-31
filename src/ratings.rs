@@ -216,3 +216,22 @@ pub async fn get_zone_ratings(
 
     Ok(Json(ratings))
 }
+
+// Delete a rating by ID (admin/API endpoint)
+pub async fn delete_rating(
+    Path(id): Path<i32>,
+    State(state): State<crate::AppState>,
+) -> Result<StatusCode, StatusCode> {
+    let pool = &*state.zone_state.pool;
+
+    let _ = sqlx::query("DELETE FROM zone_ratings WHERE id = ?")
+        .bind(id)
+        .execute(pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Force WAL checkpoint to immediately update main database file
+    let _ = crate::checkpoint_wal(pool).await;
+
+    Ok(StatusCode::OK)
+}

@@ -60,6 +60,10 @@ async fn main() {
             axum::routing::post(ratings::submit_zone_rating),
         )
         .route("/zones/:zone_id/ratings", get(ratings::get_zone_ratings))
+        .route(
+            "/api/ratings/:id",
+            axum::routing::delete(ratings::delete_rating),
+        )
         .route("/zones/:zone_id/notes", get(zones::get_zone_notes_endpoint))
         .route("/api/links", get(links::get_links))
         .route("/api/links/by-category", get(links::get_links_by_category))

@@ -876,25 +876,6 @@ async fn delete_zone(
 }
 
 #[cfg(feature = "admin")]
-async fn delete_rating(
-    State(state): State<AppState>,
-    Path(id): Path<i32>,
-) -> Result<StatusCode, StatusCode> {
-    let pool = &state.zone_state.pool;
-
-    let _ = sqlx::query("DELETE FROM zone_ratings WHERE id = ?")
-        .bind(id)
-        .execute(pool.as_ref())
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
-    // Force WAL checkpoint to immediately update main database file
-    let _ = crate::checkpoint_wal(pool.as_ref()).await;
-
-    Ok(StatusCode::OK)
-}
-
-#[cfg(feature = "admin")]
 async fn delete_link_admin(
     State(state): State<AppState>,
     Path(id): Path<i32>,
@@ -1184,7 +1165,7 @@ async fn list_all_ratings(
                 <td>{}</td>
                 <td>{}</td>
                 <td>
-                    <form method="post" action="/admin/ratings/{}" style="display: inline;">
+                    <form method="post" action="/admin/ratings/{}/delete" style="display: inline;">
                         <input type="hidden" name="_method" value="DELETE">
                         <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this rating?')">Delete</button>
                     </form>
@@ -1278,7 +1259,7 @@ async fn zone_notes(
                 <div class="note-item" style="display: flex; align-items: center; margin-bottom: 10px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
                     <span class="pill" style="background: {}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; margin-right: 10px;">{}</span>
                     <span style="flex: 1;">{}</span>
-                    <form method="post" action="/admin/zones/{}/notes/{}" style="margin: 0;">
+                    <form method="post" action="/admin/zones/{}/notes/{}/delete" style="margin: 0;">
                         <input type="hidden" name="_method" value="delete">
                         <button type="submit" style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 12px;">Delete</button>
                     </form>
