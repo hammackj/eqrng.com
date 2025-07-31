@@ -270,6 +270,20 @@ async fn admin_dashboard(State(state): State<AppState>) -> Result<Html<String>, 
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
         .get("count");
 
+    let verified_zone_count: i32 =
+        sqlx::query("SELECT COUNT(*) as count FROM zones WHERE verified = 1")
+            .fetch_one(pool.as_ref())
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+            .get("count");
+
+    let verified_instance_count: i32 =
+        sqlx::query("SELECT COUNT(*) as count FROM instances WHERE verified = 1")
+            .fetch_one(instance_pool.as_ref())
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+            .get("count");
+
     let avg_rating_display = avg_rating.map_or("N/A".to_string(), |r| format!("{:.1}", r));
 
     let html = format!(
@@ -324,6 +338,14 @@ async fn admin_dashboard(State(state): State<AppState>) -> Result<Html<String>, 
             <div class="stat-number">{}</div>
             <div class="stat-label">Hot Zones</div>
         </div>
+        <div class="stat-card">
+            <div class="stat-number">{}</div>
+            <div class="stat-label">Verified Zones</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{}</div>
+            <div class="stat-label">Verified Instances</div>
+        </div>
     </div>
 
     <div class="card">
@@ -344,7 +366,13 @@ async fn admin_dashboard(State(state): State<AppState>) -> Result<Html<String>, 
 </body>
 </html>
     "#,
-        zone_count, instance_count, rating_count, avg_rating_display, hot_zone_count
+        zone_count,
+        instance_count,
+        rating_count,
+        avg_rating_display,
+        hot_zone_count,
+        verified_zone_count,
+        verified_instance_count
     );
     Ok(Html(html))
 }
