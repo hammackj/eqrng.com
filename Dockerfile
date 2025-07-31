@@ -6,8 +6,9 @@ WORKDIR /usr/src/frontend
 COPY frontend/package*.json ./
 RUN npm ci
 
-# Copy frontend source and build
+# Copy frontend source and public directory for assets
 COPY frontend/ ./
+COPY public/ ./public/
 ENV DOCKER_BUILD=true
 RUN npm run build
 
@@ -20,6 +21,7 @@ COPY Cargo.toml Cargo.lock ./
 COPY src/ ./src/
 COPY migrations/ ./migrations/
 COPY tests/ ./tests/
+COPY data/ ./data/
 
 # Build the backend without admin features for production
 RUN cargo build --release --no-default-features

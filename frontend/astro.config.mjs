@@ -4,7 +4,7 @@ import tailwind from "@astrojs/tailwind";
 export default defineConfig({
   integrations: [tailwind()],
   outDir: process.env.DOCKER_BUILD ? "./dist" : "../dist",
-  publicDir: "../public",
+  publicDir: process.env.DOCKER_BUILD ? "./public" : "../public",
   server: {
     port: 4321,
     host: true,
