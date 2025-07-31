@@ -61,6 +61,43 @@ pub struct ZoneForm {
 
 #[cfg(feature = "admin")]
 #[derive(Debug, Deserialize)]
+pub struct InstanceForm {
+    pub name: String,
+    pub level_ranges: String,
+    pub expansion: String,
+    pub continent: String,
+    pub zone_type: String,
+    pub connections: String,
+    pub image_url: String,
+    pub map_url: String,
+    pub rating: i32,
+    pub hot_zone: Option<String>, // HTML forms send "on" or nothing
+    pub mission: Option<String>,
+    pub verified: Option<String>, // HTML forms send "on" or nothing
+    pub _method: Option<String>,  // For method override
+}
+
+#[cfg(feature = "admin")]
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Instance {
+    pub id: Option<i32>,
+    pub name: String,
+    pub level_ranges: String, // JSON string
+    pub expansion: String,
+    pub continent: String,
+    pub zone_type: String,
+    pub connections: String, // JSON string
+    pub image_url: String,
+    pub map_url: String,
+    pub rating: i32,
+    pub hot_zone: bool,
+    pub mission: bool,
+    pub verified: bool,
+    pub notes: Vec<crate::instances::InstanceNote>,
+}
+
+#[cfg(feature = "admin")]
+#[derive(Debug, Deserialize)]
 pub struct PaginationQuery {
     pub page: Option<i32>,
     pub per_page: Option<i32>,
@@ -72,6 +109,13 @@ pub struct PaginationQuery {
 #[cfg(feature = "admin")]
 #[derive(Debug, Deserialize)]
 pub struct ZoneNoteForm {
+    pub note_type_id: i64,
+    pub content: String,
+}
+
+#[cfg(feature = "admin")]
+#[derive(Debug, Deserialize)]
+pub struct InstanceNoteForm {
     pub note_type_id: i64,
     pub content: String,
 }
@@ -148,12 +192,29 @@ pub fn admin_routes() -> Router<AppState> {
         .route("/admin/zones/:id", get(edit_zone_form))
         .route("/admin/zones/:id", post(handle_zone_update_or_delete))
         .route("/admin/zones/:id/delete", post(delete_zone))
+        .route(
+            "/admin/zones/:id/move-to-instances",
+            post(move_zone_to_instances),
+        )
         .route("/admin/zones/:id/ratings", get(zone_ratings))
         .route("/admin/zones/:id/notes", get(zone_notes))
         .route("/admin/zones/:id/notes", post(create_zone_note))
         .route(
             "/admin/zones/:id/notes/:note_id/delete",
             post(delete_zone_note),
+        )
+        .route("/admin/instances", get(list_instances))
+        .route("/admin/instances/:id", get(edit_instance_form))
+        .route(
+            "/admin/instances/:id",
+            post(handle_instance_update_or_delete),
+        )
+        .route("/admin/instances/:id/delete", post(delete_instance))
+        .route("/admin/instances/:id/notes", get(instance_notes))
+        .route("/admin/instances/:id/notes", post(create_instance_note))
+        .route(
+            "/admin/instances/:id/notes/:note_id/delete",
+            post(delete_instance_note),
         )
         .route("/admin/note-types", get(list_note_types))
         .route("/admin/note-types", post(create_note_type))
@@ -176,10 +237,17 @@ pub fn admin_routes() -> Router<AppState> {
 #[cfg(feature = "admin")]
 async fn admin_dashboard(State(state): State<AppState>) -> Result<Html<String>, StatusCode> {
     let pool = &state.zone_state.pool;
+    let instance_pool = &state.instance_state.pool;
 
     // Get statistics
     let zone_count: i32 = sqlx::query("SELECT COUNT(*) as count FROM zones")
         .fetch_one(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+        .get("count");
+
+    let instance_count: i32 = sqlx::query("SELECT COUNT(*) as count FROM instances")
+        .fetch_one(instance_pool.as_ref())
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
         .get("count");
@@ -226,6 +294,7 @@ async fn admin_dashboard(State(state): State<AppState>) -> Result<Html<String>, 
     <div class="nav">
         <a href="/admin">Dashboard</a>
         <a href="/admin/zones">Manage Zones</a>
+        <a href="/admin/instances">Manage Instances</a>
         <a href="/admin/zones/new">Add New Zone</a>
         <a href="/admin/note-types">Manage Note Types</a>
         <a href="/admin/ratings">Manage Ratings</a>
@@ -238,6 +307,10 @@ async fn admin_dashboard(State(state): State<AppState>) -> Result<Html<String>, 
         <div class="stat-card">
             <div class="stat-number">{}</div>
             <div class="stat-label">Total Zones</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{}</div>
+            <div class="stat-label">Total Instances</div>
         </div>
         <div class="stat-card">
             <div class="stat-number">{}</div>
@@ -255,7 +328,8 @@ async fn admin_dashboard(State(state): State<AppState>) -> Result<Html<String>, 
 
     <div class="card">
         <h2>Quick Actions</h2>
-        <p><a href="/admin/zones">Manage all zones</a> - View, edit, and delete zones</p>
+        <p><a href="/admin/zones">Manage all zones</a> - View, edit, delete zones, and move zones to instances</p>
+        <p><a href="/admin/instances">Manage all instances</a> - View instances that were moved from zones</p>
         <p><a href="/admin/zones/new">Add new zone</a> - Create a new zone entry</p>
         <p><a href="/admin/note-types">Manage note types</a> - Configure pill icons for zone notes</p>
         <p><a href="/admin/ratings">Manage all ratings</a> - View and delete zone ratings</p>
@@ -270,7 +344,7 @@ async fn admin_dashboard(State(state): State<AppState>) -> Result<Html<String>, 
 </body>
 </html>
     "#,
-        zone_count, rating_count, avg_rating_display, hot_zone_count
+        zone_count, instance_count, rating_count, avg_rating_display, hot_zone_count
     );
     Ok(Html(html))
 }
@@ -432,6 +506,7 @@ async fn list_zones(
     <div class="nav">
         <a href="/admin">Dashboard</a>
         <a href="/admin/zones">Manage Zones</a>
+        <a href="/admin/instances">Manage Instances</a>
         <a href="/admin/zones/new">Add New Zone</a>
     </div>
 
@@ -563,6 +638,9 @@ async fn list_zones(
                     <a href="/admin/zones/{}" class="btn btn-small">Edit</a>
                     <a href="/admin/zones/{}/ratings" class="btn btn-small">Ratings</a>
                     <a href="/admin/zones/{}/notes" class="btn btn-small">Notes</a>
+                    <form method="post" action="/admin/zones/{}/move-to-instances" style="display: inline;">
+                        <button type="submit" class="btn btn-small" style="background: #28a745;" onclick="return confirm('Move this zone to instances?')">Move to Instances</button>
+                    </form>
                     <form id="delete-form-{}" method="post" action="/admin/zones/{}" style="display: inline;">
                         <input type="hidden" name="_method" value="DELETE" />
                         <button type="button" onclick="deleteZone({}, '{}')" class="btn btn-danger btn-small">Delete</button>
@@ -580,6 +658,7 @@ async fn list_zones(
             if zone.mission { "✓" } else { "✗" },
             if zone.verified { "✓" } else { "✗" },
             zone.notes.len(),
+            zone.id.unwrap_or(0),
             zone.id.unwrap_or(0),
             zone.id.unwrap_or(0),
             zone.id.unwrap_or(0),
@@ -672,7 +751,8 @@ async fn new_zone_form() -> Html<String> {
             },
             "/admin/zones",
             "POST",
-            "Create Zone"
+            "Create Zone",
+            None
         )
     );
 
@@ -717,7 +797,8 @@ async fn edit_zone_form(
             &zone,
             &format!("/admin/zones/{}", id),
             "PUT",
-            "Update Zone"
+            "Update Zone",
+            Some(id)
         )
     );
 
@@ -764,6 +845,7 @@ fn get_zone_form_body(
     action: &str,
     method: &str,
     button_text: &str,
+    zone_id: Option<i32>,
 ) -> String {
     format!(
         r#"
@@ -843,6 +925,8 @@ fn get_zone_form_body(
         <button type="submit" class="btn">{}</button>
         <a href="/admin/zones" class="btn btn-secondary">Cancel</a>
     </form>
+
+    {}
 </body>
 </html>
     "#,
@@ -890,7 +974,30 @@ fn get_zone_form_body(
         if zone.hot_zone { "checked" } else { "" },
         if zone.mission { "checked" } else { "" },
         if zone.verified { "checked" } else { "" },
-        button_text
+        button_text,
+        if let Some(id) = zone_id {
+            format!(
+                r#"
+    <div style="margin-top: 30px; padding: 20px; border-top: 2px solid #dee2e6; background-color: #f8f9fa;">
+        <h3 style="color: #495057; margin-bottom: 15px;">Zone Management Actions</h3>
+        <p style="color: #6c757d; margin-bottom: 15px; font-size: 14px;">
+            <strong>Move to Instances:</strong> This will transfer this zone to the instances table and remove it from zones.
+            All notes and data will be preserved.
+        </p>
+        <form method="post" action="/admin/zones/{}/move-to-instances" style="display: inline;">
+            <button type="submit" class="btn" style="background: #28a745; border: none; margin-right: 10px;"
+                    onclick="return confirm('Move this zone to instances?\n\nThis will:\n• Move the zone to the instances table\n• Preserve all notes and data\n• Remove it from the zones table\n\nThis action cannot be easily undone.')">
+                🔄 Move to Instances
+            </button>
+        </form>
+        <small style="color: #6c757d;">This action will redirect you back to the zones list after completion.</small>
+    </div>
+"#,
+                id
+            )
+        } else {
+            String::new()
+        }
     )
 }
 
@@ -2377,4 +2484,900 @@ async fn update_link_admin(
     let _ = crate::checkpoint_wal(pool.as_ref()).await;
 
     Ok(Redirect::to("/admin/links"))
+}
+
+#[cfg(feature = "admin")]
+async fn move_zone_to_instances(
+    State(state): State<AppState>,
+    Path(zone_id): Path<i32>,
+) -> Result<Redirect, StatusCode> {
+    let pool = &state.zone_state.pool;
+    let instance_pool = &state.instance_state.pool;
+
+    // Start a transaction-like operation by fetching the zone data first
+    let zone_row = sqlx::query("SELECT * FROM zones WHERE id = ?")
+        .bind(zone_id)
+        .fetch_one(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::NOT_FOUND)?;
+
+    // Insert the zone data into instances table
+    let instance_id = sqlx::query(
+        r#"
+        INSERT INTO instances (
+            name, level_ranges, expansion, continent, zone_type,
+            connections, image_url, map_url, rating, hot_zone,
+            mission, verified, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        "#,
+    )
+    .bind(zone_row.get::<String, _>("name"))
+    .bind(zone_row.get::<String, _>("level_ranges"))
+    .bind(zone_row.get::<String, _>("expansion"))
+    .bind(zone_row.get::<String, _>("continent"))
+    .bind(zone_row.get::<String, _>("zone_type"))
+    .bind(zone_row.get::<String, _>("connections"))
+    .bind(zone_row.get::<String, _>("image_url"))
+    .bind(zone_row.get::<String, _>("map_url"))
+    .bind(zone_row.get::<i32, _>("rating"))
+    .bind(zone_row.get::<bool, _>("hot_zone"))
+    .bind(zone_row.get::<bool, _>("mission"))
+    .bind(zone_row.get::<bool, _>("verified"))
+    .bind(zone_row.get::<String, _>("created_at"))
+    .execute(instance_pool.as_ref())
+    .await
+    .map_err(|e| {
+        eprintln!("Error inserting into instances: {}", e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?
+    .last_insert_rowid();
+
+    // Copy zone notes to instance notes
+    let zone_notes = sqlx::query("SELECT * FROM zone_notes WHERE zone_id = ?")
+        .bind(zone_id)
+        .fetch_all(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    for note_row in zone_notes {
+        sqlx::query(
+            "INSERT INTO instance_notes (instance_id, note_type_id, content, created_at, updated_at) VALUES (?, ?, ?, ?, ?)"
+        )
+        .bind(instance_id)
+        .bind(note_row.get::<i64, _>("note_type_id"))
+        .bind(note_row.get::<String, _>("content"))
+        .bind(note_row.get::<String, _>("created_at"))
+        .bind(note_row.get::<String, _>("updated_at"))
+        .execute(instance_pool.as_ref())
+        .await
+        .map_err(|e| {
+            eprintln!("Error copying note: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
+    }
+
+    // Delete zone notes first (due to foreign key constraints)
+    sqlx::query("DELETE FROM zone_notes WHERE zone_id = ?")
+        .bind(zone_id)
+        .execute(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Delete zone ratings
+    sqlx::query("DELETE FROM zone_ratings WHERE zone_id = ?")
+        .bind(zone_id)
+        .execute(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Finally, delete the zone
+    sqlx::query("DELETE FROM zones WHERE id = ?")
+        .bind(zone_id)
+        .execute(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Force WAL checkpoint for both databases
+    let _ = crate::checkpoint_wal(pool.as_ref()).await;
+    let _ = crate::checkpoint_wal(instance_pool.as_ref()).await;
+
+    Ok(Redirect::to("/admin/zones"))
+}
+
+#[cfg(feature = "admin")]
+async fn list_instances(
+    State(state): State<AppState>,
+    Query(params): Query<PaginationQuery>,
+) -> Result<Html<String>, StatusCode> {
+    let page = params.page.unwrap_or(1).max(1);
+    let per_page = params.per_page.unwrap_or(20).clamp(5, 100);
+    let offset = (page - 1) * per_page;
+    let search = params.search.unwrap_or_default();
+    let sort = params.sort.clone().unwrap_or_else(|| "name".to_string());
+    let order = params.order.clone().unwrap_or_else(|| "asc".to_string());
+
+    let pool = &state.instance_state.pool;
+
+    // Validate sort column and order
+    let valid_columns = [
+        "id",
+        "name",
+        "level_ranges",
+        "expansion",
+        "zone_type",
+        "rating",
+        "hot_zone",
+        "mission",
+        "verified",
+        "created_at",
+    ];
+    let sort_column = if valid_columns.contains(&sort.as_str()) {
+        sort.as_str()
+    } else {
+        "name"
+    };
+
+    let sort_order = if order == "asc" { "ASC" } else { "DESC" };
+
+    // Build search query
+    let (where_clause, search_param) = if search.is_empty() {
+        ("".to_string(), None)
+    } else {
+        (
+            "WHERE name LIKE ? OR expansion LIKE ? OR zone_type LIKE ?".to_string(),
+            Some(format!("%{}%", search)),
+        )
+    };
+
+    // Get total count
+    let count_query = format!("SELECT COUNT(*) as count FROM instances {}", where_clause);
+    let total_count: i32 = if let Some(ref search_term) = search_param {
+        sqlx::query(&count_query)
+            .bind(search_term)
+            .bind(search_term)
+            .bind(search_term)
+            .fetch_one(pool.as_ref())
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+            .get("count")
+    } else {
+        sqlx::query(&count_query)
+            .fetch_one(pool.as_ref())
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+            .get("count")
+    };
+
+    // Get instances
+    let instances_query = format!(
+        "SELECT * FROM instances {} ORDER BY {} {} LIMIT ? OFFSET ?",
+        where_clause, sort_column, sort_order
+    );
+
+    let instance_rows = if let Some(ref search_term) = search_param {
+        sqlx::query(&instances_query)
+            .bind(search_term)
+            .bind(search_term)
+            .bind(search_term)
+            .bind(per_page)
+            .bind(offset)
+            .fetch_all(pool.as_ref())
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+    } else {
+        sqlx::query(&instances_query)
+            .bind(per_page)
+            .bind(offset)
+            .fetch_all(pool.as_ref())
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+    };
+
+    // Load notes for each instance
+    let mut instances = Vec::new();
+    for row in instance_rows {
+        let instance_id: i64 = row.get("id");
+        let notes = crate::instances::get_instance_notes(pool.as_ref(), instance_id)
+            .await
+            .unwrap_or_default();
+
+        instances.push(Instance {
+            id: Some(instance_id as i32),
+            name: row.get("name"),
+            level_ranges: row.get("level_ranges"),
+            expansion: row.get("expansion"),
+            continent: row.get("continent"),
+            zone_type: row.get("zone_type"),
+            connections: row.get("connections"),
+            image_url: row.get("image_url"),
+            map_url: row.get("map_url"),
+            rating: row.get("rating"),
+            hot_zone: row.get("hot_zone"),
+            mission: row.get("mission"),
+            verified: row.get("verified"),
+            notes,
+        });
+    }
+
+    let total_pages = (total_count + per_page - 1) / per_page;
+
+    let mut html = format!(
+        r#"
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Instances - EQ RNG Admin</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; max-width: 1400px; margin: 0 auto; padding: 20px; }}
+        .nav {{ background: #f5f5f5; padding: 15px; margin-bottom: 20px; border-radius: 5px; }}
+        .nav a {{ margin-right: 15px; text-decoration: none; color: #333; font-weight: bold; }}
+        .nav a:hover {{ color: #007bff; }}
+        .controls {{ margin-bottom: 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }}
+        .controls input, .controls select {{ padding: 8px; border: 1px solid #ddd; border-radius: 4px; }}
+        .btn {{ background: #007bff; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; }}
+        .btn:hover {{ background: #0056b3; }}
+        .btn-danger {{ background: #dc3545; }}
+        .btn-danger:hover {{ background: #c82333; }}
+        .btn-small {{ padding: 4px 8px; font-size: 0.8em; }}
+        table {{ width: 100%; border-collapse: collapse; margin-bottom: 20px; }}
+        th, td {{ padding: 8px; border: 1px solid #ddd; text-align: left; }}
+        th {{ background: #f5f5f5; }}
+        .pagination {{ display: flex; gap: 5px; align-items: center; }}
+        .pagination a {{ padding: 8px 12px; text-decoration: none; border: 1px solid #ddd; border-radius: 4px; }}
+        .pagination a.current {{ background: #007bff; color: white; }}
+        .truncate {{ max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }}
+        th {{ background-color: #f8f9fa; border-bottom: 2px solid #dee2e6; }}
+        th a:hover {{ background-color: #e9ecef; padding: 4px; border-radius: 3px; }}
+    </style>
+    <script>
+        function deleteInstance(id, name) {{
+            if (confirm('Are you sure you want to delete "' + name + '"?')) {{
+                document.getElementById('delete-form-' + id).submit();
+            }}
+        }}
+    </script>
+</head>
+<body>
+    <div class="nav">
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/zones">Manage Zones</a>
+        <a href="/admin/instances">Manage Instances</a>
+    </div>
+
+    <h1>Manage Instances</h1>
+
+    <div class="controls">
+        <form method="get" style="display: flex; gap: 10px; align-items: center;">
+            <input type="text" name="search" placeholder="Search instances..." value="{}" />
+            <input type="hidden" name="page" value="1" />
+            <input type="hidden" name="per_page" value="{}" />
+            <button type="submit" class="btn">Search</button>
+        </form>
+    </div>
+
+    <p>Showing {} instances (Page {} of {})</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>{}</th>
+                <th>{}</th>
+                <th>{}</th>
+                <th>{}</th>
+                <th>{}</th>
+                <th>{}</th>
+                <th>{}</th>
+                <th>{}</th>
+                <th>{}</th>
+                <th>Notes</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+"#,
+        search,
+        per_page,
+        total_count,
+        page,
+        total_pages,
+        generate_sortable_header(
+            "id",
+            "ID",
+            &params.sort,
+            &params.order,
+            "/admin/instances",
+            &search,
+        ),
+        generate_sortable_header(
+            "name",
+            "Name",
+            &params.sort,
+            &params.order,
+            "/admin/instances",
+            &search,
+        ),
+        generate_sortable_header(
+            "expansion",
+            "Expansion",
+            &params.sort,
+            &params.order,
+            "/admin/instances",
+            &search,
+        ),
+        generate_sortable_header(
+            "zone_type",
+            "Zone Type",
+            &params.sort,
+            &params.order,
+            "/admin/instances",
+            &search,
+        ),
+        generate_sortable_header(
+            "level_ranges",
+            "Level Ranges",
+            &params.sort,
+            &params.order,
+            "/admin/instances",
+            &search,
+        ),
+        generate_sortable_header(
+            "rating",
+            "Rating",
+            &params.sort,
+            &params.order,
+            "/admin/instances",
+            &search,
+        ),
+        generate_sortable_header(
+            "hot_zone",
+            "Hot Zone",
+            &params.sort,
+            &params.order,
+            "/admin/instances",
+            &search,
+        ),
+        generate_sortable_header(
+            "mission",
+            "Mission",
+            &params.sort,
+            &params.order,
+            "/admin/instances",
+            &search,
+        ),
+        generate_sortable_header(
+            "verified",
+            "Verified",
+            &params.sort,
+            &params.order,
+            "/admin/instances",
+            &search,
+        ),
+    );
+
+    for instance in instances {
+        html.push_str(&format!(
+            r#"
+            <tr>
+                <td>{}</td>
+                <td class="truncate" title="{}">{}</td>
+                <td>{}</td>
+                <td>{}</td>
+                <td class="truncate">{}</td>
+                <td>{}</td>
+                <td>{}</td>
+                <td>{}</td>
+                <td>{}</td>
+                <td>{}</td>
+                <td>
+                    <a href="/admin/instances/{}" class="btn btn-small">Edit</a>
+                    <a href="/admin/instances/{}/notes" class="btn btn-small">Notes</a>
+                    <form id="delete-form-{}" method="post" action="/admin/instances/{}" style="display: inline;">
+                        <input type="hidden" name="_method" value="DELETE" />
+                        <button type="button" onclick="deleteInstance({}, '{}')" class="btn btn-danger btn-small">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        "#,
+            instance.id.unwrap_or(0),
+            instance.name,
+            instance.name,
+            instance.expansion,
+            instance.zone_type,
+            instance.level_ranges,
+            instance.rating,
+            if instance.hot_zone { "✓" } else { "✗" },
+            if instance.mission { "✓" } else { "✗" },
+            if instance.verified { "✓" } else { "✗" },
+            instance.notes.len(),
+            instance.id.unwrap_or(0),
+            instance.id.unwrap_or(0),
+            instance.id.unwrap_or(0),
+            instance.id.unwrap_or(0),
+            instance.id.unwrap_or(0),
+            instance.name.replace("'", "\\'")
+        ));
+    }
+
+    html.push_str("</tbody></table>");
+
+    // Pagination
+    if total_pages > 1 {
+        html.push_str("<div class=\"pagination\">");
+
+        let search_param = if search.is_empty() {
+            String::new()
+        } else {
+            format!("&search={}", urlencoding::encode(&search))
+        };
+
+        let sort_param = format!(
+            "&sort={}&order={}",
+            urlencoding::encode(&sort),
+            urlencoding::encode(&order)
+        );
+
+        if page > 1 {
+            html.push_str(&format!(
+                r#"<a href="?page={}&per_page={}{}{}">Previous</a>"#,
+                page - 1,
+                per_page,
+                search_param,
+                sort_param
+            ));
+        }
+
+        for p in 1..=total_pages {
+            if p == page {
+                html.push_str(&format!("<a href=\"#\" class=\"current\">{}</a>", p));
+            } else {
+                html.push_str(&format!(
+                    "<a href=\"?page={}&per_page={}{}{}\">{}</a>",
+                    p, per_page, search_param, sort_param, p
+                ));
+            }
+        }
+
+        if page < total_pages {
+            html.push_str(&format!(
+                r#"<a href="?page={}&per_page={}{}{}">Next</a>"#,
+                page + 1,
+                per_page,
+                search_param,
+                sort_param
+            ));
+        }
+
+        html.push_str("</div>");
+    }
+
+    html.push_str("</body></html>");
+
+    Ok(Html(html))
+}
+
+#[cfg(feature = "admin")]
+async fn edit_instance_form(
+    State(state): State<AppState>,
+    Path(instance_id): Path<i32>,
+) -> Result<Html<String>, StatusCode> {
+    let pool = &state.instance_state.pool;
+
+    let instance_row = sqlx::query("SELECT * FROM instances WHERE id = ?")
+        .bind(instance_id)
+        .fetch_one(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::NOT_FOUND)?;
+
+    let header = get_instance_form_header("Edit Instance");
+    let body = get_instance_form_body(&instance_row, Some(instance_id));
+
+    Ok(Html(format!("{}{}", header, body)))
+}
+
+fn get_instance_form_header(title: &str) -> String {
+    format!(
+        r#"
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{} - EQ RNG Admin</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }}
+        .nav {{ background: #f5f5f5; padding: 15px; margin-bottom: 20px; border-radius: 5px; }}
+        .nav a {{ margin-right: 15px; text-decoration: none; color: #333; font-weight: bold; }}
+        .nav a:hover {{ color: #007bff; }}
+        .form-group {{ margin-bottom: 15px; }}
+        label {{ display: block; margin-bottom: 5px; font-weight: bold; }}
+        input, textarea, select {{ width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }}
+        textarea {{ height: 60px; resize: vertical; }}
+        .btn {{ background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }}
+        .btn:hover {{ background: #0056b3; }}
+        .checkbox-group {{ display: flex; align-items: center; }}
+        .checkbox-group input {{ width: auto; margin-right: 10px; }}
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/zones">Manage Zones</a>
+        <a href="/admin/instances">Manage Instances</a>
+    </div>
+
+    <h1>{}</h1>
+"#,
+        title, title
+    )
+}
+
+fn get_instance_form_body(
+    instance_row: &sqlx::sqlite::SqliteRow,
+    instance_id: Option<i32>,
+) -> String {
+    use sqlx::Row;
+
+    let action = if let Some(id) = instance_id {
+        format!("/admin/instances/{}", id)
+    } else {
+        "/admin/instances".to_string()
+    };
+
+    let method_field = if instance_id.is_some() {
+        r#"<input type="hidden" name="_method" value="PUT">"#
+    } else {
+        ""
+    };
+
+    format!(
+        r#"
+    <form method="post" action="{}">
+        {}
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" value="{}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="level_ranges">Level Ranges (JSON):</label>
+            <textarea id="level_ranges" name="level_ranges" required>{}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="expansion">Expansion:</label>
+            <input type="text" id="expansion" name="expansion" value="{}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="continent">Continent:</label>
+            <input type="text" id="continent" name="continent" value="{}">
+        </div>
+
+        <div class="form-group">
+            <label for="zone_type">Instance Type:</label>
+            <input type="text" id="zone_type" name="zone_type" value="{}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="connections">Connections (JSON):</label>
+            <textarea id="connections" name="connections">{}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="image_url">Image URL:</label>
+            <input type="url" id="image_url" name="image_url" value="{}">
+        </div>
+
+        <div class="form-group">
+            <label for="map_url">Map URL:</label>
+            <input type="url" id="map_url" name="map_url" value="{}">
+        </div>
+
+        <div class="form-group">
+            <label for="rating">Rating (0-5):</label>
+            <input type="number" id="rating" name="rating" min="0" max="5" value="{}">
+        </div>
+
+        <div class="form-group checkbox-group">
+            <input type="checkbox" id="hot_zone" name="hot_zone" value="true" {}>
+            <label for="hot_zone">Hot Zone</label>
+        </div>
+
+        <div class="form-group checkbox-group">
+            <input type="checkbox" id="mission" name="mission" value="true" {}>
+            <label for="mission">Mission</label>
+        </div>
+
+        <div class="form-group checkbox-group">
+            <input type="checkbox" id="verified" name="verified" value="true" {}>
+            <label for="verified">Verified</label>
+        </div>
+
+        <button type="submit" class="btn">Save Instance</button>
+        <a href="/admin/instances" class="btn" style="background: #6c757d; margin-left: 10px;">Cancel</a>
+    </form>
+
+</body>
+</html>
+"#,
+        action,
+        method_field,
+        instance_row.get::<String, _>("name"),
+        instance_row.get::<String, _>("level_ranges"),
+        instance_row.get::<String, _>("expansion"),
+        instance_row.get::<String, _>("continent"),
+        instance_row.get::<String, _>("zone_type"),
+        instance_row.get::<String, _>("connections"),
+        instance_row.get::<String, _>("image_url"),
+        instance_row.get::<String, _>("map_url"),
+        instance_row.get::<i32, _>("rating"),
+        if instance_row.get::<bool, _>("hot_zone") {
+            "checked"
+        } else {
+            ""
+        },
+        if instance_row.get::<bool, _>("mission") {
+            "checked"
+        } else {
+            ""
+        },
+        if instance_row.get::<bool, _>("verified") {
+            "checked"
+        } else {
+            ""
+        }
+    )
+}
+
+#[cfg(feature = "admin")]
+async fn handle_instance_update_or_delete(
+    State(state): State<AppState>,
+    Path(id): Path<i32>,
+    Form(form): Form<InstanceForm>,
+) -> Result<Redirect, StatusCode> {
+    if form._method.as_deref() == Some("DELETE") {
+        delete_instance(State(state), Path(id)).await
+    } else {
+        update_instance(State(state), Path(id), Form(form)).await
+    }
+}
+
+#[cfg(feature = "admin")]
+async fn update_instance(
+    State(state): State<AppState>,
+    Path(id): Path<i32>,
+    Form(form): Form<InstanceForm>,
+) -> Result<Redirect, StatusCode> {
+    let pool = &state.instance_state.pool;
+
+    let hot_zone = form.hot_zone.is_some();
+    let mission = form.mission.is_some();
+    let verified = form.verified.is_some();
+
+    let _ = sqlx::query(
+        "UPDATE instances SET name = ?, level_ranges = ?, expansion = ?, continent = ?, zone_type = ?, connections = ?, image_url = ?, map_url = ?, rating = ?, hot_zone = ?, mission = ?, verified = ? WHERE id = ?",
+    )
+    .bind(&form.name)
+    .bind(&form.level_ranges)
+    .bind(&form.expansion)
+    .bind(&form.continent)
+    .bind(&form.zone_type)
+    .bind(&form.connections)
+    .bind(&form.image_url)
+    .bind(&form.map_url)
+    .bind(form.rating)
+    .bind(hot_zone)
+    .bind(mission)
+    .bind(verified)
+    .bind(id)
+    .execute(pool.as_ref())
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Force WAL checkpoint to immediately update main database file
+    let _ = crate::checkpoint_wal(pool.as_ref()).await;
+
+    Ok(Redirect::to("/admin/instances"))
+}
+
+#[cfg(feature = "admin")]
+async fn delete_instance(
+    State(state): State<AppState>,
+    Path(id): Path<i32>,
+) -> Result<Redirect, StatusCode> {
+    let pool = &state.instance_state.pool;
+
+    let _ = sqlx::query("DELETE FROM instances WHERE id = ?")
+        .bind(id)
+        .execute(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Force WAL checkpoint to immediately update main database file
+    let _ = crate::checkpoint_wal(pool.as_ref()).await;
+
+    Ok(Redirect::to("/admin/instances"))
+}
+
+#[cfg(feature = "admin")]
+async fn instance_notes(
+    State(state): State<AppState>,
+    Path(instance_id): Path<i32>,
+) -> Result<Html<String>, StatusCode> {
+    let pool = &state.instance_state.pool;
+
+    // Get instance details
+    let instance_row = sqlx::query("SELECT name FROM instances WHERE id = ?")
+        .bind(instance_id)
+        .fetch_one(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::NOT_FOUND)?;
+
+    let instance_name: String = instance_row.get("name");
+
+    // Get notes for this instance
+    let notes = crate::instances::get_instance_notes(pool.as_ref(), instance_id as i64)
+        .await
+        .unwrap_or_default();
+
+    // Get note types for the form
+    let note_types = crate::instances::get_note_types(pool.as_ref())
+        .await
+        .unwrap_or_default();
+
+    let mut html = format!(
+        r#"
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Instance Notes - EQ RNG Admin</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px; }}
+        .nav {{ background: #f5f5f5; padding: 15px; margin-bottom: 20px; border-radius: 5px; }}
+        .nav a {{ margin-right: 15px; text-decoration: none; color: #333; font-weight: bold; }}
+        .nav a:hover {{ color: #007bff; }}
+        .form-group {{ margin-bottom: 15px; }}
+        label {{ display: block; margin-bottom: 5px; font-weight: bold; }}
+        input, textarea, select {{ width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }}
+        textarea {{ height: 80px; resize: vertical; }}
+        .btn {{ background: #007bff; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; }}
+        .btn:hover {{ background: #0056b3; }}
+        .btn-danger {{ background: #dc3545; }}
+        .btn-danger:hover {{ background: #c82333; }}
+        .btn-small {{ padding: 4px 8px; font-size: 0.8em; }}
+        .note-card {{ border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px; }}
+        .note-header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }}
+        .note-type {{ padding: 4px 8px; border-radius: 3px; color: white; font-size: 0.8em; }}
+        .bg-yellow-500 {{ background-color: #f59e0b; }}
+        .bg-orange-500 {{ background-color: #ea580c; }}
+        .bg-red-500 {{ background-color: #ef4444; }}
+        .bg-purple-500 {{ background-color: #a855f7; }}
+        .bg-blue-500 {{ background-color: #3b82f6; }}
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/instances">Manage Instances</a>
+        <a href="/admin/instances/{}/notes">Instance Notes</a>
+    </div>
+
+    <h1>Notes for: {}</h1>
+
+    <div class="note-card">
+        <h3>Add New Note</h3>
+        <form method="post" action="/admin/instances/{}/notes">
+            <div class="form-group">
+                <label for="note_type_id">Note Type:</label>
+                <select id="note_type_id" name="note_type_id" required>
+"#,
+        instance_id, instance_name, instance_id
+    );
+
+    for note_type in &note_types {
+        html.push_str(&format!(
+            r#"                    <option value="{}">{}</option>
+"#,
+            note_type.id.unwrap_or(0),
+            note_type.display_name
+        ));
+    }
+
+    html.push_str(
+        r#"                </select>
+            </div>
+            <div class="form-group">
+                <label for="content">Content:</label>
+                <textarea id="content" name="content" required></textarea>
+            </div>
+            <button type="submit" class="btn">Add Note</button>
+        </form>
+    </div>
+
+    <h2>Existing Notes</h2>
+"#,
+    );
+
+    if notes.is_empty() {
+        html.push_str("<p>No notes found for this instance.</p>");
+    } else {
+        for note in notes {
+            html.push_str(&format!(
+                r#"
+    <div class="note-card">
+        <div class="note-header">
+            <span class="note-type {}">{}</span>
+            <form method="post" action="/admin/instances/{}/notes/{}/delete" style="display: inline;">
+                <button type="submit" class="btn btn-danger btn-small" onclick="return confirm('Delete this note?')">Delete</button>
+            </form>
+        </div>
+        <p>{}</p>
+    </div>
+"#,
+                note.note_type
+                    .as_ref()
+                    .map(|nt| nt.color_class.as_str())
+                    .unwrap_or("bg-blue-500"),
+                note.note_type
+                    .as_ref()
+                    .map(|nt| nt.display_name.as_str())
+                    .unwrap_or("Unknown"),
+                instance_id,
+                note.id.unwrap_or(0),
+                note.content
+            ));
+        }
+    }
+
+    html.push_str("</body></html>");
+
+    Ok(Html(html))
+}
+
+#[cfg(feature = "admin")]
+async fn create_instance_note(
+    State(state): State<AppState>,
+    Path(instance_id): Path<i32>,
+    Form(form): Form<InstanceNoteForm>,
+) -> Result<Redirect, StatusCode> {
+    let pool = &state.instance_state.pool;
+
+    let _ = sqlx::query(
+        "INSERT INTO instance_notes (instance_id, note_type_id, content) VALUES (?, ?, ?)",
+    )
+    .bind(instance_id)
+    .bind(form.note_type_id)
+    .bind(&form.content)
+    .execute(pool.as_ref())
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Force WAL checkpoint to immediately update main database file
+    let _ = crate::checkpoint_wal(pool.as_ref()).await;
+
+    Ok(Redirect::to(&format!(
+        "/admin/instances/{}/notes",
+        instance_id
+    )))
+}
+
+#[cfg(feature = "admin")]
+async fn delete_instance_note(
+    State(state): State<AppState>,
+    Path((instance_id, note_id)): Path<(i32, i32)>,
+) -> Result<Redirect, StatusCode> {
+    let pool = &state.instance_state.pool;
+
+    let _ = sqlx::query("DELETE FROM instance_notes WHERE id = ? AND instance_id = ?")
+        .bind(note_id)
+        .bind(instance_id)
+        .execute(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Force WAL checkpoint to immediately update main database file
+    let _ = crate::checkpoint_wal(pool.as_ref()).await;
+
+    Ok(Redirect::to(&format!(
+        "/admin/instances/{}/notes",
+        instance_id
+    )))
 }

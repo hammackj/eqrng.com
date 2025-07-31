@@ -7,6 +7,7 @@ use tower_http::services::ServeDir;
 
 use eq_rng::admin;
 use eq_rng::classes::{self, ClassRaceState};
+use eq_rng::instances::{self, InstanceState};
 use eq_rng::links::{self};
 use eq_rng::ratings::{self};
 use eq_rng::zones::{self, ZoneState};
@@ -42,6 +43,9 @@ async fn main() {
 
     let state = AppState {
         zone_state: ZoneState {
+            pool: std::sync::Arc::new(pool.clone()),
+        },
+        instance_state: InstanceState {
             pool: std::sync::Arc::new(pool),
         },
         class_race_state: ClassRaceState {
@@ -51,6 +55,7 @@ async fn main() {
 
     let app = Router::new()
         .route("/random_zone", get(zones::random_zone))
+        .route("/random_instance", get(instances::random_instance))
         .route("/random_race", get(races::random_race))
         .route("/random_class", get(classes::random_class))
         .route("/version", get(version::version))
@@ -65,6 +70,10 @@ async fn main() {
             axum::routing::delete(ratings::delete_rating),
         )
         .route("/zones/:zone_id/notes", get(zones::get_zone_notes_endpoint))
+        .route(
+            "/instances/:instance_id/notes",
+            get(instances::get_instance_notes_endpoint),
+        )
         .route("/api/links", get(links::get_links))
         .route("/api/links/by-category", get(links::get_links_by_category))
         .route("/api/links/categories", get(links::get_categories))

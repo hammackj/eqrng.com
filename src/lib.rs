@@ -3,6 +3,7 @@ use std::path::Path;
 
 pub mod admin;
 pub mod classes;
+pub mod instances;
 pub mod links;
 pub mod races;
 pub mod ratings;
@@ -12,6 +13,7 @@ pub mod zones;
 #[derive(Clone)]
 pub struct AppState {
     pub zone_state: zones::ZoneState,
+    pub instance_state: instances::InstanceState,
     pub class_race_state: classes::ClassRaceState,
 }
 
@@ -288,11 +290,115 @@ async fn create_tables(pool: &SqlitePool) -> Result<(), sqlx::Error> {
         println!("Links table already exists");
     }
 
+    // Check if instances table exists
+    let instances_table_exists =
+        sqlx::query("SELECT name FROM sqlite_master WHERE type='table' AND name='instances'")
+            .fetch_optional(pool)
+            .await?
+            .is_some();
+
+    if !instances_table_exists {
+        println!("Creating instances table...");
+
+        sqlx::query(
+            r#"
+            CREATE TABLE instances (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                level_ranges TEXT NOT NULL,
+                expansion TEXT NOT NULL,
+                continent TEXT NOT NULL DEFAULT '',
+                zone_type TEXT NOT NULL,
+                connections TEXT NOT NULL DEFAULT '[]',
+                image_url TEXT NOT NULL DEFAULT '',
+                map_url TEXT NOT NULL DEFAULT '',
+                rating INTEGER NOT NULL DEFAULT 0,
+                hot_zone BOOLEAN NOT NULL DEFAULT FALSE,
+                mission BOOLEAN NOT NULL DEFAULT FALSE,
+                verified BOOLEAN NOT NULL DEFAULT FALSE,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+            "#,
+        )
+        .execute(pool)
+        .await?;
+
+        // Create indexes
+        let instance_indexes = [
+            "CREATE INDEX IF NOT EXISTS idx_instances_expansion ON instances(expansion)",
+            "CREATE INDEX IF NOT EXISTS idx_instances_zone_type ON instances(zone_type)",
+            "CREATE INDEX IF NOT EXISTS idx_instances_mission ON instances(mission)",
+            "CREATE INDEX IF NOT EXISTS idx_instances_hot_zone ON instances(hot_zone)",
+            "CREATE INDEX IF NOT EXISTS idx_instances_rating ON instances(rating)",
+            "CREATE INDEX IF NOT EXISTS idx_instances_continent ON instances(continent)",
+            "CREATE INDEX IF NOT EXISTS idx_instances_verified ON instances(verified)",
+        ];
+
+        for index_sql in &instance_indexes {
+            sqlx::query(index_sql).execute(pool).await?;
+        }
+
+        println!("Instances table and indexes created successfully");
+    } else {
+        println!("Instances table already exists");
+    }
+
+    // Check if instance_notes table exists
+    let instance_notes_table_exists =
+        sqlx::query("SELECT name FROM sqlite_master WHERE type='table' AND name='instance_notes'")
+            .fetch_optional(pool)
+            .await?
+            .is_some();
+
+    if !instance_notes_table_exists {
+        println!("Creating instance_notes table...");
+
+        sqlx::query(
+            r#"
+            CREATE TABLE instance_notes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                instance_id INTEGER NOT NULL,
+                note_type_id INTEGER NOT NULL,
+                content TEXT NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (instance_id) REFERENCES instances (id) ON DELETE CASCADE,
+                FOREIGN KEY (note_type_id) REFERENCES note_types (id) ON DELETE CASCADE
+            )
+            "#,
+        )
+        .execute(pool)
+        .await?;
+
+        // Create indexes for instance_notes
+        let instance_note_indexes = [
+            "CREATE INDEX IF NOT EXISTS idx_instance_notes_instance_id ON instance_notes(instance_id)",
+            "CREATE INDEX IF NOT EXISTS idx_instance_notes_note_type_id ON instance_notes(note_type_id)",
+            "CREATE INDEX IF NOT EXISTS idx_instance_notes_created_at ON instance_notes(created_at)",
+        ];
+
+        for index_sql in &instance_note_indexes {
+            sqlx::query(index_sql).execute(pool).await?;
+        }
+
+        println!("Instance notes table and indexes created successfully");
+    } else {
+        println!("Instance notes table already exists");
+    }
+
     Ok(())
 }
 
 pub async fn get_zones_count(pool: &SqlitePool) -> Result<i64, sqlx::Error> {
     let row = sqlx::query("SELECT COUNT(*) as count FROM zones")
+        .fetch_one(pool)
+        .await?;
+
+    Ok(row.get("count"))
+}
+
+pub async fn get_instances_count(pool: &SqlitePool) -> Result<i64, sqlx::Error> {
+    let row = sqlx::query("SELECT COUNT(*) as count FROM instances")
         .fetch_one(pool)
         .await?;
 
