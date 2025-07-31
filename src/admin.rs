@@ -425,7 +425,7 @@ async fn list_zones(
     let page = params.page.unwrap_or(1).max(1);
     let per_page = params.per_page.unwrap_or(20).clamp(5, 100);
     let offset = (page - 1) * per_page;
-    let search = params.search.unwrap_or_default();
+    let search = params.search.clone().unwrap_or_default();
     let sort = params.sort.clone().unwrap_or_else(|| "name".to_string());
     let order = params.order.clone().unwrap_or_else(|| "asc".to_string());
     let verified = params.verified.clone();
@@ -805,6 +805,80 @@ async fn list_zones(
     }
 
     html.push_str("</tbody></table>");
+
+    // Add hidden form with filter parameters for move operations
+    html.push_str(r#"<div id="filter-params" style="display: none;">"#);
+    if !search.is_empty() {
+        html.push_str(&format!(
+            r#"<input type="hidden" id="search-param" value="{}" />"#,
+            search.replace('"', "&quot;")
+        ));
+    }
+    if let Some(ref v) = verified {
+        html.push_str(&format!(
+            r#"<input type="hidden" id="verified-param" value="{}" />"#,
+            v.replace('"', "&quot;")
+        ));
+    }
+    if let Some(ref h) = hot_zone {
+        html.push_str(&format!(
+            r#"<input type="hidden" id="hot-zone-param" value="{}" />"#,
+            h.replace('"', "&quot;")
+        ));
+    }
+    if let Some(ref m) = mission {
+        html.push_str(&format!(
+            r#"<input type="hidden" id="mission-param" value="{}" />"#,
+            m.replace('"', "&quot;")
+        ));
+    }
+    if page > 1 {
+        html.push_str(&format!(
+            r#"<input type="hidden" id="page-param" value="{}" />"#,
+            page
+        ));
+    }
+    if per_page != 20 {
+        html.push_str(&format!(
+            r#"<input type="hidden" id="per-page-param" value="{}" />"#,
+            per_page
+        ));
+    }
+    if !sort.is_empty() && sort != "name" {
+        html.push_str(&format!(
+            r#"<input type="hidden" id="sort-param" value="{}" />"#,
+            sort.replace('"', "&quot;")
+        ));
+    }
+    if !order.is_empty() && order != "asc" {
+        html.push_str(&format!(
+            r#"<input type="hidden" id="order-param" value="{}" />"#,
+            order.replace('"', "&quot;")
+        ));
+    }
+    html.push_str("</div>");
+
+    // Add JavaScript to dynamically add hidden fields to move forms
+    html.push_str(
+        r#"
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const forms = document.querySelectorAll('form[action*="move-to-instances"]');
+            forms.forEach(function(form) {
+                const filterParams = document.getElementById('filter-params');
+                if (filterParams) {
+                    const hiddenInputs = filterParams.querySelectorAll('input[type="hidden"]');
+                    hiddenInputs.forEach(function(input) {
+                        const clone = input.cloneNode();
+                        clone.name = input.id.replace('-param', '').replace('-', '_');
+                        form.appendChild(clone);
+                    });
+                }
+            });
+        });
+    </script>
+    "#,
+    );
 
     // Pagination
     if total_pages > 1 {
@@ -2638,7 +2712,13 @@ async fn update_link_admin(
 async fn move_zone_to_instances(
     State(state): State<AppState>,
     Path(zone_id): Path<i32>,
+    Form(params): Form<PaginationQuery>,
 ) -> Result<Redirect, StatusCode> {
+    eprintln!(
+        "Move zone to instances - received params: page={:?}, search={:?}, verified={:?}, hot_zone={:?}, mission={:?}",
+        params.page, params.search, params.verified, params.hot_zone, params.mission
+    );
+
     let pool = &state.zone_state.pool;
     let instance_pool = &state.instance_state.pool;
 
@@ -2729,7 +2809,51 @@ async fn move_zone_to_instances(
     let _ = crate::checkpoint_wal(pool.as_ref()).await;
     let _ = crate::checkpoint_wal(instance_pool.as_ref()).await;
 
-    Ok(Redirect::to("/admin/zones"))
+    // Build redirect URL with preserved filter parameters
+    let mut redirect_params = Vec::new();
+
+    if let Some(page) = params.page {
+        redirect_params.push(format!("page={}", page));
+    }
+
+    if let Some(per_page) = params.per_page {
+        redirect_params.push(format!("per_page={}", per_page));
+    }
+
+    if let Some(ref search) = params.search {
+        if !search.is_empty() {
+            redirect_params.push(format!("search={}", urlencoding::encode(search)));
+        }
+    }
+
+    if let Some(ref sort) = params.sort {
+        redirect_params.push(format!("sort={}", urlencoding::encode(sort)));
+    }
+
+    if let Some(ref order) = params.order {
+        redirect_params.push(format!("order={}", urlencoding::encode(order)));
+    }
+
+    if let Some(ref verified) = params.verified {
+        redirect_params.push(format!("verified={}", urlencoding::encode(verified)));
+    }
+
+    if let Some(ref hot_zone) = params.hot_zone {
+        redirect_params.push(format!("hot_zone={}", urlencoding::encode(hot_zone)));
+    }
+
+    if let Some(ref mission) = params.mission {
+        redirect_params.push(format!("mission={}", urlencoding::encode(mission)));
+    }
+
+    let redirect_url = if redirect_params.is_empty() {
+        "/admin/zones".to_string()
+    } else {
+        format!("/admin/zones?{}", redirect_params.join("&"))
+    };
+
+    eprintln!("Redirecting to: {}", redirect_url);
+    Ok(Redirect::to(&redirect_url))
 }
 
 #[cfg(feature = "admin")]
