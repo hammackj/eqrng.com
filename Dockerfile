@@ -39,8 +39,8 @@ COPY --from=backend-builder /usr/src/eq_rng/target/release/eq_rng /opt/eq_rng/eq
 COPY --from=backend-builder /usr/src/eq_rng/data /opt/eq_rng/data
 COPY public/ /opt/eq_rng/public/
 
-# Copy built frontend assets
-COPY --from=frontend-builder /usr/src/frontend/dist /opt/eq_rng/dist
+# Copy built frontend assets (Astro builds to ../dist from frontend dir)
+COPY --from=frontend-builder /usr/src/dist /opt/eq_rng/dist
 
 # Make binary executable
 RUN chmod +x /opt/eq_rng/eq_rng
