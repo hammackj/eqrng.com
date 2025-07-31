@@ -104,6 +104,9 @@ pub struct PaginationQuery {
     pub search: Option<String>,
     pub sort: Option<String>,
     pub order: Option<String>,
+    pub verified: Option<String>,
+    pub hot_zone: Option<String>,
+    pub mission: Option<String>,
 }
 
 #[cfg(feature = "admin")]
@@ -270,6 +273,13 @@ async fn admin_dashboard(State(state): State<AppState>) -> Result<Html<String>, 
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
         .get("count");
 
+    let mission_zone_count: i32 =
+        sqlx::query("SELECT COUNT(*) as count FROM zones WHERE mission = 1")
+            .fetch_one(pool.as_ref())
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+            .get("count");
+
     let verified_zone_count: i32 =
         sqlx::query("SELECT COUNT(*) as count FROM zones WHERE verified = 1")
             .fetch_one(pool.as_ref())
@@ -277,8 +287,22 @@ async fn admin_dashboard(State(state): State<AppState>) -> Result<Html<String>, 
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
             .get("count");
 
+    let unverified_zone_count: i32 =
+        sqlx::query("SELECT COUNT(*) as count FROM zones WHERE verified = 0")
+            .fetch_one(pool.as_ref())
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+            .get("count");
+
     let verified_instance_count: i32 =
         sqlx::query("SELECT COUNT(*) as count FROM instances WHERE verified = 1")
+            .fetch_one(instance_pool.as_ref())
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+            .get("count");
+
+    let unverified_instance_count: i32 =
+        sqlx::query("SELECT COUNT(*) as count FROM instances WHERE verified = 0")
             .fetch_one(instance_pool.as_ref())
             .await
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
@@ -299,7 +323,8 @@ async fn admin_dashboard(State(state): State<AppState>) -> Result<Html<String>, 
         .nav a:hover {{ color: #007bff; }}
         .card {{ border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 5px; }}
         .stats {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }}
-        .stat-card {{ background: #f8f9fa; padding: 20px; text-align: center; border-radius: 5px; }}
+        .stat-card {{ background: #f8f9fa; padding: 20px; text-align: center; border-radius: 5px; text-decoration: none; color: inherit; transition: background-color 0.3s; }}
+        .stat-card:hover {{ background: #e9ecef; }}
         .stat-number {{ font-size: 2em; font-weight: bold; color: #007bff; }}
         .stat-label {{ font-size: 14px; color: #666; margin-top: 5px; }}
     </style>
@@ -318,34 +343,46 @@ async fn admin_dashboard(State(state): State<AppState>) -> Result<Html<String>, 
     <h1>EQ RNG Admin Dashboard</h1>
 
     <div class="stats">
-        <div class="stat-card">
+        <a href="/admin/zones" class="stat-card">
             <div class="stat-number">{}</div>
             <div class="stat-label">Total Zones</div>
-        </div>
-        <div class="stat-card">
+        </a>
+        <a href="/admin/instances" class="stat-card">
             <div class="stat-number">{}</div>
             <div class="stat-label">Total Instances</div>
-        </div>
-        <div class="stat-card">
+        </a>
+        <a href="/admin/ratings" class="stat-card">
             <div class="stat-number">{}</div>
             <div class="stat-label">Total Ratings</div>
-        </div>
+        </a>
         <div class="stat-card">
             <div class="stat-number">{}</div>
             <div class="stat-label">Average Rating</div>
         </div>
-        <div class="stat-card">
+        <a href="/admin/zones?hot_zone=true" class="stat-card">
             <div class="stat-number">{}</div>
             <div class="stat-label">Hot Zones</div>
-        </div>
-        <div class="stat-card">
+        </a>
+        <a href="/admin/zones?mission=true" class="stat-card">
+            <div class="stat-number">{}</div>
+            <div class="stat-label">Mission Zones</div>
+        </a>
+        <a href="/admin/zones?verified=true" class="stat-card">
             <div class="stat-number">{}</div>
             <div class="stat-label">Verified Zones</div>
-        </div>
-        <div class="stat-card">
+        </a>
+        <a href="/admin/zones?verified=false" class="stat-card">
+            <div class="stat-number">{}</div>
+            <div class="stat-label">Unverified Zones</div>
+        </a>
+        <a href="/admin/instances?verified=true" class="stat-card">
             <div class="stat-number">{}</div>
             <div class="stat-label">Verified Instances</div>
-        </div>
+        </a>
+        <a href="/admin/instances?verified=false" class="stat-card">
+            <div class="stat-number">{}</div>
+            <div class="stat-label">Unverified Instances</div>
+        </a>
     </div>
 
     <div class="card">
@@ -371,8 +408,11 @@ async fn admin_dashboard(State(state): State<AppState>) -> Result<Html<String>, 
         rating_count,
         avg_rating_display,
         hot_zone_count,
+        mission_zone_count,
         verified_zone_count,
-        verified_instance_count
+        unverified_zone_count,
+        verified_instance_count,
+        unverified_instance_count
     );
     Ok(Html(html))
 }
@@ -388,6 +428,9 @@ async fn list_zones(
     let search = params.search.unwrap_or_default();
     let sort = params.sort.clone().unwrap_or_else(|| "name".to_string());
     let order = params.order.clone().unwrap_or_else(|| "asc".to_string());
+    let verified = params.verified.clone();
+    let hot_zone = params.hot_zone.clone();
+    let mission = params.mission.clone();
 
     let pool = &state.zone_state.pool;
 
@@ -413,13 +456,42 @@ async fn list_zones(
     let sort_order = if order == "asc" { "ASC" } else { "DESC" };
 
     // Build search query
-    let (where_clause, search_param) = if search.is_empty() {
-        ("".to_string(), None)
+    let mut where_conditions = Vec::new();
+    let mut search_param = None;
+
+    if !search.is_empty() {
+        where_conditions.push("(name LIKE ? OR expansion LIKE ? OR zone_type LIKE ?)".to_string());
+        search_param = Some(format!("%{}%", search));
+    }
+
+    if let Some(ref verified_param) = verified {
+        if verified_param == "true" {
+            where_conditions.push("verified = 1".to_string());
+        } else if verified_param == "false" {
+            where_conditions.push("verified = 0".to_string());
+        }
+    }
+
+    if let Some(ref hot_zone_param) = hot_zone {
+        if hot_zone_param == "true" {
+            where_conditions.push("hot_zone = 1".to_string());
+        } else if hot_zone_param == "false" {
+            where_conditions.push("hot_zone = 0".to_string());
+        }
+    }
+
+    if let Some(ref mission_param) = mission {
+        if mission_param == "true" {
+            where_conditions.push("mission = 1".to_string());
+        } else if mission_param == "false" {
+            where_conditions.push("mission = 0".to_string());
+        }
+    }
+
+    let where_clause = if where_conditions.is_empty() {
+        "".to_string()
     } else {
-        (
-            "WHERE name LIKE ? OR expansion LIKE ? OR zone_type LIKE ?".to_string(),
-            Some(format!("%{}%", search)),
-        )
+        format!("WHERE {}", where_conditions.join(" AND "))
     };
 
     // Get total count
@@ -538,7 +610,7 @@ async fn list_zones(
         <a href="/admin/zones/new">Add New Zone</a>
     </div>
 
-    <h1>Manage Zones</h1>
+    <h1>Manage Zones{}</h1>
 
     <div class="controls">
         <form method="get" style="display: flex; gap: 10px; align-items: center;">
@@ -548,6 +620,7 @@ async fn list_zones(
             <button type="submit" class="btn">Search</button>
         </form>
         <a href="/admin/zones/new" class="btn">Add New Zone</a>
+        {}
     </div>
 
     <p>Showing {} zones (Page {} of {})</p>
@@ -570,8 +643,42 @@ async fn list_zones(
         </thead>
         <tbody>
 "#,
+        // Filter indicator for title
+        if verified.is_some() || hot_zone.is_some() || mission.is_some() {
+            let mut filters = Vec::new();
+            if let Some(ref v) = verified {
+                filters.push(if v == "true" {
+                    "Verified"
+                } else {
+                    "Unverified"
+                });
+            }
+            if let Some(ref h) = hot_zone {
+                filters.push(if h == "true" {
+                    "Hot Zones"
+                } else {
+                    "Non-Hot Zones"
+                });
+            }
+            if let Some(ref m) = mission {
+                filters.push(if m == "true" {
+                    "Mission Zones"
+                } else {
+                    "Non-Mission Zones"
+                });
+            }
+            format!(" - {}", filters.join(", "))
+        } else {
+            String::new()
+        },
         search,
         per_page,
+        // Clear filters link
+        if verified.is_some() || hot_zone.is_some() || mission.is_some() {
+            r#"<a href="/admin/zones" class="btn" style="background: #6c757d;">Clear Filters</a>"#
+        } else {
+            ""
+        },
         total_count,
         page,
         total_pages,
@@ -694,7 +801,7 @@ async fn list_zones(
             zone.id.unwrap_or(0),
             zone.id.unwrap_or(0),
             zone.name.replace("'", "\\'")
-        ));
+            ));
     }
 
     html.push_str("</tbody></table>");
@@ -703,25 +810,39 @@ async fn list_zones(
     if total_pages > 1 {
         html.push_str("<div class=\"pagination\">");
 
-        let search_param = if search.is_empty() {
+        let mut params = Vec::new();
+
+        if !search.is_empty() {
+            params.push(format!("search={}", urlencoding::encode(&search)));
+        }
+
+        if let Some(ref v) = verified {
+            params.push(format!("verified={}", urlencoding::encode(v)));
+        }
+
+        if let Some(ref h) = hot_zone {
+            params.push(format!("hot_zone={}", urlencoding::encode(h)));
+        }
+
+        if let Some(ref m) = mission {
+            params.push(format!("mission={}", urlencoding::encode(m)));
+        }
+
+        params.push(format!("sort={}", urlencoding::encode(&sort)));
+        params.push(format!("order={}", urlencoding::encode(&order)));
+
+        let param_string = if params.is_empty() {
             String::new()
         } else {
-            format!("&search={}", urlencoding::encode(&search))
+            format!("&{}", params.join("&"))
         };
-
-        let sort_param = format!(
-            "&sort={}&order={}",
-            urlencoding::encode(&sort),
-            urlencoding::encode(&order)
-        );
 
         if page > 1 {
             html.push_str(&format!(
-                r#"<a href="?page={}&per_page={}{}{}">Previous</a>"#,
+                r#"<a href="?page={}&per_page={}{}">Previous</a>"#,
                 page - 1,
                 per_page,
-                search_param,
-                sort_param
+                param_string
             ));
         }
 
@@ -730,19 +851,18 @@ async fn list_zones(
                 html.push_str(&format!("<a href=\"#\" class=\"current\">{}</a>", p));
             } else {
                 html.push_str(&format!(
-                    "<a href=\"?page={}&per_page={}{}{}\">{}</a>",
-                    p, per_page, search_param, sort_param, p
+                    "<a href=\"?page={}&per_page={}{}\">{}</a>",
+                    p, per_page, param_string, p
                 ));
             }
         }
 
         if page < total_pages {
             html.push_str(&format!(
-                r#"<a href="?page={}&per_page={}{}{}">Next</a>"#,
+                r#"<a href="?page={}&per_page={}{}">Next</a>"#,
                 page + 1,
                 per_page,
-                search_param,
-                sort_param
+                param_string
             ));
         }
 
@@ -2623,6 +2743,7 @@ async fn list_instances(
     let search = params.search.unwrap_or_default();
     let sort = params.sort.clone().unwrap_or_else(|| "name".to_string());
     let order = params.order.clone().unwrap_or_else(|| "asc".to_string());
+    let verified = params.verified.clone();
 
     let pool = &state.instance_state.pool;
 
@@ -2648,13 +2769,26 @@ async fn list_instances(
     let sort_order = if order == "asc" { "ASC" } else { "DESC" };
 
     // Build search query
-    let (where_clause, search_param) = if search.is_empty() {
-        ("".to_string(), None)
+    let mut where_conditions = Vec::new();
+    let mut search_param = None;
+
+    if !search.is_empty() {
+        where_conditions.push("(name LIKE ? OR expansion LIKE ? OR zone_type LIKE ?)".to_string());
+        search_param = Some(format!("%{}%", search));
+    }
+
+    if let Some(ref verified_param) = verified {
+        if verified_param == "true" {
+            where_conditions.push("verified = 1".to_string());
+        } else if verified_param == "false" {
+            where_conditions.push("verified = 0".to_string());
+        }
+    }
+
+    let where_clause = if where_conditions.is_empty() {
+        "".to_string()
     } else {
-        (
-            "WHERE name LIKE ? OR expansion LIKE ? OR zone_type LIKE ?".to_string(),
-            Some(format!("%{}%", search)),
-        )
+        format!("WHERE {}", where_conditions.join(" AND "))
     };
 
     // Get total count
@@ -2772,7 +2906,7 @@ async fn list_instances(
         <a href="/admin/instances">Manage Instances</a>
     </div>
 
-    <h1>Manage Instances</h1>
+    <h1>Manage Instances{}</h1>
 
     <div class="controls">
         <form method="get" style="display: flex; gap: 10px; align-items: center;">
@@ -2781,6 +2915,7 @@ async fn list_instances(
             <input type="hidden" name="per_page" value="{}" />
             <button type="submit" class="btn">Search</button>
         </form>
+        {}
     </div>
 
     <p>Showing {} instances (Page {} of {})</p>
@@ -2803,8 +2938,28 @@ async fn list_instances(
         </thead>
         <tbody>
 "#,
+        // Filter indicator for title
+        if verified.is_some() {
+            let mut filters = Vec::new();
+            if let Some(ref v) = verified {
+                filters.push(if v == "true" {
+                    "Verified"
+                } else {
+                    "Unverified"
+                });
+            }
+            format!(" - {}", filters.join(", "))
+        } else {
+            String::new()
+        },
         search,
         per_page,
+        // Clear filters link
+        if verified.is_some() {
+            r#"<a href="/admin/instances" class="btn" style="background: #6c757d;">Clear Filters</a>"#
+        } else {
+            ""
+        },
         total_count,
         page,
         total_pages,
@@ -2932,25 +3087,31 @@ async fn list_instances(
     if total_pages > 1 {
         html.push_str("<div class=\"pagination\">");
 
-        let search_param = if search.is_empty() {
+        let mut params = Vec::new();
+
+        if !search.is_empty() {
+            params.push(format!("search={}", urlencoding::encode(&search)));
+        }
+
+        if let Some(ref v) = verified {
+            params.push(format!("verified={}", urlencoding::encode(v)));
+        }
+
+        params.push(format!("sort={}", urlencoding::encode(&sort)));
+        params.push(format!("order={}", urlencoding::encode(&order)));
+
+        let param_string = if params.is_empty() {
             String::new()
         } else {
-            format!("&search={}", urlencoding::encode(&search))
+            format!("&{}", params.join("&"))
         };
-
-        let sort_param = format!(
-            "&sort={}&order={}",
-            urlencoding::encode(&sort),
-            urlencoding::encode(&order)
-        );
 
         if page > 1 {
             html.push_str(&format!(
-                r#"<a href="?page={}&per_page={}{}{}">Previous</a>"#,
+                r#"<a href="?page={}&per_page={}{}">Previous</a>"#,
                 page - 1,
                 per_page,
-                search_param,
-                sort_param
+                param_string
             ));
         }
 
@@ -2959,19 +3120,18 @@ async fn list_instances(
                 html.push_str(&format!("<a href=\"#\" class=\"current\">{}</a>", p));
             } else {
                 html.push_str(&format!(
-                    "<a href=\"?page={}&per_page={}{}{}\">{}</a>",
-                    p, per_page, search_param, sort_param, p
+                    "<a href=\"?page={}&per_page={}{}\">{}</a>",
+                    p, per_page, param_string, p
                 ));
             }
         }
 
         if page < total_pages {
             html.push_str(&format!(
-                r#"<a href="?page={}&per_page={}{}{}">Next</a>"#,
+                r#"<a href="?page={}&per_page={}{}">Next</a>"#,
                 page + 1,
                 per_page,
-                search_param,
-                sort_param
+                param_string
             ));
         }
 
