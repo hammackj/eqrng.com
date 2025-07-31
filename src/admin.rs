@@ -65,6 +65,8 @@ pub struct PaginationQuery {
     pub page: Option<i32>,
     pub per_page: Option<i32>,
     pub search: Option<String>,
+    pub sort: Option<String>,
+    pub order: Option<String>,
 }
 
 #[cfg(feature = "admin")]
@@ -90,6 +92,50 @@ pub struct LinkForm {
     pub category: String,
     pub description: Option<String>,
     pub _method: Option<String>,
+}
+
+#[cfg(feature = "admin")]
+fn generate_sortable_header(
+    column: &str,
+    display_name: &str,
+    current_sort: &Option<String>,
+    current_order: &Option<String>,
+    base_url: &str,
+    search: &str,
+) -> String {
+    let is_current = current_sort.as_ref().map_or(false, |s| s == column);
+    let next_order = if is_current && current_order.as_ref().map_or("", |o| o) == "asc" {
+        "desc"
+    } else {
+        "asc"
+    };
+
+    let search_param = if search.is_empty() {
+        String::new()
+    } else {
+        format!("&search={}", urlencoding::encode(search))
+    };
+
+    let arrow = if is_current {
+        match current_order.as_ref().map_or("", |o| o) {
+            "asc" => " <span style=\"color: #007bff;\">↑</span>",
+            "desc" => " <span style=\"color: #007bff;\">↓</span>",
+            _ => "",
+        }
+    } else {
+        " <span style=\"color: #ccc; font-size: 0.8em;\">↕</span>"
+    };
+
+    let link_style = if is_current {
+        "text-decoration: none; color: #007bff; font-weight: bold; cursor: pointer;"
+    } else {
+        "text-decoration: none; color: #333; font-weight: bold; cursor: pointer;"
+    };
+
+    format!(
+        r#"<a href="{}?sort={}&order={}{}" style="{}" title="Sort by {}">{}{}</a>"#,
+        base_url, column, next_order, search_param, link_style, display_name, display_name, arrow
+    )
 }
 
 #[cfg(feature = "admin")]
@@ -238,8 +284,31 @@ async fn list_zones(
     let per_page = params.per_page.unwrap_or(20).clamp(5, 100);
     let offset = (page - 1) * per_page;
     let search = params.search.unwrap_or_default();
+    let sort = params.sort.clone().unwrap_or_else(|| "name".to_string());
+    let order = params.order.clone().unwrap_or_else(|| "asc".to_string());
 
     let pool = &state.zone_state.pool;
+
+    // Validate sort column and order
+    let valid_columns = [
+        "id",
+        "name",
+        "level_ranges",
+        "expansion",
+        "zone_type",
+        "rating",
+        "hot_zone",
+        "mission",
+        "verified",
+        "created_at",
+    ];
+    let sort_column = if valid_columns.contains(&sort.as_str()) {
+        sort.as_str()
+    } else {
+        "name"
+    };
+
+    let sort_order = if order == "asc" { "ASC" } else { "DESC" };
 
     // Build search query
     let (where_clause, search_param) = if search.is_empty() {
@@ -272,8 +341,8 @@ async fn list_zones(
 
     // Get zones
     let zones_query = format!(
-        "SELECT * FROM zones {} ORDER BY name LIMIT ? OFFSET ?",
-        where_clause
+        "SELECT * FROM zones {} ORDER BY {} {} LIMIT ? OFFSET ?",
+        where_clause, sort_column, sort_order
     );
 
     let zone_rows = if let Some(ref search_term) = search_param {
@@ -348,6 +417,8 @@ async fn list_zones(
         .pagination a {{ padding: 8px 12px; text-decoration: none; border: 1px solid #ddd; border-radius: 4px; }}
         .pagination a.current {{ background: #007bff; color: white; }}
         .truncate {{ max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }}
+        th {{ background-color: #f8f9fa; border-bottom: 2px solid #dee2e6; }}
+        th a:hover {{ background-color: #e9ecef; padding: 4px; border-radius: 3px; }}
     </style>
     <script>
         function deleteZone(id, name) {{
@@ -381,22 +452,98 @@ async fn list_zones(
     <table>
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Expansion</th>
-                <th>Zone Type</th>
-                <th>Level Ranges</th>
-                <th>Rating</th>
-                <th>Hot Zone</th>
-                <th>Mission</th>
-                <th>Verified</th>
+                <th>{}</th>
+                <th>{}</th>
+                <th>{}</th>
+                <th>{}</th>
+                <th>{}</th>
+                <th>{}</th>
+                <th>{}</th>
+                <th>{}</th>
+                <th>{}</th>
                 <th>Notes</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
 "#,
-        search, per_page, total_count, page, total_pages
+        search,
+        per_page,
+        total_count,
+        page,
+        total_pages,
+        generate_sortable_header(
+            "id",
+            "ID",
+            &params.sort,
+            &params.order,
+            "/admin/zones",
+            &search,
+        ),
+        generate_sortable_header(
+            "name",
+            "Name",
+            &params.sort,
+            &params.order,
+            "/admin/zones",
+            &search,
+        ),
+        generate_sortable_header(
+            "expansion",
+            "Expansion",
+            &params.sort,
+            &params.order,
+            "/admin/zones",
+            &search,
+        ),
+        generate_sortable_header(
+            "zone_type",
+            "Zone Type",
+            &params.sort,
+            &params.order,
+            "/admin/zones",
+            &search,
+        ),
+        generate_sortable_header(
+            "level_ranges",
+            "Level Ranges",
+            &params.sort,
+            &params.order,
+            "/admin/zones",
+            &search,
+        ),
+        generate_sortable_header(
+            "rating",
+            "Rating",
+            &params.sort,
+            &params.order,
+            "/admin/zones",
+            &search,
+        ),
+        generate_sortable_header(
+            "hot_zone",
+            "Hot Zone",
+            &params.sort,
+            &params.order,
+            "/admin/zones",
+            &search,
+        ),
+        generate_sortable_header(
+            "mission",
+            "Mission",
+            &params.sort,
+            &params.order,
+            "/admin/zones",
+            &search,
+        ),
+        generate_sortable_header(
+            "verified",
+            "Verified",
+            &params.sort,
+            &params.order,
+            "/admin/zones",
+            &search,
+        ),
     );
 
     for zone in zones {
@@ -449,12 +596,25 @@ async fn list_zones(
     if total_pages > 1 {
         html.push_str("<div class=\"pagination\">");
 
+        let search_param = if search.is_empty() {
+            String::new()
+        } else {
+            format!("&search={}", urlencoding::encode(&search))
+        };
+
+        let sort_param = format!(
+            "&sort={}&order={}",
+            urlencoding::encode(&sort),
+            urlencoding::encode(&order)
+        );
+
         if page > 1 {
             html.push_str(&format!(
-                r#"<a href="?page={}&per_page={}&search={}">Previous</a>"#,
+                r#"<a href="?page={}&per_page={}{}{}">Previous</a>"#,
                 page - 1,
                 per_page,
-                search
+                search_param,
+                sort_param
             ));
         }
 
@@ -463,18 +623,19 @@ async fn list_zones(
                 html.push_str(&format!("<a href=\"#\" class=\"current\">{}</a>", p));
             } else {
                 html.push_str(&format!(
-                    "<a href=\"?page={}&per_page={}&search={}\">{}</a>",
-                    p, per_page, search, p
+                    "<a href=\"?page={}&per_page={}{}{}\">{}</a>",
+                    p, per_page, search_param, sort_param, p
                 ));
             }
         }
 
         if page < total_pages {
             html.push_str(&format!(
-                r#"<a href="?page={}&per_page={}&search={}">Next</a>"#,
+                r#"<a href="?page={}&per_page={}{}{}">Next</a>"#,
                 page + 1,
                 per_page,
-                search
+                search_param,
+                sort_param
             ));
         }
 
@@ -1010,8 +1171,38 @@ async fn list_all_ratings(
     let per_page = params.per_page.unwrap_or(20).clamp(5, 100);
     let offset = (page - 1) * per_page;
     let search = params.search.unwrap_or_default();
+    let sort = params
+        .sort
+        .clone()
+        .unwrap_or_else(|| "created_at".to_string());
+    let order = params.order.clone().unwrap_or_else(|| "desc".to_string());
 
     let pool = &state.zone_state.pool;
+
+    // Validate sort column and order
+    let valid_columns = [
+        "id",
+        "zone_name",
+        "user_ip",
+        "rating",
+        "created_at",
+        "updated_at",
+    ];
+    let sort_column = if valid_columns.contains(&sort.as_str()) {
+        match sort.as_str() {
+            "zone_name" => "z.name",
+            "id" => "r.id",
+            "user_ip" => "r.user_ip",
+            "rating" => "r.rating",
+            "created_at" => "r.created_at",
+            "updated_at" => "r.updated_at",
+            _ => "r.created_at",
+        }
+    } else {
+        "r.created_at"
+    };
+
+    let sort_order = if order == "asc" { "ASC" } else { "DESC" };
 
     // Build search query
     let (where_clause, search_param) = if search.is_empty() {
@@ -1050,9 +1241,9 @@ async fn list_all_ratings(
          FROM zone_ratings r
          JOIN zones z ON r.zone_id = z.id
          {}
-         ORDER BY r.created_at DESC
+         ORDER BY {} {}
          LIMIT ? OFFSET ?",
-        where_clause
+        where_clause, sort_column, sort_order
     );
 
     let ratings_rows = if let Some(ref search_term) = search_param {
@@ -1091,7 +1282,8 @@ async fn list_all_ratings(
         .search-bar button {{ padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }}
         table {{ width: 100%; border-collapse: collapse; margin-bottom: 20px; }}
         th, td {{ padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }}
-        th {{ background-color: #f5f5f5; font-weight: bold; }}
+        th {{ background-color: #f8f9fa; font-weight: bold; border-bottom: 2px solid #dee2e6; }}
+        th a:hover {{ background-color: #e9ecef; padding: 4px; border-radius: 3px; }}
         tr:hover {{ background-color: #f9f9f9; }}
         .pagination {{ text-align: center; margin-top: 20px; }}
         .pagination a {{ display: inline-block; padding: 8px 16px; margin: 0 4px; text-decoration: none; border: 1px solid #ddd; border-radius: 4px; }}
@@ -1128,20 +1320,72 @@ async fn list_all_ratings(
 
     html.push_str("</form></div>");
 
-    html.push_str(
+    html.push_str(&format!(
         r#"
     <table>
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Zone</th>
-                <th>User IP</th>
-                <th>Rating</th>
-                <th>Created</th>
-                <th>Updated</th>
+                <th>{}</th>
+                <th>{}</th>
+                <th>{}</th>
+                <th>{}</th>
+                <th>{}</th>
+                <th>{}</th>
                 <th>Actions</th>
             </tr>
-        </thead>
+        </thead>"#,
+        generate_sortable_header(
+            "id",
+            "ID",
+            &params.sort,
+            &params.order,
+            "/admin/ratings",
+            &search,
+        ),
+        generate_sortable_header(
+            "zone_name",
+            "Zone",
+            &params.sort,
+            &params.order,
+            "/admin/ratings",
+            &search,
+        ),
+        generate_sortable_header(
+            "user_ip",
+            "User IP",
+            &params.sort,
+            &params.order,
+            "/admin/ratings",
+            &search,
+        ),
+        generate_sortable_header(
+            "rating",
+            "Rating",
+            &params.sort,
+            &params.order,
+            "/admin/ratings",
+            &search,
+        ),
+        generate_sortable_header(
+            "created_at",
+            "Created",
+            &params.sort,
+            &params.order,
+            "/admin/ratings",
+            &search,
+        ),
+        generate_sortable_header(
+            "updated_at",
+            "Updated",
+            &params.sort,
+            &params.order,
+            "/admin/ratings",
+            &search,
+        ),
+    ));
+
+    html.push_str(
+        r#"
         <tbody>"#,
     );
 
@@ -1196,12 +1440,18 @@ async fn list_all_ratings(
                 format!("&search={}", urlencoding::encode(&search))
             };
 
+            let sort_param = format!(
+                "&sort={}&order={}",
+                urlencoding::encode(&sort),
+                urlencoding::encode(&order)
+            );
+
             if p == page {
                 html.push_str(&format!("<span class=\"pagination current\">{}</span>", p));
             } else {
                 html.push_str(&format!(
-                    "<a href=\"/admin/ratings?page={}{}\"> {} </a>",
-                    p, search_param, p
+                    "<a href=\"/admin/ratings?page={}{}{}\"> {} </a>",
+                    p, search_param, sort_param, p
                 ));
             }
         }
@@ -1613,37 +1863,121 @@ async fn handle_rating_delete(
 }
 
 #[cfg(feature = "admin")]
-async fn list_links(State(state): State<AppState>) -> Result<Html<String>, StatusCode> {
+async fn list_links(
+    State(state): State<AppState>,
+    Query(params): Query<PaginationQuery>,
+) -> Result<Html<String>, StatusCode> {
+    let page = params.page.unwrap_or(1).max(1);
+    let per_page = params.per_page.unwrap_or(20).clamp(5, 100);
+    let offset = (page - 1) * per_page;
+    let search = params.search.unwrap_or_default();
+    let sort = params
+        .sort
+        .clone()
+        .unwrap_or_else(|| "category".to_string());
+    let order = params.order.clone().unwrap_or_else(|| "asc".to_string());
+
     let pool = &state.zone_state.pool;
 
-    let links = sqlx::query(
+    // Validate sort column and order
+    let valid_columns = ["id", "name", "url", "category", "description", "created_at"];
+    let sort_column = if valid_columns.contains(&sort.as_str()) {
+        sort.as_str()
+    } else {
+        "category"
+    };
+
+    let sort_order = if order == "asc" { "ASC" } else { "DESC" };
+
+    // Build search query
+    let (where_clause, search_param) = if search.is_empty() {
+        ("".to_string(), None)
+    } else {
+        (
+            "WHERE name LIKE ? OR url LIKE ? OR category LIKE ? OR description LIKE ?".to_string(),
+            Some(format!("%{}%", search)),
+        )
+    };
+
+    // Get total count
+    let count_query = format!("SELECT COUNT(*) as count FROM links {}", where_clause);
+    let total_count: i32 = if let Some(ref search_term) = search_param {
+        sqlx::query(&count_query)
+            .bind(search_term)
+            .bind(search_term)
+            .bind(search_term)
+            .bind(search_term)
+            .fetch_one(pool.as_ref())
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+            .get("count")
+    } else {
+        sqlx::query(&count_query)
+            .fetch_one(pool.as_ref())
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+            .get("count")
+    };
+
+    // Get links
+    let links_query = format!(
         "SELECT id, name, url, category, description, created_at
          FROM links
-         ORDER BY category, name COLLATE NOCASE",
-    )
-    .fetch_all(pool.as_ref())
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+         {}
+         ORDER BY {} {}
+         LIMIT ? OFFSET ?",
+        where_clause, sort_column, sort_order
+    );
 
-    let mut html = String::from(
+    let links = if let Some(ref search_term) = search_param {
+        sqlx::query(&links_query)
+            .bind(search_term)
+            .bind(search_term)
+            .bind(search_term)
+            .bind(search_term)
+            .bind(per_page)
+            .bind(offset)
+            .fetch_all(pool.as_ref())
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+    } else {
+        sqlx::query(&links_query)
+            .bind(per_page)
+            .bind(offset)
+            .fetch_all(pool.as_ref())
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+    };
+
+    let total_pages = (total_count + per_page - 1) / per_page;
+
+    let mut html = format!(
         r#"
 <!DOCTYPE html>
 <html>
 <head>
     <title>Manage Links - EQ RNG Admin</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
-        .nav { background: #f5f5f5; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
-        .nav a { margin-right: 15px; text-decoration: none; color: #333; font-weight: bold; }
-        .nav a:hover { color: #007bff; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
-        th { background-color: #f5f5f5; }
-        .btn { display: inline-block; padding: 6px 12px; margin: 2px; text-decoration: none; border-radius: 4px; font-size: 12px; }
-        .btn-primary { background-color: #007bff; color: white; }
-        .btn-danger { background-color: #dc3545; color: white; }
-        .btn-success { background-color: #28a745; color: white; }
-        .category-header { background-color: #e9ecef; font-weight: bold; }
+        body {{ font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }}
+        .nav {{ background: #f5f5f5; padding: 15px; margin-bottom: 20px; border-radius: 5px; }}
+        .nav a {{ margin-right: 15px; text-decoration: none; color: #333; font-weight: bold; }}
+        .nav a:hover {{ color: #007bff; }}
+        .search-bar {{ margin-bottom: 20px; }}
+        .search-bar input {{ padding: 8px; width: 300px; border: 1px solid #ddd; border-radius: 4px; }}
+        .search-bar button {{ padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }}
+        table {{ width: 100%; border-collapse: collapse; margin-bottom: 20px; }}
+        th, td {{ padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }}
+        th {{ background-color: #f5f5f5; }}
+        .btn {{ display: inline-block; padding: 6px 12px; margin: 2px; text-decoration: none; border-radius: 4px; font-size: 12px; }}
+        .btn-primary {{ background-color: #007bff; color: white; }}
+        .btn-danger {{ background-color: #dc3545; color: white; }}
+        .btn-success {{ background-color: #28a745; color: white; }}
+        .pagination {{ text-align: center; margin-top: 20px; }}
+        .pagination a {{ display: inline-block; padding: 8px 16px; margin: 0 4px; text-decoration: none; border: 1px solid #ddd; border-radius: 4px; }}
+        .pagination a:hover {{ background-color: #f5f5f5; }}
+        .pagination .current {{ background-color: #007bff; color: white; }}
+        th {{ background-color: #f8f9fa; border-bottom: 2px solid #dee2e6; }}
+        th a:hover {{ background-color: #e9ecef; padding: 4px; border-radius: 3px; }}
     </style>
 </head>
 <body>
@@ -1658,19 +1992,73 @@ async fn list_links(State(state): State<AppState>) -> Result<Html<String>, Statu
     <h1>Manage Links</h1>
     <p><a href="/admin/links/new" class="btn btn-success">Add New Link</a></p>
 
+    <div class="search-bar">
+        <form method="get">
+            <input type="text" name="search" placeholder="Search links..." value="{}" />
+            <button type="submit">Search</button>
+            {}
+        </form>
+    </div>
+
     <table>
         <thead>
             <tr>
-                <th>Category</th>
-                <th>Name</th>
-                <th>URL</th>
-                <th>Description</th>
-                <th>Created</th>
+                <th>{}</th>
+                <th>{}</th>
+                <th>{}</th>
+                <th>{}</th>
+                <th>{}</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
     "#,
+        search,
+        if !search.is_empty() {
+            format!("&nbsp;<a href=\"/admin/links\">Clear</a>")
+        } else {
+            String::new()
+        },
+        generate_sortable_header(
+            "category",
+            "Category",
+            &params.sort,
+            &params.order,
+            "/admin/links",
+            &search
+        ),
+        generate_sortable_header(
+            "name",
+            "Name",
+            &params.sort,
+            &params.order,
+            "/admin/links",
+            &search
+        ),
+        generate_sortable_header(
+            "url",
+            "URL",
+            &params.sort,
+            &params.order,
+            "/admin/links",
+            &search
+        ),
+        generate_sortable_header(
+            "description",
+            "Description",
+            &params.sort,
+            &params.order,
+            "/admin/links",
+            &search
+        ),
+        generate_sortable_header(
+            "created_at",
+            "Created",
+            &params.sort,
+            &params.order,
+            "/admin/links",
+            &search
+        ),
     );
 
     let mut current_category = String::new();
@@ -1713,14 +2101,39 @@ async fn list_links(State(state): State<AppState>) -> Result<Html<String>, Statu
         ));
     }
 
-    html.push_str(
-        r#"
-        </tbody>
-    </table>
-</body>
-</html>
-    "#,
-    );
+    html.push_str("</tbody></table>");
+
+    // Pagination
+    if total_pages > 1 {
+        html.push_str("<div class=\"pagination\">");
+
+        let search_param = if search.is_empty() {
+            String::new()
+        } else {
+            format!("&search={}", urlencoding::encode(&search))
+        };
+
+        let sort_param = format!(
+            "&sort={}&order={}",
+            urlencoding::encode(&sort),
+            urlencoding::encode(&order)
+        );
+
+        for p in 1..=total_pages {
+            if p == page {
+                html.push_str(&format!("<span class=\"pagination current\">{}</span>", p));
+            } else {
+                html.push_str(&format!(
+                    "<a href=\"/admin/links?page={}{}{}\"> {} </a>",
+                    p, search_param, sort_param, p
+                ));
+            }
+        }
+
+        html.push_str("</div>");
+    }
+
+    html.push_str("</body></html>");
 
     Ok(Html(html))
 }
