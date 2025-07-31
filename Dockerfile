@@ -29,7 +29,7 @@ RUN cargo build --release --no-default-features
 # ─── RUNTIME ───────────────────────────────────────────
 FROM debian:bookworm-slim
 RUN apt-get update \
-    && apt-get install -y ca-certificates \
+    && apt-get install -y ca-certificates sqlite3 jq \
     && rm -rf /var/lib/apt/lists/*
 
 # Create install directory
@@ -45,8 +45,22 @@ COPY public/ /opt/eq_rng/public/
 # Copy built frontend assets
 COPY --from=frontend-builder /usr/src/frontend/dist /opt/eq_rng/dist
 
+# Copy zone ratings management utilities
+COPY utils/backup_zone_ratings.sh /opt/eq_rng/utils/
+COPY migrations/zone_ratings/ /opt/eq_rng/migrations/zone_ratings/
+COPY docker-entrypoint.sh /opt/eq_rng/
+
+# Make scripts executable
+RUN chmod +x /opt/eq_rng/utils/backup_zone_ratings.sh \
+    && chmod +x /opt/eq_rng/docker-entrypoint.sh \
+    && chmod +x /opt/eq_rng/migrations/zone_ratings/*.sh || true
+
 # Make binary executable
 RUN chmod +x /opt/eq_rng/eq_rng
+
+# Create directories for backups and migrations
+RUN mkdir -p /opt/eq_rng/backups/zone_ratings \
+    && mkdir -p /opt/eq_rng/backups/database
 
 # Create symlink for convenience
 RUN ln -s /opt/eq_rng/eq_rng /usr/local/bin/eq_rng
@@ -57,5 +71,6 @@ WORKDIR /opt/eq_rng
 # Expose port
 EXPOSE 3000
 
-# Run the server
+# Use the entrypoint script to handle initialization
+ENTRYPOINT ["/opt/eq_rng/docker-entrypoint.sh"]
 CMD ["./eq_rng"]

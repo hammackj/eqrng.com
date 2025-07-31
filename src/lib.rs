@@ -31,6 +31,9 @@ pub async fn setup_database() -> Result<SqlitePool, Box<dyn std::error::Error>> 
     // Run migrations
     create_tables(&pool).await?;
 
+    // Force WAL checkpoint to consolidate changes into main database file
+    checkpoint_wal(&pool).await?;
+
     println!("Database setup completed successfully");
     Ok(pool)
 }
@@ -294,6 +297,15 @@ pub async fn get_zones_count(pool: &SqlitePool) -> Result<i64, sqlx::Error> {
         .await?;
 
     Ok(row.get("count"))
+}
+
+pub async fn checkpoint_wal(pool: &SqlitePool) -> Result<(), sqlx::Error> {
+    // Force WAL checkpoint to consolidate all changes into main database file
+    sqlx::query("PRAGMA wal_checkpoint(TRUNCATE)")
+        .execute(pool)
+        .await?;
+    println!("WAL checkpoint completed - changes consolidated to main database file");
+    Ok(())
 }
 
 pub async fn database_health_check(pool: &SqlitePool) -> Result<(), sqlx::Error> {

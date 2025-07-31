@@ -1,5 +1,9 @@
 # Change Log
 
+## August XX, 2025 - Update 5
+- Data Updates/Corrections
+- Zones marked Verified have been processed.
+
 ## July 30, 2025 - Update 4
 - Added new front end, yes the front is 90% AI generated lol
 - Added a new "zone notes" to provide additional information about zones.

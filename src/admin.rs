@@ -777,10 +777,15 @@ async fn create_zone(
     .await;
 
     match result {
-        Ok(_) => Ok(Html(format!(
-            r#"<h1>Success</h1><p>Zone "{}" created successfully!</p><a href="/admin/zones">Back to zones</a>"#,
-            form.name
-        ))),
+        Ok(_) => {
+            // Force WAL checkpoint to immediately update main database file
+            let _ = crate::checkpoint_wal(pool.as_ref()).await;
+
+            Ok(Html(format!(
+                r#"<h1>Success</h1><p>Zone "{}" created successfully!</p><a href="/admin/zones">Back to zones</a>"#,
+                form.name
+            )))
+        }
         Err(_) => Ok(Html(format!(
             r#"<h1>Error</h1><p>Failed to create zone</p><a href="/admin/zones/new">Go back</a>"#
         ))),
@@ -835,10 +840,15 @@ async fn update_zone(
     .await;
 
     match result {
-        Ok(_) => Ok(Html(format!(
-            r#"<h1>Success</h1><p>Zone "{}" updated successfully!</p><a href="/admin/zones">Back to zones</a>"#,
-            form.name
-        ))),
+        Ok(_) => {
+            // Force WAL checkpoint to immediately update main database file
+            let _ = crate::checkpoint_wal(pool.as_ref()).await;
+
+            Ok(Html(format!(
+                r#"<h1>Success</h1><p>Zone "{}" updated successfully!</p><a href="/admin/zones">Back to zones</a>"#,
+                form.name
+            )))
+        }
         Err(_) => Ok(Html(format!(
             r#"<h1>Error</h1><p>Failed to update zone</p><a href="/admin/zones/{}">Go back</a>"#,
             id
@@ -859,7 +869,48 @@ async fn delete_zone(
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
+    // Force WAL checkpoint to immediately update main database file
+    let _ = crate::checkpoint_wal(pool.as_ref()).await;
+
     Ok(StatusCode::OK)
+}
+
+#[cfg(feature = "admin")]
+async fn delete_rating(
+    State(state): State<AppState>,
+    Path(id): Path<i32>,
+) -> Result<StatusCode, StatusCode> {
+    let pool = &state.zone_state.pool;
+
+    let _ = sqlx::query("DELETE FROM zone_ratings WHERE id = ?")
+        .bind(id)
+        .execute(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Force WAL checkpoint to immediately update main database file
+    let _ = crate::checkpoint_wal(pool.as_ref()).await;
+
+    Ok(StatusCode::OK)
+}
+
+#[cfg(feature = "admin")]
+async fn delete_link_admin(
+    State(state): State<AppState>,
+    Path(id): Path<i32>,
+) -> Result<Redirect, StatusCode> {
+    let pool = &state.zone_state.pool;
+
+    let _ = sqlx::query("DELETE FROM links WHERE id = ?")
+        .bind(id)
+        .execute(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Force WAL checkpoint to immediately update main database file
+    let _ = crate::checkpoint_wal(pool.as_ref()).await;
+
+    Ok(Redirect::to("/admin/links"))
 }
 
 #[cfg(feature = "admin")]
@@ -1333,13 +1384,13 @@ async fn zone_notes(
 
 #[cfg(feature = "admin")]
 async fn create_zone_note(
-    Path(zone_id): Path<i64>,
     State(state): State<AppState>,
+    Path(zone_id): Path<i32>,
     Form(form): Form<ZoneNoteForm>,
 ) -> Result<Redirect, StatusCode> {
     let pool = &state.zone_state.pool;
 
-    sqlx::query("INSERT INTO zone_notes (zone_id, note_type_id, content) VALUES (?, ?, ?)")
+    let _ = sqlx::query("INSERT INTO zone_notes (zone_id, note_type_id, content) VALUES (?, ?, ?)")
         .bind(zone_id)
         .bind(form.note_type_id)
         .bind(&form.content)
@@ -1347,22 +1398,28 @@ async fn create_zone_note(
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
+    // Force WAL checkpoint to immediately update main database file
+    let _ = crate::checkpoint_wal(pool.as_ref()).await;
+
     Ok(Redirect::to(&format!("/admin/zones/{}/notes", zone_id)))
 }
 
 #[cfg(feature = "admin")]
 async fn delete_zone_note(
-    Path((zone_id, note_id)): Path<(i64, i64)>,
     State(state): State<AppState>,
+    Path((zone_id, note_id)): Path<(i32, i32)>,
 ) -> Result<Redirect, StatusCode> {
     let pool = &state.zone_state.pool;
 
-    sqlx::query("DELETE FROM zone_notes WHERE id = ? AND zone_id = ?")
+    let _ = sqlx::query("DELETE FROM zone_notes WHERE id = ? AND zone_id = ?")
         .bind(note_id)
         .bind(zone_id)
         .execute(pool.as_ref())
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Force WAL checkpoint to immediately update main database file
+    let _ = crate::checkpoint_wal(pool.as_ref()).await;
 
     Ok(Redirect::to(&format!("/admin/zones/{}/notes", zone_id)))
 }
@@ -1495,48 +1552,55 @@ async fn create_note_type(
 ) -> Result<Redirect, StatusCode> {
     let pool = &state.zone_state.pool;
 
-    sqlx::query("INSERT INTO note_types (name, display_name, color_class) VALUES (?, ?, ?)")
-        .bind(&form.name)
-        .bind(&form.display_name)
-        .bind(&form.color_class)
-        .execute(pool.as_ref())
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let _ =
+        sqlx::query("INSERT INTO note_types (name, display_name, color_class) VALUES (?, ?, ?)")
+            .bind(&form.name)
+            .bind(&form.display_name)
+            .bind(&form.color_class)
+            .execute(pool.as_ref())
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Force WAL checkpoint to immediately update main database file
+    let _ = crate::checkpoint_wal(pool.as_ref()).await;
 
     Ok(Redirect::to("/admin/note-types"))
 }
 
 #[cfg(feature = "admin")]
 async fn delete_note_type(
-    Path(id): Path<i64>,
     State(state): State<AppState>,
+    Path(id): Path<i32>,
 ) -> Result<Redirect, StatusCode> {
     let pool = &state.zone_state.pool;
 
-    // First check if any notes use this type
-    let count: i32 = sqlx::query("SELECT COUNT(*) as count FROM zone_notes WHERE note_type_id = ?")
+    // First check if the note type is being used
+    let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM zone_notes WHERE note_type_id = ?")
         .bind(id)
         .fetch_one(pool.as_ref())
         .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
-        .get("count");
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     if count > 0 {
-        // Don't delete if notes exist - return error page or redirect with error
-        return Ok(Redirect::to("/admin/note-types?error=in_use"));
+        // If note type is in use, we might want to handle this differently
+        // For now, we'll prevent deletion
+        return Err(StatusCode::BAD_REQUEST);
     }
 
-    sqlx::query("DELETE FROM note_types WHERE id = ?")
+    let _ = sqlx::query("DELETE FROM note_types WHERE id = ?")
         .bind(id)
         .execute(pool.as_ref())
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
+    // Force WAL checkpoint to immediately update main database file
+    let _ = crate::checkpoint_wal(pool.as_ref()).await;
+
     Ok(Redirect::to("/admin/note-types"))
 }
 
 #[cfg(feature = "admin")]
-async fn delete_rating(
+async fn delete_rating_admin(
     State(state): State<AppState>,
     Path(id): Path<i32>,
 ) -> Result<axum::response::Redirect, StatusCode> {
@@ -1548,6 +1612,9 @@ async fn delete_rating(
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
+    // Force WAL checkpoint to immediately update main database file
+    let _ = crate::checkpoint_wal(pool.as_ref()).await;
+
     Ok(axum::response::Redirect::to("/admin/ratings"))
 }
 
@@ -1558,7 +1625,7 @@ async fn handle_rating_delete(
     Form(form): Form<HashMap<String, String>>,
 ) -> Result<axum::response::Redirect, StatusCode> {
     if form.get("_method") == Some(&"DELETE".to_string()) {
-        delete_rating(State(state), Path(id)).await
+        delete_rating_admin(State(state), Path(id)).await
     } else {
         Err(StatusCode::METHOD_NOT_ALLOWED)
     }
@@ -1861,10 +1928,10 @@ async fn edit_link_form(
 async fn create_link_admin(
     State(state): State<AppState>,
     Form(form): Form<LinkForm>,
-) -> Result<axum::response::Redirect, StatusCode> {
+) -> Result<Redirect, StatusCode> {
     let pool = &state.zone_state.pool;
 
-    sqlx::query("INSERT INTO links (name, url, category, description) VALUES (?, ?, ?, ?)")
+    let _ = sqlx::query("INSERT INTO links (name, url, category, description) VALUES (?, ?, ?, ?)")
         .bind(&form.name)
         .bind(&form.url)
         .bind(&form.category)
@@ -1873,7 +1940,10 @@ async fn create_link_admin(
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    Ok(axum::response::Redirect::to("/admin/links"))
+    // Force WAL checkpoint to immediately update main database file
+    let _ = crate::checkpoint_wal(pool.as_ref()).await;
+
+    Ok(Redirect::to("/admin/links"))
 }
 
 #[cfg(feature = "admin")]
@@ -1894,11 +1964,11 @@ async fn update_link_admin(
     State(state): State<AppState>,
     Path(id): Path<i32>,
     Form(form): Form<LinkForm>,
-) -> Result<axum::response::Redirect, StatusCode> {
+) -> Result<Redirect, StatusCode> {
     let pool = &state.zone_state.pool;
 
-    sqlx::query(
-        "UPDATE links SET name = ?, url = ?, category = ?, description = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?"
+    let _ = sqlx::query(
+        "UPDATE links SET name = ?, url = ?, category = ?, description = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
     )
     .bind(&form.name)
     .bind(&form.url)
@@ -1909,21 +1979,8 @@ async fn update_link_admin(
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    Ok(axum::response::Redirect::to("/admin/links"))
-}
+    // Force WAL checkpoint to immediately update main database file
+    let _ = crate::checkpoint_wal(pool.as_ref()).await;
 
-#[cfg(feature = "admin")]
-async fn delete_link_admin(
-    State(state): State<AppState>,
-    Path(id): Path<i32>,
-) -> Result<axum::response::Redirect, StatusCode> {
-    let pool = &state.zone_state.pool;
-
-    sqlx::query("DELETE FROM links WHERE id = ?")
-        .bind(id)
-        .execute(pool.as_ref())
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
-    Ok(axum::response::Redirect::to("/admin/links"))
+    Ok(Redirect::to("/admin/links"))
 }
