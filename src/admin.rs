@@ -994,6 +994,16 @@ async fn edit_zone_form(
         .await
         .map_err(|_| StatusCode::NOT_FOUND)?;
 
+    // Load notes for this zone
+    let notes = crate::zones::get_zone_notes(pool.as_ref(), id as i64)
+        .await
+        .unwrap_or_default();
+
+    // Load note types for the form
+    let note_types = crate::zones::get_note_types(pool.as_ref())
+        .await
+        .unwrap_or_default();
+
     let zone = Zone {
         id: Some(id),
         name: zone_row.get("name"),
@@ -1008,19 +1018,20 @@ async fn edit_zone_form(
         hot_zone: zone_row.get("hot_zone"),
         mission: zone_row.get("mission"),
         verified: zone_row.get("verified"),
-        notes: Vec::new(),
+        notes,
     };
 
     let html = format!(
         "{}{}",
         get_zone_form_header(),
-        get_zone_form_body(
+        get_zone_form_body_with_notes(
             &format!("Edit Zone: {}", zone.name),
             &zone,
             &format!("/admin/zones/{}", id),
             "PUT",
             "Update Zone",
-            Some(id)
+            Some(id),
+            &note_types
         )
     );
 
@@ -1068,6 +1079,19 @@ fn get_zone_form_body(
     method: &str,
     button_text: &str,
     zone_id: Option<i32>,
+) -> String {
+    get_zone_form_body_with_notes(title, zone, action, method, button_text, zone_id, &[])
+}
+
+#[cfg(feature = "admin")]
+fn get_zone_form_body_with_notes(
+    title: &str,
+    zone: &Zone,
+    action: &str,
+    method: &str,
+    button_text: &str,
+    zone_id: Option<i32>,
+    note_types: &[crate::zones::NoteType],
 ) -> String {
     format!(
         r#"
@@ -1149,6 +1173,8 @@ fn get_zone_form_body(
     </form>
 
     {}
+
+    {}
 </body>
 </html>
     "#,
@@ -1217,6 +1243,90 @@ fn get_zone_form_body(
 "#,
                 id
             )
+        } else {
+            String::new()
+        },
+        // Notes section
+        if zone_id.is_some() && !note_types.is_empty() {
+            let mut notes_html = String::new();
+
+            notes_html.push_str(r#"
+    <div style="margin-top: 30px; padding: 20px; border-top: 2px solid #dee2e6; background-color: #f8f9fa;">
+        <h3 style="color: #495057; margin-bottom: 15px;">Zone Notes</h3>
+
+        <!-- Add New Note Form -->
+        <div style="background: white; padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #ddd;">
+            <h4 style="margin-top: 0;">Add New Note</h4>
+            <form method="post" action=""#);
+
+            if let Some(id) = zone_id {
+                notes_html.push_str(&format!("/admin/zones/{}/notes", id));
+            }
+
+            notes_html.push_str(r#"" style="display: flex; gap: 10px; align-items: end;">
+                <div style="flex: 1;">
+                    <label for="note_type_id" style="display: block; margin-bottom: 5px; font-weight: bold;">Note Type:</label>
+                    <select id="note_type_id" name="note_type_id" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+"#);
+
+            for note_type in note_types {
+                notes_html.push_str(&format!(
+                    r#"                        <option value="{}">{}</option>
+"#,
+                    note_type.id.unwrap_or(0),
+                    note_type.display_name
+                ));
+            }
+
+            notes_html.push_str(r#"                    </select>
+                </div>
+                <div style="flex: 2;">
+                    <label for="content" style="display: block; margin-bottom: 5px; font-weight: bold;">Content:</label>
+                    <input type="text" id="content" name="content" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <div>
+                    <button type="submit" style="background: #28a745; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer;">Add Note</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Existing Notes -->
+        <h4>Existing Notes</h4>
+"#);
+
+            if zone.notes.is_empty() {
+                notes_html.push_str("<p style='color: #6c757d;'>No notes found for this zone.</p>");
+            } else {
+                for note in &zone.notes {
+                    notes_html.push_str(&format!(
+                        r#"
+        <div style="background: white; padding: 15px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <span style="padding: 4px 8px; border-radius: 3px; color: white; font-size: 0.8em; margin-right: 10px; {}">{}</span>
+                <span>{}</span>
+            </div>
+            <form method="post" action="/admin/zones/{}/notes/{}/delete" style="display: inline;">
+                <button type="submit" style="background: #dc3545; color: white; padding: 4px 8px; border: none; border-radius: 3px; font-size: 0.8em; cursor: pointer;" onclick="return confirm('Delete this note?')">Delete</button>
+            </form>
+        </div>
+"#,
+                        note.note_type.as_ref().map(|nt| format!("background-color: {};", match nt.color_class.as_str() {
+                            "bg-yellow-500" => "#f59e0b",
+                            "bg-orange-500" => "#ea580c",
+                            "bg-red-500" => "#ef4444",
+                            "bg-purple-500" => "#a855f7",
+                            _ => "#3b82f6"
+                        })).unwrap_or_else(|| "background-color: #3b82f6;".to_string()),
+                        note.note_type.as_ref().map(|nt| nt.display_name.as_str()).unwrap_or("Unknown"),
+                        note.content,
+                        zone_id.unwrap_or(0),
+                        note.id.unwrap_or(0)
+                    ));
+                }
+            }
+
+            notes_html.push_str("    </div>");
+            notes_html
         } else {
             String::new()
         }
