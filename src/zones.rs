@@ -17,6 +17,22 @@ pub struct NoteType {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct FlagType {
+    pub id: Option<i64>,
+    pub name: String,
+    pub display_name: String,
+    pub color_class: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ZoneFlag {
+    pub id: Option<i64>,
+    pub zone_id: i64,
+    pub flag_type_id: i64,
+    pub flag_type: Option<FlagType>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ZoneNote {
     pub id: Option<i64>,
     pub zone_id: i64,
@@ -52,6 +68,7 @@ pub struct Zone {
     pub mission: bool,
     pub verified: bool,
     pub notes: Vec<ZoneNote>,
+    pub flags: Vec<ZoneFlag>,
 }
 
 #[derive(Deserialize)]
@@ -63,6 +80,7 @@ pub struct RangeQuery {
     pub mission: Option<bool>,
     hot_zone: Option<bool>,
     continent: Option<String>,
+    flags: Option<String>, // Comma-separated flag names
 }
 
 pub async fn random_zone(
@@ -71,34 +89,56 @@ pub async fn random_zone(
 ) -> Result<Json<Zone>, StatusCode> {
     let pool = &*state.zone_state.pool;
 
-    let mut query = String::from("SELECT * FROM zones WHERE 1=1");
+    let mut query = String::from("SELECT DISTINCT z.* FROM zones z");
     let mut bindings: Vec<String> = Vec::new();
+    let mut where_conditions = Vec::new();
+
+    // Add flag filtering if specified
+    if let Some(ref flags_param) = params.flags {
+        let flag_names: Vec<&str> = flags_param.split(',').map(|s| s.trim()).collect();
+        if !flag_names.is_empty() {
+            query.push_str(" JOIN zone_flags zf ON z.id = zf.zone_id JOIN flag_types ft ON zf.flag_type_id = ft.id");
+            let flag_placeholders = flag_names
+                .iter()
+                .map(|_| "LOWER(ft.name) = LOWER(?)")
+                .collect::<Vec<_>>()
+                .join(" OR ");
+            where_conditions.push(format!("({})", flag_placeholders));
+            for flag_name in flag_names {
+                bindings.push(flag_name.to_string());
+            }
+        }
+    }
+
+    where_conditions.push("1=1".to_string());
 
     if let Some(ref zone_type) = params.zone_type {
-        query.push_str(" AND LOWER(zone_type) = LOWER(?)");
+        where_conditions.push("LOWER(z.zone_type) = LOWER(?)".to_string());
         bindings.push(zone_type.clone());
     }
 
     if let Some(ref expansion) = params.expansion {
-        query.push_str(" AND LOWER(expansion) = LOWER(?)");
+        where_conditions.push("LOWER(z.expansion) = LOWER(?)".to_string());
         bindings.push(expansion.clone());
     }
 
     if let Some(ref continent) = params.continent {
-        query.push_str(" AND LOWER(continent) = LOWER(?)");
+        where_conditions.push("LOWER(z.continent) = LOWER(?)".to_string());
         bindings.push(continent.clone());
     }
 
     if let Some(mission) = params.mission {
-        query.push_str(" AND mission = ?");
+        where_conditions.push("z.mission = ?".to_string());
         bindings.push(if mission { "1" } else { "0" }.to_string());
     }
 
     if let Some(hot_zone) = params.hot_zone {
-        query.push_str(" AND hot_zone = ?");
+        where_conditions.push("z.hot_zone = ?".to_string());
         bindings.push(if hot_zone { "1" } else { "0" }.to_string());
     }
 
+    query.push_str(" WHERE ");
+    query.push_str(&where_conditions.join(" AND "));
     query.push_str(" ORDER BY RANDOM() LIMIT 100");
 
     let mut sql_query = sqlx::query(&query);
@@ -122,8 +162,13 @@ pub async fn random_zone(
         let connections: Vec<String> = serde_json::from_str(&connections_json)
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
+        let zone_id = row.get::<i64, _>("id");
+
+        // Load flags for this zone
+        let flags = get_zone_flags(pool, zone_id).await.unwrap_or_default();
+
         let zone = Zone {
-            id: Some(row.get::<i64, _>("id")),
+            id: Some(zone_id),
             name: row.get("name"),
             level_ranges: level_ranges.clone(),
             expansion: row.get("expansion"),
@@ -137,6 +182,7 @@ pub async fn random_zone(
             mission: row.get("mission"),
             verified: row.get("verified"),
             notes: Vec::new(),
+            flags,
         };
 
         let mut level_match = true;
@@ -221,6 +267,7 @@ pub async fn get_all_zones(pool: &SqlitePool) -> Result<Vec<Zone>, sqlx::Error> 
             mission: row.get("mission"),
             verified: row.get("verified"),
             notes: Vec::new(), // Notes not loaded for bulk operations
+            flags: Vec::new(), // Flags not loaded for bulk operations
         });
     }
 
@@ -287,4 +334,64 @@ pub async fn get_note_types(pool: &SqlitePool) -> Result<Vec<NoteType>, sqlx::Er
     }
 
     Ok(note_types)
+}
+
+pub async fn get_flag_types(pool: &SqlitePool) -> Result<Vec<FlagType>, sqlx::Error> {
+    let rows = sqlx::query(
+        "SELECT id, name, display_name, color_class FROM flag_types ORDER BY display_name",
+    )
+    .fetch_all(pool)
+    .await?;
+
+    let mut flag_types = Vec::new();
+
+    for row in rows {
+        flag_types.push(FlagType {
+            id: Some(row.get::<i64, _>("id")),
+            name: row.get("name"),
+            display_name: row.get("display_name"),
+            color_class: row.get("color_class"),
+        });
+    }
+
+    Ok(flag_types)
+}
+
+pub async fn get_zone_flags(pool: &SqlitePool, zone_id: i64) -> Result<Vec<ZoneFlag>, sqlx::Error> {
+    let rows = sqlx::query(
+        r#"
+        SELECT
+            zf.id,
+            zf.zone_id,
+            zf.flag_type_id,
+            ft.name as flag_type_name,
+            ft.display_name as flag_type_display_name,
+            ft.color_class as flag_type_color_class
+        FROM zone_flags zf
+        JOIN flag_types ft ON zf.flag_type_id = ft.id
+        WHERE zf.zone_id = ?
+        ORDER BY ft.display_name ASC
+        "#,
+    )
+    .bind(zone_id)
+    .fetch_all(pool)
+    .await?;
+
+    let mut flags = Vec::new();
+
+    for row in rows {
+        flags.push(ZoneFlag {
+            id: Some(row.get::<i64, _>("id")),
+            zone_id: row.get("zone_id"),
+            flag_type_id: row.get("flag_type_id"),
+            flag_type: Some(FlagType {
+                id: Some(row.get("flag_type_id")),
+                name: row.get("flag_type_name"),
+                display_name: row.get("flag_type_display_name"),
+                color_class: row.get("flag_type_color_class"),
+            }),
+        });
+    }
+
+    Ok(flags)
 }

@@ -39,6 +39,7 @@ pub struct Zone {
     pub mission: bool,
     pub verified: bool,
     pub notes: Vec<crate::zones::ZoneNote>,
+    pub flags: Vec<crate::zones::ZoneFlag>,
 }
 
 #[cfg(feature = "admin")]
@@ -118,6 +119,12 @@ pub struct ZoneNoteForm {
 
 #[cfg(feature = "admin")]
 #[derive(Debug, Deserialize)]
+pub struct ZoneFlagForm {
+    pub flag_type_id: i64,
+}
+
+#[cfg(feature = "admin")]
+#[derive(Debug, Deserialize)]
 pub struct InstanceNoteForm {
     pub note_type_id: i64,
     pub content: String,
@@ -126,6 +133,14 @@ pub struct InstanceNoteForm {
 #[cfg(feature = "admin")]
 #[derive(Debug, Deserialize)]
 pub struct NoteTypeForm {
+    pub name: String,
+    pub display_name: String,
+    pub color_class: String,
+}
+
+#[cfg(feature = "admin")]
+#[derive(Debug, Deserialize)]
+pub struct FlagTypeForm {
     pub name: String,
     pub display_name: String,
     pub color_class: String,
@@ -206,6 +221,11 @@ pub fn admin_routes() -> Router<AppState> {
             "/admin/zones/:id/notes/:note_id/delete",
             post(delete_zone_note),
         )
+        .route("/admin/zones/:id/flags", post(create_zone_flag))
+        .route(
+            "/admin/zones/:id/flags/:flag_id/delete",
+            post(delete_zone_flag),
+        )
         .route("/admin/instances", get(list_instances))
         .route("/admin/instances/:id", get(edit_instance_form))
         .route(
@@ -222,6 +242,13 @@ pub fn admin_routes() -> Router<AppState> {
         .route("/admin/note-types", get(list_note_types))
         .route("/admin/note-types", post(create_note_type))
         .route("/admin/note-types/:id/delete", post(delete_note_type))
+        .route("/admin/flag-types", get(list_flag_types))
+        .route("/admin/flag-types", post(create_flag_type))
+        .route("/admin/flag-types/:id/delete", post(delete_flag_type))
+        .route(
+            "/admin/migrate-hot-zones",
+            post(migrate_hot_zones_to_flags_admin),
+        )
         .route("/admin/ratings", get(list_all_ratings))
         .route("/admin/ratings/:id/delete", post(handle_rating_delete))
         .route("/admin/links", get(list_links))
@@ -336,6 +363,10 @@ async fn admin_dashboard(State(state): State<AppState>) -> Result<Html<String>, 
         <a href="/admin/instances">Manage Instances</a>
         <a href="/admin/zones/new">Add New Zone</a>
         <a href="/admin/note-types">Manage Note Types</a>
+        <a href="/admin/flag-types">Manage Flag Types</a>
+        <form method="post" action="/admin/migrate-hot-zones" style="display: inline;">
+            <button type="submit" class="btn" style="background: #28a745; margin-left: 10px;" onclick="return confirm('Migrate all zones with hot_zone=true to use zone flags?\n\nThis will:\n• Add hot zone flags to all zones with hot_zone=true\n• Not modify existing hot zone flags\n• Safe to run multiple times')">🔄 Migrate Hot Zones to Flags</button>
+        </form>
         <a href="/admin/ratings">Manage Ratings</a>
         <a href="/admin/links">Manage Links</a>
     </div>
@@ -391,6 +422,8 @@ async fn admin_dashboard(State(state): State<AppState>) -> Result<Html<String>, 
         <p><a href="/admin/instances">Manage all instances</a> - View instances that were moved from zones</p>
         <p><a href="/admin/zones/new">Add new zone</a> - Create a new zone entry</p>
         <p><a href="/admin/note-types">Manage note types</a> - Configure pill icons for zone notes</p>
+        <p><a href="/admin/flag-types">Manage flag types</a> - Configure zone flags and their appearance</p>
+        <p><strong>Migration:</strong> Use the "Migrate Hot Zones to Flags" button above to convert existing hot_zone boolean values to the new flag system</p>
         <p><a href="/admin/ratings">Manage all ratings</a> - View and delete zone ratings</p>
         <p><a href="/admin/links">Manage links</a> - View, edit, and delete links organized by category</p>
     </div>
@@ -538,11 +571,14 @@ async fn list_zones(
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
     };
 
-    // Load notes for each zone
+    // Load notes and flags for each zone
     let mut zones = Vec::new();
     for row in zone_rows {
         let zone_id: i64 = row.get("id");
         let notes = crate::zones::get_zone_notes(pool.as_ref(), zone_id)
+            .await
+            .unwrap_or_default();
+        let flags = crate::zones::get_zone_flags(pool.as_ref(), zone_id)
             .await
             .unwrap_or_default();
 
@@ -561,6 +597,7 @@ async fn list_zones(
             mission: row.get("mission"),
             verified: row.get("verified"),
             notes,
+            flags,
         });
     }
 
@@ -638,6 +675,7 @@ async fn list_zones(
                 <th>{}</th>
                 <th>{}</th>
                 <th>Notes</th>
+                <th>Flags</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -757,6 +795,21 @@ async fn list_zones(
     );
 
     for zone in zones {
+        let flags_display = if zone.flags.is_empty() {
+            String::from("-")
+        } else {
+            zone.flags
+                .iter()
+                .map(|f| {
+                    f.flag_type
+                        .as_ref()
+                        .map(|ft| ft.display_name.as_str())
+                        .unwrap_or("Unknown")
+                })
+                .collect::<Vec<_>>()
+                .join(", ")
+        };
+
         html.push_str(&format!(r#"
             <tr>
                 <td>{}</td>
@@ -769,6 +822,7 @@ async fn list_zones(
                 <td>{}</td>
                 <td>{}</td>
                 <td>{}</td>
+                <td class="truncate" title="{}">{}</td>
                 <td>
                     <a href="/admin/zones/{}" class="btn btn-small">Edit</a>
                     <a href="/admin/zones/{}/ratings" class="btn btn-small">Ratings</a>
@@ -793,6 +847,7 @@ async fn list_zones(
             if zone.mission { "✓" } else { "✗" },
             if zone.verified { "✓" } else { "✗" },
             zone.notes.len(),
+            flags_display, flags_display,
             zone.id.unwrap_or(0),
             zone.id.unwrap_or(0),
             zone.id.unwrap_or(0),
@@ -954,12 +1009,11 @@ async fn new_zone_form() -> Html<String> {
         "{}{}",
         get_zone_form_header(),
         get_zone_form_body(
-            "",
+            "Create New Zone",
             &Zone {
-                notes: Vec::new(),
                 id: None,
                 name: String::new(),
-                level_ranges: "[]".to_string(),
+                level_ranges: "[[1,50]]".to_string(),
                 expansion: String::new(),
                 continent: String::new(),
                 zone_type: String::new(),
@@ -970,6 +1024,8 @@ async fn new_zone_form() -> Html<String> {
                 hot_zone: false,
                 mission: false,
                 verified: false,
+                notes: Vec::new(),
+                flags: Vec::new(),
             },
             "/admin/zones",
             "POST",
@@ -999,8 +1055,18 @@ async fn edit_zone_form(
         .await
         .unwrap_or_default();
 
+    // Load flags for this zone
+    let flags = crate::zones::get_zone_flags(pool.as_ref(), id as i64)
+        .await
+        .unwrap_or_default();
+
     // Load note types for the form
     let note_types = crate::zones::get_note_types(pool.as_ref())
+        .await
+        .unwrap_or_default();
+
+    // Load flag types for the form
+    let flag_types = crate::zones::get_flag_types(pool.as_ref())
         .await
         .unwrap_or_default();
 
@@ -1019,19 +1085,21 @@ async fn edit_zone_form(
         mission: zone_row.get("mission"),
         verified: zone_row.get("verified"),
         notes,
+        flags,
     };
 
     let html = format!(
         "{}{}",
         get_zone_form_header(),
-        get_zone_form_body_with_notes(
+        get_zone_form_body_with_notes_and_flags(
             &format!("Edit Zone: {}", zone.name),
             &zone,
             &format!("/admin/zones/{}", id),
             "PUT",
             "Update Zone",
             Some(id),
-            &note_types
+            &note_types,
+            &flag_types
         )
     );
 
@@ -1092,6 +1160,29 @@ fn get_zone_form_body_with_notes(
     button_text: &str,
     zone_id: Option<i32>,
     note_types: &[crate::zones::NoteType],
+) -> String {
+    get_zone_form_body_with_notes_and_flags(
+        title,
+        zone,
+        action,
+        method,
+        button_text,
+        zone_id,
+        note_types,
+        &[],
+    )
+}
+
+#[cfg(feature = "admin")]
+fn get_zone_form_body_with_notes_and_flags(
+    title: &str,
+    zone: &Zone,
+    action: &str,
+    method: &str,
+    button_text: &str,
+    zone_id: Option<i32>,
+    note_types: &[crate::zones::NoteType],
+    flag_types: &[crate::zones::FlagType],
 ) -> String {
     format!(
         r#"
@@ -1171,6 +1262,8 @@ fn get_zone_form_body_with_notes(
         <button type="submit" class="btn">{}</button>
         <a href="/admin/zones" class="btn btn-secondary">Cancel</a>
     </form>
+
+    {}
 
     {}
 
@@ -1327,6 +1420,93 @@ fn get_zone_form_body_with_notes(
 
             notes_html.push_str("    </div>");
             notes_html
+        } else {
+            String::new()
+        },
+        // Flags section
+        if zone_id.is_some() && !flag_types.is_empty() {
+            let mut flags_html = String::new();
+
+            flags_html.push_str(r#"
+    <div style="margin-top: 30px; padding: 20px; border-top: 2px solid #dee2e6; background-color: #f8f9fa;">
+        <h3 style="color: #495057; margin-bottom: 15px;">Zone Flags</h3>
+
+        <!-- Add New Flag Form -->
+        <div style="background: white; padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #ddd;">
+            <h4 style="margin-top: 0;">Add New Flag</h4>
+            <form method="post" action=""#);
+
+            if let Some(id) = zone_id {
+                flags_html.push_str(&format!("/admin/zones/{}/flags", id));
+            }
+
+            flags_html.push_str(r#"" style="display: flex; gap: 10px; align-items: end;">
+                <div style="flex: 1;">
+                    <label for="flag_type_id" style="display: block; margin-bottom: 5px; font-weight: bold;">Flag Type:</label>
+                    <select id="flag_type_id" name="flag_type_id" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+"#);
+
+            for flag_type in flag_types {
+                // Check if this flag is already applied to the zone
+                let flag_exists = zone
+                    .flags
+                    .iter()
+                    .any(|f| f.flag_type_id == flag_type.id.unwrap_or(0));
+                if !flag_exists {
+                    flags_html.push_str(&format!(
+                        r#"                        <option value="{}">{}</option>
+"#,
+                        flag_type.id.unwrap_or(0),
+                        flag_type.display_name
+                    ));
+                }
+            }
+
+            flags_html.push_str(r#"                    </select>
+                </div>
+                <div>
+                    <button type="submit" style="background: #28a745; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer;">Add Flag</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Existing Flags -->
+        <h4>Current Flags</h4>
+"#);
+
+            if zone.flags.is_empty() {
+                flags_html.push_str("<p style='color: #6c757d;'>No flags set for this zone.</p>");
+            } else {
+                for flag in &zone.flags {
+                    flags_html.push_str(&format!(
+                        r#"
+        <div style="background: white; padding: 15px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <span style="padding: 6px 12px; border-radius: 5px; color: white; font-size: 0.9em; font-weight: bold; {}">{}</span>
+            </div>
+            <form method="post" action="/admin/zones/{}/flags/{}/delete" style="display: inline;">
+                <button type="submit" style="background: #dc3545; color: white; padding: 6px 12px; border: none; border-radius: 4px; font-size: 0.9em; cursor: pointer;" onclick="return confirm('Remove this flag?')">Remove</button>
+            </form>
+        </div>
+"#,
+                        flag.flag_type.as_ref().map(|ft| format!("background-color: {};", match ft.color_class.as_str() {
+                            "bg-red-500" => "#ef4444",
+                            "bg-purple-500" => "#a855f7",
+                            "bg-blue-500" => "#3b82f6",
+                            "bg-green-500" => "#22c55e",
+                            "bg-yellow-500" => "#f59e0b",
+                            "bg-orange-500" => "#ea580c",
+                            _ => "#3b82f6"
+                        })).unwrap_or_else(|| "background-color: #3b82f6;".to_string()),
+                        flag.flag_type.as_ref().map(|ft| ft.display_name.as_str()).unwrap_or("Unknown"),
+                        zone_id.unwrap_or(0),
+                        flag.id.unwrap_or(0)
+                    ));
+                }
+            }
+
+            flags_html.push_str("    </div>");
+            flags_html
         } else {
             String::new()
         }
@@ -2001,6 +2181,7 @@ async fn zone_notes(
         <a href="/admin/zones">Manage Zones</a>
         <a href="/admin/zones/new">Add New Zone</a>
         <a href="/admin/note-types">Manage Note Types</a>
+        <a href="/admin/flag-types">Manage Flag Types</a>
         <a href="/admin/ratings">Manage Ratings</a>
     </div>
 
@@ -2095,6 +2276,47 @@ async fn delete_zone_note(
 }
 
 #[cfg(feature = "admin")]
+async fn create_zone_flag(
+    State(state): State<AppState>,
+    Path(zone_id): Path<i32>,
+    Form(form): Form<ZoneFlagForm>,
+) -> Result<Redirect, StatusCode> {
+    let pool = &state.zone_state.pool;
+
+    let _ = sqlx::query("INSERT INTO zone_flags (zone_id, flag_type_id) VALUES (?, ?)")
+        .bind(zone_id)
+        .bind(form.flag_type_id)
+        .execute(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Force WAL checkpoint to immediately update main database file
+    let _ = crate::checkpoint_wal(pool.as_ref()).await;
+
+    Ok(Redirect::to(&format!("/admin/zones/{}", zone_id)))
+}
+
+#[cfg(feature = "admin")]
+async fn delete_zone_flag(
+    State(state): State<AppState>,
+    Path((zone_id, flag_id)): Path<(i32, i32)>,
+) -> Result<Redirect, StatusCode> {
+    let pool = &state.zone_state.pool;
+
+    let _ = sqlx::query("DELETE FROM zone_flags WHERE id = ? AND zone_id = ?")
+        .bind(flag_id)
+        .bind(zone_id)
+        .execute(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Force WAL checkpoint to immediately update main database file
+    let _ = crate::checkpoint_wal(pool.as_ref()).await;
+
+    Ok(Redirect::to(&format!("/admin/zones/{}", zone_id)))
+}
+
+#[cfg(feature = "admin")]
 async fn list_note_types(State(state): State<AppState>) -> Result<Html<String>, StatusCode> {
     let pool = &state.zone_state.pool;
 
@@ -2155,6 +2377,7 @@ async fn list_note_types(State(state): State<AppState>) -> Result<Html<String>, 
         <a href="/admin/zones">Manage Zones</a>
         <a href="/admin/zones/new">Add New Zone</a>
         <a href="/admin/note-types">Manage Note Types</a>
+        <a href="/admin/flag-types">Manage Flag Types</a>
         <a href="/admin/ratings">Manage Ratings</a>
     </div>
 
@@ -2267,6 +2490,205 @@ async fn delete_note_type(
     let _ = crate::checkpoint_wal(pool.as_ref()).await;
 
     Ok(Redirect::to("/admin/note-types"))
+}
+
+#[cfg(feature = "admin")]
+async fn list_flag_types(State(state): State<AppState>) -> Result<Html<String>, StatusCode> {
+    let pool = &state.zone_state.pool;
+
+    let flag_types = crate::zones::get_flag_types(pool.as_ref())
+        .await
+        .unwrap_or_default();
+
+    let mut html = String::from(
+        r#"<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Flag Types - EQ RNG Admin</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .nav { background: #f5f5f5; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+        .nav a { margin-right: 15px; text-decoration: none; color: #333; font-weight: bold; }
+        .nav a:hover { color: #007bff; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .btn { background: #007bff; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; }
+        .btn:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/zones">Manage Zones</a>
+        <a href="/admin/zones/new">Add New Zone</a>
+        <a href="/admin/note-types">Manage Note Types</a>
+        <a href="/admin/flag-types">Manage Flag Types</a>
+        <a href="/admin/ratings">Manage Ratings</a>
+    </div>
+
+    <h1>Manage Flag Types</h1>
+
+    <div style="margin-bottom: 30px;">
+        <h2>Current Flag Types</h2>
+"#,
+    );
+
+    if flag_types.is_empty() {
+        html.push_str("<p>No flag types found.</p>");
+    } else {
+        for flag_type in &flag_types {
+            html.push_str(&format!(
+                r#"
+                <div style="display: flex; align-items: center; margin-bottom: 10px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                    <span class="pill" style="background: {}; color: white; padding: 6px 12px; border-radius: 15px; font-size: 14px; margin-right: 15px;">{}</span>
+                    <div style="flex: 1;">
+                        <strong>{}</strong><br>
+                        <small style="color: #666;">Internal name: {}</small>
+                    </div>
+                    <form method="post" action="/admin/flag-types/{}" style="margin: 0;">
+                        <input type="hidden" name="_method" value="delete">
+                        <button type="submit" style="background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;" onclick="return confirm('Are you sure?')">Delete</button>
+                    </form>
+                </div>
+"#,
+                match flag_type.color_class.as_str() {
+                    "bg-red-500" => "#ef4444",
+                    "bg-purple-500" => "#a855f7",
+                    "bg-blue-500" => "#3b82f6",
+                    "bg-green-500" => "#22c55e",
+                    "bg-yellow-500" => "#f59e0b",
+                    "bg-orange-500" => "#ea580c",
+                    _ => "#3b82f6"
+                },
+                flag_type.display_name,
+                flag_type.display_name,
+                flag_type.name,
+                flag_type.id.unwrap_or(0)
+            ));
+        }
+    }
+
+    html.push_str(
+        r#"
+    </div>
+
+    <div class="nav">
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/zones">Manage Zones</a>
+        <a href="/admin/zones/new">Add New Zone</a>
+        <a href="/admin/note-types">Manage Note Types</a>
+        <a href="/admin/flag-types">Manage Flag Types</a>
+        <a href="/admin/ratings">Manage Ratings</a>
+    </div>
+
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 5px;">
+        <div>
+            <h2>Add New Flag Type</h2>
+            <form method="post" action="/admin/flag-types">
+                <div class="form-group">
+                    <label>Internal Name:</label>
+                    <input type="text" name="name" required placeholder="e.g., epic_zone">
+                </div>
+
+                <div class="form-group">
+                    <label>Display Name:</label>
+                    <input type="text" name="display_name" required placeholder="e.g., Epic Zone">
+                </div>
+
+                <div class="form-group">
+                    <label>Color:</label>
+                    <select name="color_class" required>
+                        <option value="bg-red-500">Red</option>
+                        <option value="bg-purple-500">Purple</option>
+                        <option value="bg-blue-500">Blue</option>
+                        <option value="bg-green-500">Green</option>
+                        <option value="bg-yellow-500">Yellow</option>
+                        <option value="bg-orange-500">Orange</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn">Add Flag Type</button>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>
+"#,
+    );
+
+    Ok(Html(html))
+}
+
+#[cfg(feature = "admin")]
+async fn create_flag_type(
+    State(state): State<AppState>,
+    Form(form): Form<FlagTypeForm>,
+) -> Result<Redirect, StatusCode> {
+    let pool = &state.zone_state.pool;
+
+    let _ =
+        sqlx::query("INSERT INTO flag_types (name, display_name, color_class) VALUES (?, ?, ?)")
+            .bind(&form.name)
+            .bind(&form.display_name)
+            .bind(&form.color_class)
+            .execute(pool.as_ref())
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Force WAL checkpoint to immediately update main database file
+    let _ = crate::checkpoint_wal(pool.as_ref()).await;
+
+    Ok(Redirect::to("/admin/flag-types"))
+}
+
+#[cfg(feature = "admin")]
+async fn delete_flag_type(
+    State(state): State<AppState>,
+    Path(id): Path<i32>,
+) -> Result<Redirect, StatusCode> {
+    let pool = &state.zone_state.pool;
+
+    // First delete any zone_flags that reference this flag type
+    let _ = sqlx::query("DELETE FROM zone_flags WHERE flag_type_id = ?")
+        .bind(id)
+        .execute(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Then delete the flag type itself
+    let _ = sqlx::query("DELETE FROM flag_types WHERE id = ?")
+        .bind(id)
+        .execute(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Force WAL checkpoint to immediately update main database file
+    let _ = crate::checkpoint_wal(pool.as_ref()).await;
+
+    Ok(Redirect::to("/admin/flag-types"))
+}
+
+#[cfg(feature = "admin")]
+async fn migrate_hot_zones_to_flags_admin(
+    State(state): State<AppState>,
+) -> Result<Redirect, StatusCode> {
+    let pool = &state.zone_state.pool;
+
+    match crate::migrate_hot_zones_to_flags(pool.as_ref()).await {
+        Ok(migrated_count) => {
+            println!(
+                "Admin migration completed: {} zones migrated",
+                migrated_count
+            );
+            Ok(Redirect::to("/admin"))
+        }
+        Err(e) => {
+            eprintln!("Migration failed: {}", e);
+            Err(StatusCode::INTERNAL_SERVER_ERROR)
+        }
+    }
 }
 
 #[cfg(feature = "admin")]
@@ -2424,6 +2846,7 @@ async fn list_links(
         <a href="/admin">Dashboard</a>
         <a href="/admin/zones">Manage Zones</a>
         <a href="/admin/note-types">Manage Note Types</a>
+        <a href="/admin/flag-types">Manage Flag Types</a>
         <a href="/admin/ratings">Manage Ratings</a>
         <a href="/admin/links">Manage Links</a>
     </div>
@@ -2603,6 +3026,7 @@ async fn new_link_form() -> Result<Html<String>, StatusCode> {
         <a href="/admin">Dashboard</a>
         <a href="/admin/zones">Manage Zones</a>
         <a href="/admin/note-types">Manage Note Types</a>
+        <a href="/admin/flag-types">Manage Flag Types</a>
         <a href="/admin/ratings">Manage Ratings</a>
         <a href="/admin/links">Manage Links</a>
     </div>
@@ -2690,6 +3114,7 @@ async fn edit_link_form(
         <a href="/admin">Dashboard</a>
         <a href="/admin/zones">Manage Zones</a>
         <a href="/admin/note-types">Manage Note Types</a>
+        <a href="/admin/flag-types">Manage Flag Types</a>
         <a href="/admin/ratings">Manage Ratings</a>
         <a href="/admin/links">Manage Links</a>
     </div>

@@ -386,6 +386,94 @@ async fn create_tables(pool: &SqlitePool) -> Result<(), sqlx::Error> {
         println!("Instance notes table already exists");
     }
 
+    // Check if flag_types table exists
+    let flag_types_table_exists =
+        sqlx::query("SELECT name FROM sqlite_master WHERE type='table' AND name='flag_types'")
+            .fetch_optional(pool)
+            .await?
+            .is_some();
+
+    if !flag_types_table_exists {
+        println!("Creating flag_types table...");
+
+        sqlx::query(
+            r#"
+            CREATE TABLE flag_types (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL UNIQUE,
+                display_name TEXT NOT NULL,
+                color_class TEXT NOT NULL DEFAULT 'bg-blue-500',
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+            "#,
+        )
+        .execute(pool)
+        .await?;
+
+        // Insert default flag types
+        let default_flag_types = [
+            ("hot_zone", "Hot Zone", "bg-red-500"),
+            ("undead", "Undead", "bg-purple-500"),
+        ];
+
+        for (name, display_name, color_class) in &default_flag_types {
+            sqlx::query(
+                "INSERT INTO flag_types (name, display_name, color_class) VALUES (?, ?, ?)",
+            )
+            .bind(name)
+            .bind(display_name)
+            .bind(color_class)
+            .execute(pool)
+            .await?;
+        }
+
+        println!("Flag types table created successfully with default types");
+    } else {
+        println!("Flag types table already exists");
+    }
+
+    // Check if zone_flags table exists
+    let zone_flags_table_exists =
+        sqlx::query("SELECT name FROM sqlite_master WHERE type='table' AND name='zone_flags'")
+            .fetch_optional(pool)
+            .await?
+            .is_some();
+
+    if !zone_flags_table_exists {
+        println!("Creating zone_flags table...");
+
+        sqlx::query(
+            r#"
+            CREATE TABLE zone_flags (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                zone_id INTEGER NOT NULL,
+                flag_type_id INTEGER NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (zone_id) REFERENCES zones (id) ON DELETE CASCADE,
+                FOREIGN KEY (flag_type_id) REFERENCES flag_types (id) ON DELETE CASCADE,
+                UNIQUE(zone_id, flag_type_id)
+            )
+            "#,
+        )
+        .execute(pool)
+        .await?;
+
+        // Create indexes for zone_flags
+        let flag_indexes = [
+            "CREATE INDEX IF NOT EXISTS idx_zone_flags_zone_id ON zone_flags(zone_id)",
+            "CREATE INDEX IF NOT EXISTS idx_zone_flags_flag_type_id ON zone_flags(flag_type_id)",
+            "CREATE INDEX IF NOT EXISTS idx_zone_flags_created_at ON zone_flags(created_at)",
+        ];
+
+        for index_sql in &flag_indexes {
+            sqlx::query(index_sql).execute(pool).await?;
+        }
+
+        println!("Zone flags table and indexes created successfully");
+    } else {
+        println!("Zone flags table already exists");
+    }
+
     Ok(())
 }
 
@@ -418,4 +506,96 @@ pub async fn database_health_check(pool: &SqlitePool) -> Result<(), sqlx::Error>
     // Simple query to check if database is working
     sqlx::query("SELECT 1").fetch_one(pool).await?;
     Ok(())
+}
+
+pub async fn migrate_hot_zones_to_flags(pool: &SqlitePool) -> Result<i32, sqlx::Error> {
+    // Migration function to convert existing hot_zone boolean values to zone flags
+    // Returns the number of zones migrated
+
+    println!("Starting hot zone to flags migration...");
+
+    // Get the flag_type_id for hot_zone flag
+    let flag_type_row = sqlx::query("SELECT id FROM flag_types WHERE name = 'hot_zone'")
+        .fetch_optional(pool)
+        .await?;
+
+    let flag_type_id = match flag_type_row {
+        Some(row) => row.get::<i64, _>("id"),
+        None => {
+            println!("Warning: hot_zone flag type not found, skipping migration");
+            return Ok(0);
+        }
+    };
+
+    // Count zones that need migration (hot_zone = true but no flag)
+    let count_row = sqlx::query(
+        r#"
+        SELECT COUNT(*) as count
+        FROM zones z
+        WHERE z.hot_zone = 1
+        AND NOT EXISTS (
+            SELECT 1 FROM zone_flags zf
+            WHERE zf.zone_id = z.id AND zf.flag_type_id = ?
+        )
+        "#,
+    )
+    .bind(flag_type_id)
+    .fetch_one(pool)
+    .await?;
+
+    let zones_to_migrate: i32 = count_row.get("count");
+
+    if zones_to_migrate == 0 {
+        println!("No zones need migration - all hot zones already have flags");
+        return Ok(0);
+    }
+
+    println!(
+        "Found {} zones with hot_zone = true that need flag migration",
+        zones_to_migrate
+    );
+
+    // Perform the migration
+    let result = sqlx::query(
+        r#"
+        INSERT OR IGNORE INTO zone_flags (zone_id, flag_type_id)
+        SELECT z.id, ?
+        FROM zones z
+        WHERE z.hot_zone = 1
+        AND NOT EXISTS (
+            SELECT 1 FROM zone_flags zf
+            WHERE zf.zone_id = z.id AND zf.flag_type_id = ?
+        )
+        "#,
+    )
+    .bind(flag_type_id)
+    .bind(flag_type_id)
+    .execute(pool)
+    .await?;
+
+    let migrated_count = result.rows_affected() as i32;
+
+    // Verify migration
+    let verification_row = sqlx::query(
+        r#"
+        SELECT COUNT(*) as count
+        FROM zone_flags zf
+        JOIN flag_types ft ON zf.flag_type_id = ft.id
+        WHERE ft.name = 'hot_zone'
+        "#,
+    )
+    .fetch_one(pool)
+    .await?;
+
+    let total_flags: i32 = verification_row.get("count");
+
+    println!(
+        "Migration completed: {} zones migrated, {} total hot zone flags now exist",
+        migrated_count, total_flags
+    );
+
+    // Force WAL checkpoint to consolidate changes
+    checkpoint_wal(pool).await?;
+
+    Ok(migrated_count)
 }
