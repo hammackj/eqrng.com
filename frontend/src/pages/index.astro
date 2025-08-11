@@ -92,6 +92,71 @@ import Layout from "../layouts/Layout.astro";
                 </div>
             </div>
 
+            <!-- Zone Flags Filter -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-slate-300 mb-3">
+                    Zone Flags (optional - check to filter by specific flags)
+                </label>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            id="flag-hot-zone"
+                            value="hot_zone"
+                            class="w-4 h-4 text-red-600 bg-slate-700 border-slate-600 rounded focus:ring-red-500 focus:ring-2"
+                        />
+                        <span class="text-sm text-slate-300">🔥 Hot Zone</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            id="flag-undead"
+                            value="undead"
+                            class="w-4 h-4 text-purple-600 bg-slate-700 border-slate-600 rounded focus:ring-purple-500 focus:ring-2"
+                        />
+                        <span class="text-sm text-slate-300">💀 Undead</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            id="flag-epic-zone"
+                            value="epic_zone"
+                            class="w-4 h-4 text-yellow-600 bg-slate-700 border-slate-600 rounded focus:ring-yellow-500 focus:ring-2"
+                        />
+                        <span class="text-sm text-slate-300">⚔️ Epic Zone</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            id="flag-newbie-friendly"
+                            value="newbie_friendly"
+                            class="w-4 h-4 text-green-600 bg-slate-700 border-slate-600 rounded focus:ring-green-500 focus:ring-2"
+                        />
+                        <span class="text-sm text-slate-300"
+                            >🌱 Newbie Friendly</span
+                        >
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            id="flag-raid-zone"
+                            value="raid_zone"
+                            class="w-4 h-4 text-red-600 bg-slate-700 border-slate-600 rounded focus:ring-red-500 focus:ring-2"
+                        />
+                        <span class="text-sm text-slate-300">🏰 Raid Zone</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            id="flag-pvp-zone"
+                            value="pvp_zone"
+                            class="w-4 h-4 text-orange-600 bg-slate-700 border-slate-600 rounded focus:ring-orange-500 focus:ring-2"
+                        />
+                        <span class="text-sm text-slate-300">⚔️ PvP Zone</span>
+                    </label>
+                </div>
+            </div>
+
             <button
                 id="generate-zone"
                 class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 px-4 rounded-md transition-colors shadow-lg"
@@ -106,130 +171,192 @@ import Layout from "../layouts/Layout.astro";
         // No need to populate dropdowns
 
         // Generate zone handler
+        // Reusable zone generation function
+        async function generateZone(forceFlag = null) {
+            const params = new URLSearchParams();
+            const minElement = document.getElementById(
+                "min",
+            ) as HTMLInputElement;
+            const maxElement = document.getElementById(
+                "max",
+            ) as HTMLInputElement;
+            const expansionElement = document.getElementById(
+                "expansion",
+            ) as HTMLSelectElement;
+
+            const min = minElement?.value || "";
+            const max = maxElement?.value || "";
+            const expansion = expansionElement?.value || "";
+
+            // Get selected flags
+            const selectedFlags = [];
+            const flagCheckboxes = document.querySelectorAll(
+                'input[type="checkbox"][id^="flag-"]:checked',
+            );
+            for (const checkbox of flagCheckboxes) {
+                selectedFlags.push((checkbox as HTMLInputElement).value);
+            }
+
+            const resultDiv = document.getElementById("result");
+            if (!resultDiv) return;
+
+            // Validate level inputs
+            if (
+                min &&
+                (parseInt(min) < 1 ||
+                    parseInt(min) > 125 ||
+                    isNaN(parseInt(min)))
+            ) {
+                resultDiv.innerHTML =
+                    '<div class="bg-red-900/50 border border-red-600 text-red-200 px-4 py-3 rounded">Min level must be between 1 and 125.</div>';
+                return;
+            }
+
+            if (
+                max &&
+                (parseInt(max) < 1 ||
+                    parseInt(max) > 125 ||
+                    isNaN(parseInt(max)))
+            ) {
+                resultDiv.innerHTML =
+                    '<div class="bg-red-900/50 border border-red-600 text-red-200 px-4 py-3 rounded">Max level must be between 1 and 125.</div>';
+                return;
+            }
+
+            if (min && max && parseInt(min) > parseInt(max)) {
+                resultDiv.innerHTML =
+                    '<div class="bg-red-900/50 border border-red-600 text-red-200 px-4 py-3 rounded">Min level cannot be greater than max level.</div>';
+                return;
+            }
+
+            // Set parameters
+            if (min) params.set("min", min);
+            if (max) params.set("max", max);
+            if (expansion) params.set("expansion", expansion);
+
+            // Handle flag filtering
+            if (forceFlag) {
+                params.set("flags", forceFlag);
+            } else if (selectedFlags.length > 0) {
+                params.set("flags", selectedFlags.join(","));
+            }
+
+            params.set("mission", "false"); // Always exclude mission zones
+
+            // Add loading state with smooth transition
+            resultDiv.style.opacity = "0.5";
+            const originalContent = resultDiv.innerHTML;
+
+            try {
+                const response = await fetch(`/random_zone?${params}`);
+                if (!response.ok) {
+                    resultDiv.style.opacity = "1";
+                    resultDiv.innerHTML =
+                        '<div class="bg-red-900/50 border border-red-600 text-red-200 px-4 py-3 rounded">No zones found matching your criteria.</div>';
+                    return;
+                }
+
+                const zone = await response.json();
+
+                // Function to convert backend color classes to Tailwind colors
+                const getColorClasses = (colorClass) => {
+                    const colorMap = {
+                        "bg-red-500": "bg-red-500 border-red-400",
+                        "bg-purple-500": "bg-purple-500 border-purple-400",
+                        "bg-blue-500": "bg-blue-500 border-blue-400",
+                        "bg-green-500": "bg-green-500 border-green-400",
+                        "bg-yellow-500": "bg-yellow-500 border-yellow-400",
+                        "bg-orange-500": "bg-orange-500 border-orange-400",
+                    };
+                    return (
+                        colorMap[colorClass] || "bg-gray-500 border-gray-400"
+                    );
+                };
+
+                // Generate flag pills HTML
+                const flagPillsHTML =
+                    zone.flags && zone.flags.length > 0
+                        ? `
+                    <div class="mt-6 pt-4 border-t border-slate-600 mb-4">
+                        <div class="font-medium mb-2 text-slate-300">Zone Flags:</div>
+                        <div class="flex flex-wrap gap-2">
+                            ${zone.flags
+                                .map((flag) => {
+                                    const colors = getColorClasses(
+                                        flag.flag_type?.color_class,
+                                    );
+                                    return `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium text-white border ${colors}">${flag.flag_type?.display_name || "Unknown"}</span>`;
+                                })
+                                .join("")}
+                        </div>
+                    </div>
+                    `
+                        : "";
+
+                resultDiv.innerHTML = `
+        <div class="bg-slate-700 border border-slate-600 rounded-lg p-6">
+          <h2 class="text-2xl font-bold text-white mb-4">${zone.name}</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div class="flex justify-between"><span class="font-medium text-slate-300">Levels:</span> <span class="text-white">${zone.level_ranges.map((r: number[]) => r.join("–")).join(", ")}</span></div>
+            <div class="flex justify-between"><span class="font-medium text-slate-300">Expansion:</span> <span class="text-white">${zone.expansion}</span></div>
+            <div class="flex justify-between"><span class="font-medium text-slate-300">Continent:</span> <span class="text-white">${zone.continent || "Unknown"}</span></div>
+            <div class="flex justify-between"><span class="font-medium text-slate-300">Type:</span> <span class="text-white">${zone.zone_type}</span></div>
+            <div class="flex justify-between"><span class="font-medium text-slate-300">Mission Zone:</span> <span class="${zone.mission ? "text-green-400" : "text-slate-400"}">${zone.mission ? "Yes" : "No"}</span></div>
+            <div class="flex justify-between"><span class="font-medium text-slate-300">Hot Zone:</span> <span class="${zone.hot_zone ? "text-orange-400" : "text-slate-400"}">${zone.hot_zone ? "Yes" : "No"}</span></div>
+            <div class="flex justify-between items-center"><span class="font-medium text-slate-300">Verified:</span> <img src="/assets/images/gouda.png" alt="Verified" class="w-6 h-6 ${zone.verified ? "opacity-100" : "opacity-30"}" /></div>
+          </div>
+          ${
+              zone.connections.length > 0
+                  ? `
+            <div class="mt-4 pt-4 border-t border-slate-600">
+              <div class="font-medium mb-2 text-slate-300">Connections:</div>
+              <div class="text-sm text-white">${zone.connections.join(", ")}</div>
+            </div>
+          `
+                  : ""
+          }
+
+          <div class="mt-6 pt-4 border-t border-slate-600">
+            <div class="font-medium mb-3 text-slate-300">Rate this zone:</div>
+            <div id="rating-container-${zone.id}" class="rating-container" data-zone-id="${zone.id}">
+              <div class="flex items-center gap-1 mb-2">
+                ${Array.from(
+                    { length: 5 },
+                    (_, i) => `
+                  <button class="pickle-rating" data-rating="${i + 1}">
+                    <img src="/assets/images/pickle.png" alt="Pickle ${i + 1}" class="w-6 h-6 pickle-icon opacity-30 hover:opacity-100 transition-opacity duration-200" />
+                  </button>
+                `,
+                ).join("")}
+              </div>
+              <div class="rating-stats text-sm text-slate-400">
+                <span id="rating-text-${zone.id}">Loading ratings...</span>
+              </div>
+            </div>
+          </div>
+          ${flagPillsHTML}
+        </div>
+      `;
+
+                // Load zone rating
+                loadZoneRating(zone.id);
+
+                // Load and display zone notes
+                loadZoneNotes(zone.id);
+                // Smooth transition to new content
+                resultDiv.style.opacity = "1";
+            } catch (error) {
+                console.error("Error fetching zone:", error);
+                resultDiv.style.opacity = "1";
+                resultDiv.innerHTML =
+                    '<div class="bg-red-900/50 border border-red-600 text-red-200 px-4 py-3 rounded">Error loading zone. Please try again.</div>';
+            }
+        }
+
         const generateButton = document.getElementById("generate-zone");
         if (generateButton) {
             generateButton.onclick = async () => {
-                const params = new URLSearchParams();
-                const minElement = document.getElementById(
-                    "min",
-                ) as HTMLInputElement;
-                const maxElement = document.getElementById(
-                    "max",
-                ) as HTMLInputElement;
-                const expansionElement = document.getElementById(
-                    "expansion",
-                ) as HTMLSelectElement;
-
-                const min = minElement?.value || "";
-                const max = maxElement?.value || "";
-                const expansion = expansionElement?.value || "";
-
-                const resultDiv = document.getElementById("result");
-                if (!resultDiv) return;
-
-                // Validate level inputs
-                if (
-                    min &&
-                    (parseInt(min) < 1 ||
-                        parseInt(min) > 125 ||
-                        isNaN(parseInt(min)))
-                ) {
-                    resultDiv.innerHTML =
-                        '<div class="bg-red-900/50 border border-red-600 text-red-200 px-4 py-3 rounded">Min level must be between 1 and 125.</div>';
-                    return;
-                }
-                if (
-                    max &&
-                    (parseInt(max) < 1 ||
-                        parseInt(max) > 125 ||
-                        isNaN(parseInt(max)))
-                ) {
-                    resultDiv.innerHTML =
-                        '<div class="bg-red-900/50 border border-red-600 text-red-200 px-4 py-3 rounded">Max level must be between 1 and 125.</div>';
-                    return;
-                }
-                if (min && max && parseInt(min) > parseInt(max)) {
-                    resultDiv.innerHTML =
-                        '<div class="bg-red-900/50 border border-red-600 text-red-200 px-4 py-3 rounded">Min level cannot be greater than max level.</div>';
-                    return;
-                }
-
-                if (min) params.set("min", min);
-                if (max) params.set("max", max);
-                if (expansion) params.set("expansion", expansion);
-                params.set("mission", "false"); // Always exclude mission zones
-
-                // Add loading state with smooth transition
-                resultDiv.style.opacity = "0.5";
-                const originalContent = resultDiv.innerHTML;
-
-                try {
-                    const response = await fetch(`/random_zone?${params}`);
-                    if (!response.ok) {
-                        resultDiv.style.opacity = "1";
-                        resultDiv.innerHTML =
-                            '<div class="bg-red-900/50 border border-red-600 text-red-200 px-4 py-3 rounded">No zones found matching your criteria.</div>';
-                        return;
-                    }
-
-                    const zone = await response.json();
-                    resultDiv.innerHTML = `
-            <div class="bg-slate-700 border border-slate-600 rounded-lg p-6">
-              <h2 class="text-2xl font-bold text-white mb-4">${zone.name}</h2>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div class="flex justify-between"><span class="font-medium text-slate-300">Levels:</span> <span class="text-white">${zone.level_ranges.map((r: number[]) => r.join("–")).join(", ")}</span></div>
-                <div class="flex justify-between"><span class="font-medium text-slate-300">Expansion:</span> <span class="text-white">${zone.expansion}</span></div>
-                <div class="flex justify-between"><span class="font-medium text-slate-300">Continent:</span> <span class="text-white">${zone.continent || "Unknown"}</span></div>
-                <div class="flex justify-between"><span class="font-medium text-slate-300">Type:</span> <span class="text-white">${zone.zone_type}</span></div>
-                <div class="flex justify-between"><span class="font-medium text-slate-300">Mission Zone:</span> <span class="${zone.mission ? "text-green-400" : "text-slate-400"}">${zone.mission ? "Yes" : "No"}</span></div>
-                <div class="flex justify-between"><span class="font-medium text-slate-300">Hot Zone:</span> <span class="${zone.hot_zone ? "text-orange-400" : "text-slate-400"}">${zone.hot_zone ? "Yes" : "No"}</span></div>
-                <div class="flex justify-between items-center"><span class="font-medium text-slate-300">Verified:</span> <img src="/assets/images/gouda.png" alt="Verified" class="w-6 h-6 ${zone.verified ? "opacity-100" : "opacity-30"}" /></div>
-              </div>
-              ${
-                  zone.connections.length > 0
-                      ? `
-                <div class="mt-4 pt-4 border-t border-slate-600">
-                  <div class="font-medium mb-2 text-slate-300">Connections:</div>
-                  <div class="text-sm text-white">${zone.connections.join(", ")}</div>
-                </div>
-              `
-                      : ""
-              }
-
-              <div class="mt-6 pt-4 border-t border-slate-600">
-                <div class="font-medium mb-3 text-slate-300">Rate this zone:</div>
-                <div id="rating-container-${zone.id}" class="rating-container" data-zone-id="${zone.id}">
-                  <div class="flex items-center gap-1 mb-2">
-                    ${Array.from(
-                        { length: 5 },
-                        (_, i) => `
-                      <button class="pickle-rating" data-rating="${i + 1}">
-                        <img src="/assets/images/pickle.png" alt="Pickle ${i + 1}" class="w-6 h-6 pickle-icon opacity-30 hover:opacity-100 transition-opacity duration-200" />
-                      </button>
-                    `,
-                    ).join("")}
-                  </div>
-                  <div class="rating-stats text-sm text-slate-400">
-                    <span id="rating-text-${zone.id}">Loading ratings...</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          `;
-
-                    // Load and setup rating functionality
-                    loadZoneRating(zone.id);
-
-                    // Load and display zone notes
-                    loadZoneNotes(zone.id);
-                    // Smooth transition to new content
-                    resultDiv.style.opacity = "1";
-                } catch (error) {
-                    console.error("Error fetching zone:", error);
-                    resultDiv.style.opacity = "1";
-                    resultDiv.innerHTML =
-                        '<div class="bg-red-900/50 border border-red-600 text-red-200 px-4 py-3 rounded">Error loading zone. Please try again.</div>';
-                }
+                await generateZone();
             };
         }
 

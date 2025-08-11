@@ -4,6 +4,7 @@
 - Data Updates/Corrections
 - Zones marked Verified have been processed and verified.
 - Mission Zones have been renamed to instanced zones. They are moving out of the zone list into their own random page in the future.
+- Added ZoneFlags, which provide additional information about zones.
 
 ## July 30, 2025 - Update 4
 - Added new front end, yes the front is 90% AI generated lol

@@ -108,6 +108,8 @@ pub struct PaginationQuery {
     pub verified: Option<String>,
     pub hot_zone: Option<String>,
     pub mission: Option<String>,
+    pub zone_type: Option<String>,
+    pub flags: Option<String>,
 }
 
 #[cfg(feature = "admin")]
@@ -245,10 +247,6 @@ pub fn admin_routes() -> Router<AppState> {
         .route("/admin/flag-types", get(list_flag_types))
         .route("/admin/flag-types", post(create_flag_type))
         .route("/admin/flag-types/:id/delete", post(delete_flag_type))
-        .route(
-            "/admin/migrate-hot-zones",
-            post(migrate_hot_zones_to_flags_admin),
-        )
         .route("/admin/ratings", get(list_all_ratings))
         .route("/admin/ratings/:id/delete", post(handle_rating_delete))
         .route("/admin/links", get(list_links))
@@ -294,11 +292,49 @@ async fn admin_dashboard(State(state): State<AppState>) -> Result<Html<String>, 
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
         .get("avg_rating");
 
-    let hot_zone_count: i32 = sqlx::query("SELECT COUNT(*) as count FROM zones WHERE hot_zone = 1")
-        .fetch_one(pool.as_ref())
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
-        .get("count");
+    // Get zone type counts
+    let outdoor_zone_count: i32 =
+        sqlx::query("SELECT COUNT(*) as count FROM zones WHERE LOWER(zone_type) LIKE '%outdoor%'")
+            .fetch_one(pool.as_ref())
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+            .get("count");
+
+    let dungeon_zone_count: i32 =
+        sqlx::query("SELECT COUNT(*) as count FROM zones WHERE LOWER(zone_type) LIKE '%dungeon%'")
+            .fetch_one(pool.as_ref())
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+            .get("count");
+
+    let indoor_zone_count: i32 =
+        sqlx::query("SELECT COUNT(*) as count FROM zones WHERE LOWER(zone_type) LIKE '%indoor%'")
+            .fetch_one(pool.as_ref())
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+            .get("count");
+
+    let city_zone_count: i32 =
+        sqlx::query("SELECT COUNT(*) as count FROM zones WHERE LOWER(zone_type) LIKE '%city%'")
+            .fetch_one(pool.as_ref())
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+            .get("count");
+
+    let raid_zone_count: i32 =
+        sqlx::query("SELECT COUNT(*) as count FROM zones WHERE LOWER(zone_type) LIKE '%raid%'")
+            .fetch_one(pool.as_ref())
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+            .get("count");
+
+    // Get zone flag counts dynamically
+    let flag_counts = sqlx::query(
+        "SELECT ft.name, ft.display_name, ft.color_class, COUNT(DISTINCT z.id) as count FROM flag_types ft LEFT JOIN zone_flags zf ON ft.id = zf.flag_type_id LEFT JOIN zones z ON zf.zone_id = z.id GROUP BY ft.id, ft.name, ft.display_name, ft.color_class ORDER BY count DESC"
+    )
+    .fetch_all(pool.as_ref())
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     let mission_zone_count: i32 =
         sqlx::query("SELECT COUNT(*) as count FROM zones WHERE mission = 1")
@@ -364,9 +400,6 @@ async fn admin_dashboard(State(state): State<AppState>) -> Result<Html<String>, 
         <a href="/admin/zones/new">Add New Zone</a>
         <a href="/admin/note-types">Manage Note Types</a>
         <a href="/admin/flag-types">Manage Flag Types</a>
-        <form method="post" action="/admin/migrate-hot-zones" style="display: inline;">
-            <button type="submit" class="btn" style="background: #28a745; margin-left: 10px;" onclick="return confirm('Migrate all zones with hot_zone=true to use zone flags?\n\nThis will:\n• Add hot zone flags to all zones with hot_zone=true\n• Not modify existing hot zone flags\n• Safe to run multiple times')">🔄 Migrate Hot Zones to Flags</button>
-        </form>
         <a href="/admin/ratings">Manage Ratings</a>
         <a href="/admin/links">Manage Links</a>
     </div>
@@ -390,10 +423,33 @@ async fn admin_dashboard(State(state): State<AppState>) -> Result<Html<String>, 
             <div class="stat-number">{}</div>
             <div class="stat-label">Average Rating</div>
         </div>
-        <a href="/admin/zones?hot_zone=true" class="stat-card">
+        <a href="/admin/zones?zone_type=outdoor" class="stat-card">
             <div class="stat-number">{}</div>
-            <div class="stat-label">Hot Zones</div>
+            <div class="stat-label">Outdoor Zones</div>
         </a>
+        <a href="/admin/zones?zone_type=dungeon" class="stat-card">
+            <div class="stat-number">{}</div>
+            <div class="stat-label">Dungeon Zones</div>
+        </a>
+        <a href="/admin/zones?zone_type=indoor" class="stat-card">
+            <div class="stat-number">{}</div>
+            <div class="stat-label">Indoor Zones</div>
+        </a>
+        <a href="/admin/zones?zone_type=city" class="stat-card">
+            <div class="stat-number">{}</div>
+            <div class="stat-label">City Zones</div>
+        </a>
+        <a href="/admin/zones?zone_type=raid" class="stat-card">
+            <div class="stat-number">{}</div>
+            <div class="stat-label">Raid Zones</div>
+        </a>
+    </div>
+
+    <div class="stats">
+        <div class="stat-card" style="background: #f8f9fa; border-left: 4px solid #ef4444;">
+            <div class="stat-label" style="font-weight: bold; color: #495057;">Zone Flags</div>
+        </div>
+        {}
         <a href="/admin/zones?mission=true" class="stat-card">
             <div class="stat-number">{}</div>
             <div class="stat-label">Mission Zones</div>
@@ -423,7 +479,7 @@ async fn admin_dashboard(State(state): State<AppState>) -> Result<Html<String>, 
         <p><a href="/admin/zones/new">Add new zone</a> - Create a new zone entry</p>
         <p><a href="/admin/note-types">Manage note types</a> - Configure pill icons for zone notes</p>
         <p><a href="/admin/flag-types">Manage flag types</a> - Configure zone flags and their appearance</p>
-        <p><strong>Migration:</strong> Use the "Migrate Hot Zones to Flags" button above to convert existing hot_zone boolean values to the new flag system</p>
+
         <p><a href="/admin/ratings">Manage all ratings</a> - View and delete zone ratings</p>
         <p><a href="/admin/links">Manage links</a> - View, edit, and delete links organized by category</p>
     </div>
@@ -440,7 +496,31 @@ async fn admin_dashboard(State(state): State<AppState>) -> Result<Html<String>, 
         instance_count,
         rating_count,
         avg_rating_display,
-        hot_zone_count,
+        outdoor_zone_count,
+        dungeon_zone_count,
+        indoor_zone_count,
+        city_zone_count,
+        raid_zone_count,
+        flag_counts
+            .iter()
+            .map(|row| {
+                let count: i32 = row.get("count");
+                let name: String = row.get("name");
+                let display_name: String = row.get("display_name");
+                if count > 0 {
+                    format!(
+                        r#"<a href="/admin/zones?flags={}" class="stat-card">
+                        <div class="stat-number">{}</div>
+                        <div class="stat-label">{}</div>
+                    </a>"#,
+                        name, count, display_name
+                    )
+                } else {
+                    String::new()
+                }
+            })
+            .collect::<Vec<_>>()
+            .join(""),
         mission_zone_count,
         verified_zone_count,
         unverified_zone_count,
@@ -462,8 +542,9 @@ async fn list_zones(
     let sort = params.sort.clone().unwrap_or_else(|| "name".to_string());
     let order = params.order.clone().unwrap_or_else(|| "asc".to_string());
     let verified = params.verified.clone();
-    let hot_zone = params.hot_zone.clone();
+    let zone_type = params.zone_type.clone();
     let mission = params.mission.clone();
+    let flags = params.flags.clone();
 
     let pool = &state.zone_state.pool;
 
@@ -505,20 +586,20 @@ async fn list_zones(
         }
     }
 
-    if let Some(ref hot_zone_param) = hot_zone {
-        if hot_zone_param == "true" {
-            where_conditions.push("hot_zone = 1".to_string());
-        } else if hot_zone_param == "false" {
-            where_conditions.push("hot_zone = 0".to_string());
-        }
-    }
-
     if let Some(ref mission_param) = mission {
         if mission_param == "true" {
             where_conditions.push("mission = 1".to_string());
         } else if mission_param == "false" {
             where_conditions.push("mission = 0".to_string());
         }
+    }
+
+    if params.zone_type.is_some() {
+        where_conditions.push("LOWER(zone_type) LIKE LOWER(?)".to_string());
+    }
+
+    if params.flags.is_some() {
+        where_conditions.push("EXISTS (SELECT 1 FROM zone_flags zf JOIN flag_types ft ON zf.flag_type_id = ft.id WHERE zf.zone_id = zones.id AND LOWER(ft.name) = LOWER(?))".to_string());
     }
 
     let where_clause = if where_conditions.is_empty() {
@@ -529,22 +610,28 @@ async fn list_zones(
 
     // Get total count
     let count_query = format!("SELECT COUNT(*) as count FROM zones {}", where_clause);
-    let total_count: i32 = if let Some(ref search_term) = search_param {
-        sqlx::query(&count_query)
+    let mut count_query_builder = sqlx::query(&count_query);
+
+    if let Some(ref search_term) = search_param {
+        count_query_builder = count_query_builder
             .bind(search_term)
             .bind(search_term)
-            .bind(search_term)
-            .fetch_one(pool.as_ref())
-            .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
-            .get("count")
-    } else {
-        sqlx::query(&count_query)
-            .fetch_one(pool.as_ref())
-            .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
-            .get("count")
-    };
+            .bind(search_term);
+    }
+
+    if let Some(ref zone_type) = params.zone_type {
+        count_query_builder = count_query_builder.bind(format!("%{}%", zone_type));
+    }
+
+    if let Some(ref flag_name) = params.flags {
+        count_query_builder = count_query_builder.bind(flag_name);
+    }
+
+    let total_count: i32 = count_query_builder
+        .fetch_one(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+        .get("count");
 
     // Get zones
     let zones_query = format!(
@@ -552,24 +639,29 @@ async fn list_zones(
         where_clause, sort_column, sort_order
     );
 
-    let zone_rows = if let Some(ref search_term) = search_param {
-        sqlx::query(&zones_query)
+    let mut zones_query_builder = sqlx::query(&zones_query);
+
+    if let Some(ref search_term) = search_param {
+        zones_query_builder = zones_query_builder
             .bind(search_term)
             .bind(search_term)
-            .bind(search_term)
-            .bind(per_page)
-            .bind(offset)
-            .fetch_all(pool.as_ref())
-            .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
-    } else {
-        sqlx::query(&zones_query)
-            .bind(per_page)
-            .bind(offset)
-            .fetch_all(pool.as_ref())
-            .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
-    };
+            .bind(search_term);
+    }
+
+    if let Some(ref zone_type) = params.zone_type {
+        zones_query_builder = zones_query_builder.bind(format!("%{}%", zone_type));
+    }
+
+    if let Some(ref flag_name) = params.flags {
+        zones_query_builder = zones_query_builder.bind(flag_name);
+    }
+
+    let zone_rows = zones_query_builder
+        .bind(per_page)
+        .bind(offset)
+        .fetch_all(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     // Load notes and flags for each zone
     let mut zones = Vec::new();
@@ -630,6 +722,8 @@ async fn list_zones(
         .truncate {{ max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }}
         th {{ background-color: #f8f9fa; border-bottom: 2px solid #dee2e6; }}
         th a:hover {{ background-color: #e9ecef; padding: 4px; border-radius: 3px; }}
+        .flag-pills {{ display: flex; flex-wrap: wrap; gap: 4px; max-width: 150px; }}
+        .flag-pill {{ display: inline-block; padding: 4px 8px; margin: 2px; border-radius: 12px; color: white; font-size: 0.75em; font-weight: bold; white-space: nowrap; }}
     </style>
     <script>
         function deleteZone(id, name) {{
@@ -682,27 +776,26 @@ async fn list_zones(
         <tbody>
 "#,
         // Filter indicator for title
-        if verified.is_some() || hot_zone.is_some() || mission.is_some() {
+        if verified.is_some() || zone_type.is_some() || mission.is_some() || flags.is_some() {
             let mut filters = Vec::new();
             if let Some(ref v) = verified {
                 filters.push(if v == "true" {
-                    "Verified"
+                    "Verified".to_string()
                 } else {
-                    "Unverified"
+                    "Unverified".to_string()
                 });
             }
-            if let Some(ref h) = hot_zone {
-                filters.push(if h == "true" {
-                    "Hot Zones"
-                } else {
-                    "Non-Hot Zones"
-                });
+            if let Some(ref zt) = zone_type {
+                filters.push(format!("{} Zones", zt.to_uppercase()));
+            }
+            if let Some(ref f) = flags {
+                filters.push(format!("{} Flag", f.replace("_", " ").to_uppercase()));
             }
             if let Some(ref m) = mission {
                 filters.push(if m == "true" {
-                    "Mission Zones"
+                    "Mission Zones".to_string()
                 } else {
-                    "Non-Mission Zones"
+                    "Non-Mission Zones".to_string()
                 });
             }
             format!(" - {}", filters.join(", "))
@@ -712,7 +805,7 @@ async fn list_zones(
         search,
         per_page,
         // Clear filters link
-        if verified.is_some() || hot_zone.is_some() || mission.is_some() {
+        if verified.is_some() || zone_type.is_some() || mission.is_some() || flags.is_some() {
             r#"<a href="/admin/zones" class="btn" style="background: #6c757d;">Clear Filters</a>"#
         } else {
             ""
@@ -798,16 +891,33 @@ async fn list_zones(
         let flags_display = if zone.flags.is_empty() {
             String::from("-")
         } else {
-            zone.flags
+            let pills: String = zone
+                .flags
                 .iter()
                 .map(|f| {
-                    f.flag_type
-                        .as_ref()
+                    let flag_type = f.flag_type.as_ref();
+                    let display_name = flag_type
                         .map(|ft| ft.display_name.as_str())
-                        .unwrap_or("Unknown")
+                        .unwrap_or("Unknown");
+                    let color = flag_type
+                        .map(|ft| match ft.color_class.as_str() {
+                            "bg-red-500" => "#ef4444",
+                            "bg-purple-500" => "#a855f7",
+                            "bg-blue-500" => "#3b82f6",
+                            "bg-green-500" => "#22c55e",
+                            "bg-yellow-500" => "#f59e0b",
+                            "bg-orange-500" => "#ea580c",
+                            _ => "#3b82f6",
+                        })
+                        .unwrap_or("#3b82f6");
+                    format!(
+                        r#"<span class="flag-pill" style="background-color: {};">{}</span>"#,
+                        color, display_name
+                    )
                 })
                 .collect::<Vec<_>>()
-                .join(", ")
+                .join("");
+            format!(r#"<div class="flag-pills">{}</div>"#, pills)
         };
 
         html.push_str(&format!(r#"
@@ -875,10 +985,16 @@ async fn list_zones(
             v.replace('"', "&quot;")
         ));
     }
-    if let Some(ref h) = hot_zone {
+    if let Some(ref zt) = zone_type {
         html.push_str(&format!(
-            r#"<input type="hidden" id="hot-zone-param" value="{}" />"#,
-            h.replace('"', "&quot;")
+            r#"<input type="hidden" id="zone-type-param" value="{}" />"#,
+            zt.replace('"', "&quot;")
+        ));
+    }
+    if let Some(ref f) = flags {
+        html.push_str(&format!(
+            r#"<input type="hidden" id="flags-param" value="{}" />"#,
+            f.replace('"', "&quot;")
         ));
     }
     if let Some(ref m) = mission {
@@ -949,8 +1065,11 @@ async fn list_zones(
             params.push(format!("verified={}", urlencoding::encode(v)));
         }
 
-        if let Some(ref h) = hot_zone {
-            params.push(format!("hot_zone={}", urlencoding::encode(h)));
+        if let Some(ref zt) = zone_type {
+            params.push(format!("zone_type={}", urlencoding::encode(zt)));
+        }
+        if let Some(ref f) = flags {
+            params.push(format!("flags={}", urlencoding::encode(f)));
         }
 
         if let Some(ref m) = mission {
@@ -2668,27 +2787,6 @@ async fn delete_flag_type(
     let _ = crate::checkpoint_wal(pool.as_ref()).await;
 
     Ok(Redirect::to("/admin/flag-types"))
-}
-
-#[cfg(feature = "admin")]
-async fn migrate_hot_zones_to_flags_admin(
-    State(state): State<AppState>,
-) -> Result<Redirect, StatusCode> {
-    let pool = &state.zone_state.pool;
-
-    match crate::migrate_hot_zones_to_flags(pool.as_ref()).await {
-        Ok(migrated_count) => {
-            println!(
-                "Admin migration completed: {} zones migrated",
-                migrated_count
-            );
-            Ok(Redirect::to("/admin"))
-        }
-        Err(e) => {
-            eprintln!("Migration failed: {}", e);
-            Err(StatusCode::INTERNAL_SERVER_ERROR)
-        }
-    }
 }
 
 #[cfg(feature = "admin")]
