@@ -92,6 +92,10 @@ Returns the current application version.
 - `GET /zones/:zone_id/ratings` - Get all ratings for a zone
 - `DELETE /api/ratings/:id` - Delete a specific rating
 
+### Rating Transaction Log
+- File-based transaction logging to `data/rating_transaction.log`
+- Extract and apply via utility scripts (no API endpoints for security)
+
 ### Zone Notes
 - `GET /zones/:zone_id/notes` - Get notes for a zone
 - `GET /instances/:instance_id/notes` - Get notes for an instance
@@ -135,6 +139,7 @@ The database contains the following main tables:
 - **zones** - Zone information (386 zones across all expansions)
 - **instances** - Instance information (moved from zones)
 - **zone_ratings** - User ratings for zones
+- **data/rating_transaction.log** - File-based audit trail of all rating operations
 - **zone_notes** - Categorized notes for zones
 - **instance_notes** - Categorized notes for instances
 - **note_types** - Note categories (Epic 1.0, Epic 1.5, Epic 2.0, Zone Aug)
@@ -410,8 +415,55 @@ The previous JSON-based migration system has been completely replaced:
 - Admin routes are completely excluded from the binary in production builds, reducing attack surface
 - The `data.sql` file should be treated as source code and reviewed in PRs
 
+## Rating Transaction Log System
+
+The application includes a simple and secure file-based transaction log system for rating operations that enables seamless data preservation across deployments.
+
+### Key Features
+
+- **File-Based Logging**: All rating operations are logged as SQL statements to `data/rating_transaction.log`
+- **Secure Design**: No API endpoints - transaction logs can only be accessed via file system
+- **Simple Deployment**: Extract file from Docker, deploy new container, apply file to new container
+- **Complete Audit Trail**: Every rating INSERT, UPDATE, DELETE operation is logged with timestamps
+- **SQL Format**: Transaction logs are plain SQL files that can be easily inspected and applied
+
+### Quick Start
+
+```bash
+# Extract transaction log before deployment
+./utils/rating_transaction_log.sh extract
+
+# Deploy new container
+docker-compose up --build -d
+
+# Apply transaction log to new container
+./utils/rating_transaction_log.sh apply-to-docker backups/rating_transactions/rating_transactions_YYYYMMDD_HHMMSS.sql
+```
+
+### Deployment Workflow
+
+1. **Pre-Deployment**: Extract `data/rating_transaction.log` from current container
+2. **Deploy**: Build and start new container with updated code/database
+3. **Post-Deployment**: Apply transaction log SQL file to preserve user rating data
+4. **Verify**: Check that ratings are preserved in the new deployment
+
+### Utilities
+
+- `utils/rating_transaction_log.sh` - Extract, apply, and manage transaction log files
+- `utils/deploy_with_rating_log.sh` - Complete deployment script with rating preservation
+- `utils/test_rating_log.sh` - Test the transaction log functionality
+
+### Security
+
+- **No API endpoints** for transaction log management (secure by design)
+- **File system access required** for all transaction log operations
+- **SQL injection protection** with proper escaping of user input
+
+For detailed documentation, see: `docs/RATING_TRANSACTION_LOG.md`
+
 ## Documentation
 
 For detailed information about the data.sql migration system, see:
 - `docs/data-sql-migration.md` - Complete migration system documentation
+- `docs/RATING_TRANSACTION_LOG.md` - Simple file-based rating transaction log documentation
 - Includes troubleshooting, examples, and technical details
