@@ -6,6 +6,8 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use sqlx::{Row, SqlitePool};
+use std::fs::OpenOptions;
+use std::io::Write;
 use std::sync::Arc;
 
 #[derive(Clone)]
@@ -168,6 +170,20 @@ pub async fn submit_zone_rating(
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
+    // Write SQL transaction to log file
+    let sql_statement = format!(
+        "INSERT INTO zone_ratings (zone_id, user_ip, rating, updated_at) VALUES ({}, '{}', {}, CURRENT_TIMESTAMP) ON CONFLICT(zone_id, user_ip) DO UPDATE SET rating = excluded.rating, updated_at = CURRENT_TIMESTAMP; -- {}\n",
+        zone_id,
+        user_ip.replace("'", "''"), // Escape single quotes
+        payload.rating,
+        chrono::Utc::now().to_rfc3339()
+    );
+
+    if let Err(e) = write_to_transaction_log(&sql_statement) {
+        eprintln!("Warning: Failed to write to transaction log: {}", e);
+        // Don't fail the request if logging fails
+    }
+
     // Return updated statistics
     get_zone_rating(
         Path(zone_id),
@@ -224,14 +240,56 @@ pub async fn delete_rating(
 ) -> Result<StatusCode, StatusCode> {
     let pool = &*state.zone_state.pool;
 
-    let _ = sqlx::query("DELETE FROM zone_ratings WHERE id = ?")
-        .bind(id)
-        .execute(pool)
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    // First, get the rating details before deletion for transaction logging
+    let rating_details =
+        sqlx::query("SELECT zone_id, user_ip, rating FROM zone_ratings WHERE id = ?")
+            .bind(id)
+            .fetch_optional(pool)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    // Force WAL checkpoint to immediately update main database file
-    let _ = crate::checkpoint_wal(pool).await;
+    if let Some(details) = rating_details {
+        let zone_id = details.get::<i64, _>("zone_id");
+        let user_ip = details.get::<String, _>("user_ip");
+        let _old_rating = details.get::<i32, _>("rating") as u8;
 
-    Ok(StatusCode::OK)
+        // Delete the rating
+        let _ = sqlx::query("DELETE FROM zone_ratings WHERE id = ?")
+            .bind(id)
+            .execute(pool)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+        // Write SQL transaction to log file
+        let sql_statement = format!(
+            "DELETE FROM zone_ratings WHERE zone_id = {} AND user_ip = '{}'; -- {} - Deleted via admin\n",
+            zone_id,
+            user_ip.replace("'", "''"), // Escape single quotes
+            chrono::Utc::now().to_rfc3339()
+        );
+
+        if let Err(e) = write_to_transaction_log(&sql_statement) {
+            eprintln!("Warning: Failed to write to transaction log: {}", e);
+            // Don't fail the request if logging fails
+        }
+
+        // Force WAL checkpoint to immediately update main database file
+        let _ = crate::checkpoint_wal(pool).await;
+
+        Ok(StatusCode::OK)
+    } else {
+        Err(StatusCode::NOT_FOUND)
+    }
+}
+
+// Helper function to write SQL statements to transaction log file
+fn write_to_transaction_log(sql_statement: &str) -> std::io::Result<()> {
+    let mut file = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open("data/rating_transaction.log")?;
+
+    file.write_all(sql_statement.as_bytes())?;
+    file.flush()?;
+    Ok(())
 }
