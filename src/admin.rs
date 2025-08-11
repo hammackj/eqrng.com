@@ -35,7 +35,6 @@ pub struct Zone {
     pub image_url: String,
     pub map_url: String,
     pub rating: i32,
-    pub hot_zone: bool,
     pub mission: bool,
     pub verified: bool,
     pub notes: Vec<crate::zones::ZoneNote>,
@@ -54,7 +53,7 @@ pub struct ZoneForm {
     pub image_url: String,
     pub map_url: String,
     pub rating: i32,
-    pub hot_zone: Option<String>, // HTML forms send "on" or nothing
+
     pub mission: Option<String>,
     pub verified: Option<String>, // HTML forms send "on" or nothing
     pub _method: Option<String>,  // For method override
@@ -106,7 +105,7 @@ pub struct PaginationQuery {
     pub sort: Option<String>,
     pub order: Option<String>,
     pub verified: Option<String>,
-    pub hot_zone: Option<String>,
+
     pub mission: Option<String>,
     pub zone_type: Option<String>,
     pub flags: Option<String>,
@@ -608,7 +607,6 @@ async fn list_zones(
         "expansion",
         "zone_type",
         "rating",
-        "hot_zone",
         "mission",
         "verified",
         "created_at",
@@ -737,7 +735,6 @@ async fn list_zones(
             image_url: row.get("image_url"),
             map_url: row.get("map_url"),
             rating: row.get("rating"),
-            hot_zone: row.get("hot_zone"),
             mission: row.get("mission"),
             verified: row.get("verified"),
             notes,
@@ -811,7 +808,6 @@ async fn list_zones(
     <table>
         <thead>
             <tr>
-                <th>{}</th>
                 <th>{}</th>
                 <th>{}</th>
                 <th>{}</th>
@@ -914,14 +910,6 @@ async fn list_zones(
             &search,
         ),
         generate_sortable_header(
-            "hot_zone",
-            "Hot Zone",
-            &params.sort,
-            &params.order,
-            "/admin/zones",
-            &search,
-        ),
-        generate_sortable_header(
             "mission",
             "Mission",
             &params.sort,
@@ -1011,7 +999,6 @@ async fn list_zones(
                 <td>{}</td>
                 <td>{}</td>
                 <td>{}</td>
-                <td>{}</td>
                 <td class="truncate" title="{}">{}</td>
                 <td>
                     <a href="/admin/zones/{}" class="btn btn-small">Edit</a>
@@ -1033,7 +1020,6 @@ async fn list_zones(
             zone.zone_type,
             zone.level_ranges,
             zone.rating,
-            if zone.hot_zone { "✓" } else { "✗" },
             if zone.mission { "✓" } else { "✗" },
             if zone.verified { "✓" } else { "✗" },
             zone.notes.len(),
@@ -1220,7 +1206,6 @@ async fn new_zone_form() -> Html<String> {
                 image_url: String::new(),
                 map_url: String::new(),
                 rating: 0,
-                hot_zone: false,
                 mission: false,
                 verified: false,
                 notes: Vec::new(),
@@ -1280,7 +1265,6 @@ async fn edit_zone_form(
         image_url: zone_row.get("image_url"),
         map_url: zone_row.get("map_url"),
         rating: zone_row.get("rating"),
-        hot_zone: zone_row.get("hot_zone"),
         mission: zone_row.get("mission"),
         verified: zone_row.get("verified"),
         notes,
@@ -1443,10 +1427,6 @@ fn get_zone_form_body_with_notes_and_flags(
             <input type="number" id="rating" name="rating" value="{}" min="0" max="5" />
         </div>
 
-        <div class="form-group checkbox-group">
-            <input type="checkbox" id="hot_zone" name="hot_zone" {} />
-            <label for="hot_zone">Hot Zone</label>
-        </div>
 
         <div class="form-group checkbox-group">
             <input type="checkbox" id="mission" name="mission" {} />
@@ -1511,7 +1491,6 @@ fn get_zone_form_body_with_notes_and_flags(
         zone.image_url,
         zone.map_url,
         zone.rating,
-        if zone.hot_zone { "checked" } else { "" },
         if zone.mission { "checked" } else { "" },
         if zone.verified { "checked" } else { "" },
         button_text,
@@ -1762,8 +1741,8 @@ async fn create_zone(
         r#"
         INSERT INTO zones (
             name, level_ranges, expansion, continent, zone_type,
-            connections, image_url, map_url, rating, hot_zone, mission, verified
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            connections, image_url, map_url, rating, mission, verified
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         "#,
     )
     .bind(&form.name)
@@ -1775,7 +1754,6 @@ async fn create_zone(
     .bind(&form.image_url)
     .bind(&form.map_url)
     .bind(form.rating)
-    .bind(form.hot_zone.is_some())
     .bind(form.mission.is_some())
     .bind(form.verified.is_some())
     .execute(pool.as_ref())
@@ -1824,7 +1802,7 @@ async fn update_zone(
         r#"
         UPDATE zones SET
             name = ?, level_ranges = ?, expansion = ?, continent = ?, zone_type = ?,
-            connections = ?, image_url = ?, map_url = ?, rating = ?, hot_zone = ?, mission = ?, verified = ?
+            connections = ?, image_url = ?, map_url = ?, rating = ?, mission = ?, verified = ?
         WHERE id = ?
         "#,
     )
@@ -1837,7 +1815,6 @@ async fn update_zone(
     .bind(&form.image_url)
     .bind(&form.map_url)
     .bind(form.rating)
-    .bind(form.hot_zone.is_some())
     .bind(form.mission.is_some())
     .bind(form.verified.is_some())
     .bind(id)
@@ -3733,8 +3710,8 @@ async fn move_zone_to_instances(
     Form(params): Form<PaginationQuery>,
 ) -> Result<Redirect, StatusCode> {
     eprintln!(
-        "Move zone to instances - received params: page={:?}, search={:?}, verified={:?}, hot_zone={:?}, mission={:?}",
-        params.page, params.search, params.verified, params.hot_zone, params.mission
+        "Move zone to instances - received params: page={:?}, search={:?}, verified={:?}, mission={:?}",
+        params.page, params.search, params.verified, params.mission
     );
 
     let pool = &state.zone_state.pool;
@@ -3752,9 +3729,9 @@ async fn move_zone_to_instances(
         r#"
         INSERT INTO instances (
             name, level_ranges, expansion, continent, zone_type,
-            connections, image_url, map_url, rating, hot_zone,
+            connections, image_url, map_url, rating,
             mission, verified, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         "#,
     )
     .bind(zone_row.get::<String, _>("name"))
@@ -3766,7 +3743,6 @@ async fn move_zone_to_instances(
     .bind(zone_row.get::<String, _>("image_url"))
     .bind(zone_row.get::<String, _>("map_url"))
     .bind(zone_row.get::<i32, _>("rating"))
-    .bind(zone_row.get::<bool, _>("hot_zone"))
     .bind(zone_row.get::<bool, _>("mission"))
     .bind(zone_row.get::<bool, _>("verified"))
     .bind(zone_row.get::<String, _>("created_at"))
@@ -3854,10 +3830,6 @@ async fn move_zone_to_instances(
 
     if let Some(ref verified) = params.verified {
         redirect_params.push(format!("verified={}", urlencoding::encode(verified)));
-    }
-
-    if let Some(ref hot_zone) = params.hot_zone {
-        redirect_params.push(format!("hot_zone={}", urlencoding::encode(hot_zone)));
     }
 
     if let Some(ref mission) = params.mission {

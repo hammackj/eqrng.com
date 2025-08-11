@@ -59,7 +59,7 @@ eq_rng.com/
 - expansion
 - continent
 - mission
-- hot_zone
+- flags (comma-separated list, e.g., "hot_zone,undead")
 
 This endpoint will return a random zone based on the given parameters.
 

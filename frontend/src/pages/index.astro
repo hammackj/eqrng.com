@@ -321,15 +321,15 @@ import Layout from "../layouts/Layout.astro";
 
                 resultDiv.innerHTML = `
         <div class="bg-slate-700 border border-slate-600 rounded-lg p-6">
-          <h2 class="text-2xl font-bold text-white mb-4">${zone.name}</h2>
-          <div class="text-xs text-slate-500 mb-2">Zone ID: ${zone.id} | Generated: ${new Date().toLocaleTimeString()} | Flags: ${zone.flags ? zone.flags.length : 0}</div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <h2 class="text-4xl font-bold text-white mb-4">${zone.name}</h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-base">
             <div class="flex justify-between"><span class="font-medium text-slate-300">Levels:</span> <span class="text-white">${zone.level_ranges.map((r: number[]) => r.join("–")).join(", ")}</span></div>
             <div class="flex justify-between"><span class="font-medium text-slate-300">Expansion:</span> <span class="text-white">${zone.expansion}</span></div>
             <div class="flex justify-between"><span class="font-medium text-slate-300">Continent:</span> <span class="text-white">${zone.continent || "Unknown"}</span></div>
             <div class="flex justify-between"><span class="font-medium text-slate-300">Type:</span> <span class="text-white">${zone.zone_type}</span></div>
-            <div class="flex justify-between"><span class="font-medium text-slate-300">Mission Zone:</span> <span class="${zone.mission ? "text-green-400" : "text-slate-400"}">${zone.mission ? "Yes" : "No"}</span></div>
-            <div class="flex justify-between"><span class="font-medium text-slate-300">Hot Zone:</span> <span class="${zone.hot_zone ? "text-orange-400" : "text-slate-400"}">${zone.hot_zone ? "Yes" : "No"}</span></div>
+
+
             <div class="flex justify-between items-center"><span class="font-medium text-slate-300">Verified:</span> <img src="/assets/images/gouda.png" alt="Verified" class="w-6 h-6 ${zone.verified ? "opacity-100" : "opacity-30"}" /></div>
           </div>
           ${
@@ -337,7 +337,7 @@ import Layout from "../layouts/Layout.astro";
                   ? `
             <div class="mt-4 pt-4 border-t border-slate-600">
               <div class="font-medium mb-2 text-slate-300">Connections:</div>
-              <div class="text-sm text-white">${zone.connections.join(", ")}</div>
+              <div class="text-base text-white">${zone.connections.join(", ")}</div>
             </div>
           `
                   : ""
@@ -356,32 +356,15 @@ import Layout from "../layouts/Layout.astro";
                 `,
                 ).join("")}
               </div>
-              <div class="rating-stats text-sm text-slate-400">
+              <div class="rating-stats text-base text-slate-400">
                 <span id="rating-text-${zone.id}">Loading ratings...</span>
               </div>
             </div>
           </div>
           ${flagPillsHTML}
-          <div class="mt-4 pt-4 border-t border-slate-600">
-            <button id="refresh-zone-${zone.id}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">
-              Generate New Zone
-            </button>
-            <div class="text-xs text-slate-500 mt-2">
-              API Call: ${window.location.origin}/random_zone?${params}
-            </div>
-          </div>
+
         </div>
       `;
-
-                // Add click handler for refresh button
-                const refreshButton = document.getElementById(
-                    `refresh-zone-${zone.id}`,
-                );
-                if (refreshButton) {
-                    refreshButton.onclick = async () => {
-                        await generateZone();
-                    };
-                }
 
                 // Load zone rating
                 loadZoneRating(zone.id);
@@ -441,7 +424,7 @@ import Layout from "../layouts/Layout.astro";
                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-white ${note.note_type.color_class}">
                                     ${note.note_type.display_name}
                                 </span>
-                                <span class="text-sm text-slate-300 note-content" data-note-index="${index}">${note.content}</span>
+                                <span class="text-base text-slate-300 note-content" data-note-index="${index}">${note.content}</span>
                             </div>
                         `,
                             )

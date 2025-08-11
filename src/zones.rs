@@ -64,7 +64,6 @@ pub struct Zone {
     pub image_url: String,
     pub map_url: String,
     pub rating: u8,
-    pub hot_zone: bool,
     pub mission: bool,
     pub verified: bool,
     pub notes: Vec<ZoneNote>,
@@ -78,7 +77,6 @@ pub struct RangeQuery {
     zone_type: Option<String>,
     expansion: Option<String>,
     pub mission: Option<bool>,
-    hot_zone: Option<bool>,
     continent: Option<String>,
     flags: Option<String>, // Comma-separated flag names
 }
@@ -132,11 +130,6 @@ pub async fn random_zone(
         bindings.push(if mission { "1" } else { "0" }.to_string());
     }
 
-    if let Some(hot_zone) = params.hot_zone {
-        where_conditions.push("z.hot_zone = ?".to_string());
-        bindings.push(if hot_zone { "1" } else { "0" }.to_string());
-    }
-
     query.push_str(" WHERE ");
     query.push_str(&where_conditions.join(" AND "));
     query.push_str(" ORDER BY RANDOM() LIMIT 100");
@@ -178,7 +171,6 @@ pub async fn random_zone(
             image_url: row.get("image_url"),
             map_url: row.get("map_url"),
             rating: row.get::<i32, _>("rating") as u8,
-            hot_zone: row.get("hot_zone"),
             mission: row.get("mission"),
             verified: row.get("verified"),
             notes: Vec::new(),
@@ -263,7 +255,6 @@ pub async fn get_all_zones(pool: &SqlitePool) -> Result<Vec<Zone>, sqlx::Error> 
             image_url: row.get("image_url"),
             map_url: row.get("map_url"),
             rating: row.get::<i32, _>("rating") as u8,
-            hot_zone: row.get("hot_zone"),
             mission: row.get("mission"),
             verified: row.get("verified"),
             notes: Vec::new(), // Notes not loaded for bulk operations
