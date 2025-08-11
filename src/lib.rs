@@ -10,6 +10,112 @@ pub mod ratings;
 pub mod version;
 pub mod zones;
 
+// Anonymize IP migration utilities
+use blake3;
+use chrono::Utc;
+use std::env;
+
+// Reuse the same keyed blake3 scheme as ratings.rs
+fn rating_ip_hash_key() -> [u8; 32] {
+    let key_material = env::var("RATING_IP_HASH_KEY")
+        .unwrap_or_else(|_| String::from("eq_rng_default_rating_ip_key_v1"));
+    let hash = blake3::hash(key_material.as_bytes());
+    let mut key = [0u8; 32];
+    key.copy_from_slice(hash.as_bytes());
+    key
+}
+
+fn hash_ip(ip: &str) -> String {
+    let key = rating_ip_hash_key();
+    let h = blake3::keyed_hash(&key, ip.as_bytes());
+    h.to_hex().to_string()
+}
+
+fn is_lower_hex64(s: &str) -> bool {
+    s.len() == 64 && s.chars().all(|c| matches!(c, '0'..='9' | 'a'..='f'))
+}
+
+// Startup migration to hash any existing plaintext IPs in zone_ratings
+pub async fn migrate_hash_zone_ratings(pool: &SqlitePool) -> Result<(), sqlx::Error> {
+    // Ensure table exists
+    let table_exists =
+        sqlx::query("SELECT name FROM sqlite_master WHERE type='table' AND name='zone_ratings'")
+            .fetch_optional(pool)
+            .await?
+            .is_some();
+    if !table_exists {
+        return Ok(());
+    }
+
+    // Check if there are any rows that don't look hashed yet
+    let unhashed_count: i64 = sqlx::query_scalar(
+        "SELECT COUNT(*) FROM zone_ratings WHERE NOT (length(user_ip) = 64 AND user_ip GLOB '[0-9a-f]*')",
+    )
+    .fetch_one(pool)
+    .await?;
+
+    if unhashed_count == 0 {
+        return Ok(());
+    }
+
+    println!("Anonymizing {} existing rating IP(s)...", unhashed_count);
+
+    let mut tx = pool.begin().await?;
+
+    // Load all existing rows
+    let rows =
+        sqlx::query("SELECT zone_id, user_ip, rating, created_at, updated_at FROM zone_ratings")
+            .fetch_all(&mut *tx)
+            .await?;
+
+    // Clear table and re-insert with hashed IPs, merging on conflict
+    sqlx::query("DELETE FROM zone_ratings")
+        .execute(&mut *tx)
+        .await?;
+
+    for row in rows {
+        let zone_id: i64 = row.get("zone_id");
+        let user_ip: String = row.get("user_ip");
+        let rating: i32 = row.get("rating");
+        let created_at: Option<String> = row.get("created_at");
+        let updated_at: Option<String> = row.get("updated_at");
+
+        let ip_hashed = if is_lower_hex64(&user_ip) {
+            user_ip
+        } else {
+            hash_ip(&user_ip)
+        };
+
+        let created_at_val = created_at.unwrap_or_else(|| Utc::now().to_rfc3339());
+        let updated_at_val = updated_at.unwrap_or_else(|| Utc::now().to_rfc3339());
+
+        sqlx::query(
+            r#"
+            INSERT INTO zone_ratings (zone_id, user_ip, rating, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(zone_id, user_ip) DO UPDATE SET
+                rating = excluded.rating,
+                updated_at = excluded.updated_at,
+                created_at = CASE
+                    WHEN zone_ratings.created_at < excluded.created_at THEN zone_ratings.created_at
+                    ELSE excluded.created_at
+                END
+            "#,
+        )
+        .bind(zone_id)
+        .bind(ip_hashed)
+        .bind(rating)
+        .bind(created_at_val)
+        .bind(updated_at_val)
+        .execute(&mut *tx)
+        .await?;
+    }
+
+    tx.commit().await?;
+    println!("IP anonymization complete.");
+    Ok(())
+}
+
 #[derive(Clone)]
 pub struct AppState {
     pub zone_state: zones::ZoneState,
@@ -38,6 +144,11 @@ pub async fn setup_database() -> Result<SqlitePool, Box<dyn std::error::Error>> 
         println!("No data.sql found, creating tables from scratch...");
         // Run migrations to create basic table structure
         create_tables(&pool).await?;
+    }
+
+    // Anonymize any existing plaintext IPs in ratings before continuing
+    if let Err(e) = migrate_hash_zone_ratings(&pool).await {
+        eprintln!("Warning: failed to hash existing rating IPs: {}", e);
     }
 
     // Force WAL checkpoint to consolidate changes into main database file

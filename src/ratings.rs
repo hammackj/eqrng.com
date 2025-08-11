@@ -4,8 +4,10 @@ use axum::{
     http::StatusCode,
     response::Json,
 };
+use blake3;
 use serde::{Deserialize, Serialize};
 use sqlx::{Row, SqlitePool};
+use std::env;
 use std::fs::OpenOptions;
 use std::io::Write;
 use std::sync::Arc;
@@ -51,6 +53,22 @@ pub struct RatingQuery {
     pub user_ip: Option<String>,
 }
 
+// Hashing utilities to anonymize IP addresses for ratings
+fn rating_ip_hash_key() -> [u8; 32] {
+    let key_material = env::var("RATING_IP_HASH_KEY")
+        .unwrap_or_else(|_| String::from("eq_rng_default_rating_ip_key_v1"));
+    let hash = blake3::hash(key_material.as_bytes());
+    let mut key = [0u8; 32];
+    key.copy_from_slice(hash.as_bytes());
+    key
+}
+
+fn hash_ip(ip: &str) -> String {
+    let key = rating_ip_hash_key();
+    let h = blake3::keyed_hash(&key, ip.as_bytes());
+    h.to_hex().to_string()
+}
+
 // Get rating statistics for a zone
 pub async fn get_zone_rating(
     Path(zone_id): Path<i64>,
@@ -94,11 +112,12 @@ pub async fn get_zone_rating(
     let total_ratings: i64 = stats.get("total_ratings");
     let average_rating: Option<f64> = stats.get("average_rating");
 
-    // Get user's rating if user_ip is provided
+    // Get user's rating if user_ip is provided (hashed for anonymity)
     let user_rating = if let Some(ref user_ip) = params.user_ip {
+        let hashed_ip = hash_ip(user_ip);
         sqlx::query("SELECT rating FROM zone_ratings WHERE zone_id = ? AND user_ip = ?")
             .bind(zone_id)
-            .bind(user_ip)
+            .bind(&hashed_ip)
             .fetch_optional(pool)
             .await
             .map_err(|e| {
@@ -132,8 +151,9 @@ pub async fn submit_zone_rating(
         return Err(StatusCode::BAD_REQUEST);
     }
 
-    // Get user IP (in a real app, you'd extract this from the request headers)
+    // Get user IP (in a real app, you'd extract this from the request headers) and hash it
     let user_ip = params.user_ip.unwrap_or_else(|| "127.0.0.1".to_string());
+    let hashed_ip = hash_ip(&user_ip);
 
     // First, verify the zone exists
     let zone_exists = sqlx::query("SELECT id FROM zones WHERE id = ?")
@@ -161,7 +181,7 @@ pub async fn submit_zone_rating(
         "#,
     )
     .bind(zone_id)
-    .bind(&user_ip)
+    .bind(&hashed_ip)
     .bind(payload.rating as i32)
     .execute(pool)
     .await
@@ -170,11 +190,11 @@ pub async fn submit_zone_rating(
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
-    // Write SQL transaction to log file
+    // Write SQL transaction to log file (only logs hashed IP)
     let sql_statement = format!(
         "INSERT INTO zone_ratings (zone_id, user_ip, rating, updated_at) VALUES ({}, '{}', {}, CURRENT_TIMESTAMP) ON CONFLICT(zone_id, user_ip) DO UPDATE SET rating = excluded.rating, updated_at = CURRENT_TIMESTAMP; -- {}\n",
         zone_id,
-        user_ip.replace("'", "''"), // Escape single quotes
+        hashed_ip.replace("'", "''"), // Escape single quotes
         payload.rating,
         chrono::Utc::now().to_rfc3339()
     );

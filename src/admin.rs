@@ -1978,7 +1978,7 @@ async fn zone_ratings(
         <thead>
             <tr>
                 <th>Rating</th>
-                <th>User IP (Anonymized)</th>
+                <th>User Hash</th>
                 <th>Date</th>
             </tr>
         </thead>
@@ -1995,8 +1995,12 @@ async fn zone_ratings(
             let user_ip: String = rating.get("user_ip");
             let created_at: String = rating.get("created_at");
 
-            // Anonymize IP (show only first two octets)
-            let anonymized_ip = user_ip.split('.').take(2).collect::<Vec<_>>().join(".") + ".x.x";
+            // Show first 8 characters of the hash
+            let anonymized_ip = if user_ip.len() >= 8 {
+                format!("{}...", &user_ip[..8])
+            } else {
+                user_ip.clone()
+            };
 
             html.push_str(&format!(
                 "<tr><td class=\"rating\">{}</td><td>{}</td><td>{}</td></tr>",

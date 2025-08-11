@@ -158,8 +158,28 @@ backup_current_ratings() {
     fi
 }
 
-# Function to display startup information
-show_startup_info() {
+# Function to auto-apply rating transaction logs in background
+auto_apply_transactions() {
+    log_info "Checking for rating transaction logs to apply..."
+
+    # Skip if explicitly disabled
+    if [[ "$SKIP_TRANSACTION_AUTO_APPLY" == "true" ]]; then
+        log_warning "Transaction log auto-apply skipped (SKIP_TRANSACTION_AUTO_APPLY=true)"
+        return 0
+    fi
+
+    # Check if auto-apply script exists
+    if [[ ! -f "$AUTO_APPLY_SCRIPT" ]]; then
+        log_info "Transaction auto-apply script not found, skipping"
+        return 0
+    fi
+
+    # Make sure it's executable
+    chmod +x "$AUTO_APPLY_SCRIPT"
+
+    # Run the auto-apply script in background after a delay to ensure API is ready
+    log_info "Starting transaction log auto-apply in background..."
+    (how_startup_info() {
     log_info "Container startup information:"
     echo "================================"
     echo "Database path: $DB_PATH"
