@@ -645,9 +645,18 @@ pub async fn load_data_sql(pool: &SqlitePool) -> Result<(), Box<dyn std::error::
                 match sqlx::query(statement).execute(&mut *transaction).await {
                     Ok(_) => {}
                     Err(e) => {
-                        // Log the error but continue with other statements
-                        eprintln!("Warning: Failed to execute statement: {}", e);
-                        eprintln!("Statement was: {}", statement);
+                        let error_message = e.to_string();
+
+                        // Skip harmless errors that are expected during data.sql loading
+                        if error_message.contains("table migrations already exists")
+                            || error_message.contains("UNIQUE constraint failed: migrations.id")
+                        {
+                            // These are expected - ignore silently
+                        } else {
+                            // Log unexpected errors but continue
+                            eprintln!("Warning: Failed to execute statement: {}", e);
+                            eprintln!("Statement was: {}", statement);
+                        }
                     }
                 }
             }

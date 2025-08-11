@@ -11,7 +11,7 @@ use axum::{
 #[cfg(feature = "admin")]
 use serde::{Deserialize, Serialize};
 #[cfg(feature = "admin")]
-use sqlx::Row;
+use sqlx::{Row, SqlitePool};
 #[cfg(feature = "admin")]
 use std::collections::HashMap;
 #[cfg(feature = "admin")]
@@ -270,6 +270,40 @@ pub fn admin_routes() -> Router<AppState> {
 #[cfg(not(feature = "admin"))]
 pub fn admin_routes() -> Router<AppState> {
     Router::new()
+}
+
+#[cfg(feature = "admin")]
+async fn get_distinct_zone_types(pool: &SqlitePool) -> Result<Vec<String>, sqlx::Error> {
+    let rows = sqlx::query("SELECT DISTINCT zone_type FROM zones ORDER BY zone_type ASC")
+        .fetch_all(pool)
+        .await?;
+
+    let zone_types = rows
+        .iter()
+        .map(|row| row.get::<String, _>("zone_type"))
+        .collect();
+
+    Ok(zone_types)
+}
+
+#[cfg(feature = "admin")]
+fn generate_zone_type_options(zone_types: &[String], selected_zone_type: &str) -> String {
+    let mut options = String::new();
+
+    for zone_type in zone_types {
+        let selected = if zone_type == selected_zone_type {
+            " selected"
+        } else {
+            ""
+        };
+        options.push_str(&format!(
+            r#"                <option value="{}"{}>{}</option>
+"#,
+            zone_type, selected, zone_type
+        ));
+    }
+
+    options
 }
 
 #[cfg(feature = "admin")]
@@ -1148,7 +1182,14 @@ async fn list_zones(
 }
 
 #[cfg(feature = "admin")]
-async fn new_zone_form() -> Html<String> {
+async fn new_zone_form(State(state): State<AppState>) -> Result<Html<String>, StatusCode> {
+    let pool = &state.zone_state.pool;
+
+    // Get distinct zone types from database
+    let zone_types = get_distinct_zone_types(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
     let html = format!(
         "{}{}",
         get_zone_form_header(),
@@ -1172,11 +1213,12 @@ async fn new_zone_form() -> Html<String> {
             "/admin/zones",
             "POST",
             "Create Zone",
-            None
+            None,
+            &zone_types
         )
     );
 
-    Html(html)
+    Ok(Html(html))
 }
 
 #[cfg(feature = "admin")]
@@ -1195,25 +1237,30 @@ async fn edit_zone_form(
     // Load notes for this zone
     let notes = crate::zones::get_zone_notes(pool.as_ref(), id as i64)
         .await
-        .unwrap_or_default();
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    // Load flags for this zone
-    let flags = crate::zones::get_zone_flags(pool.as_ref(), id as i64)
-        .await
-        .unwrap_or_default();
-
-    // Load note types for the form
-    let note_types = crate::zones::get_note_types(pool.as_ref())
-        .await
-        .unwrap_or_default();
-
-    // Load flag types for the form
+    // Load flag types and zone flags
     let flag_types = crate::zones::get_flag_types(pool.as_ref())
         .await
-        .unwrap_or_default();
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
+    let zone_flags = crate::zones::get_zone_flags(pool.as_ref(), id as i64)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Get available note types
+    let note_types = crate::zones::get_note_types(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Get distinct zone types from database
+    let zone_types = get_distinct_zone_types(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    use sqlx::Row;
     let zone = Zone {
-        id: Some(id),
+        id: Some(zone_row.get("id")),
         name: zone_row.get("name"),
         level_ranges: zone_row.get("level_ranges"),
         expansion: zone_row.get("expansion"),
@@ -1225,7 +1272,7 @@ async fn edit_zone_form(
         rating: zone_row.get("rating"),
         verified: zone_row.get("verified"),
         notes,
-        flags,
+        flags: zone_flags,
     };
 
     let html = format!(
@@ -1239,7 +1286,8 @@ async fn edit_zone_form(
             "Update Zone",
             Some(id),
             &note_types,
-            &flag_types
+            &flag_types,
+            &zone_types,
         )
     );
 
@@ -1287,8 +1335,18 @@ fn get_zone_form_body(
     method: &str,
     button_text: &str,
     zone_id: Option<i32>,
+    zone_types: &[String],
 ) -> String {
-    get_zone_form_body_with_notes(title, zone, action, method, button_text, zone_id, &[])
+    get_zone_form_body_with_notes(
+        title,
+        zone,
+        action,
+        method,
+        button_text,
+        zone_id,
+        &[], // empty note types for new zones
+        zone_types,
+    )
 }
 
 #[cfg(feature = "admin")]
@@ -1300,6 +1358,7 @@ fn get_zone_form_body_with_notes(
     button_text: &str,
     zone_id: Option<i32>,
     note_types: &[crate::zones::NoteType],
+    zone_types: &[String],
 ) -> String {
     get_zone_form_body_with_notes_and_flags(
         title,
@@ -1310,6 +1369,7 @@ fn get_zone_form_body_with_notes(
         zone_id,
         note_types,
         &[],
+        zone_types,
     )
 }
 
@@ -1323,6 +1383,7 @@ fn get_zone_form_body_with_notes_and_flags(
     zone_id: Option<i32>,
     note_types: &[crate::zones::NoteType],
     flag_types: &[crate::zones::FlagType],
+    zone_types: &[String],
 ) -> String {
     format!(
         r#"
@@ -1350,12 +1411,7 @@ fn get_zone_form_body_with_notes_and_flags(
             <label for="zone_type">Zone Type *</label>
             <select id="zone_type" name="zone_type" required>
                 <option value="">Select type...</option>
-                <option value="outdoor" {}>Outdoor</option>
-                <option value="dungeon" {}>Dungeon</option>
-                <option value="raid" {}>Raid</option>
-                <option value="city" {}>City</option>
-                <option value="instanced" {}>Instanced</option>
-                <option value="mission" {}>Mission</option>
+                {}
             </select>
         </div>
 
@@ -1410,36 +1466,7 @@ fn get_zone_form_body_with_notes_and_flags(
         zone.name,
         zone.expansion,
         zone.continent,
-        if zone.zone_type == "outdoor" {
-            "selected"
-        } else {
-            ""
-        },
-        if zone.zone_type == "dungeon" {
-            "selected"
-        } else {
-            ""
-        },
-        if zone.zone_type == "raid" {
-            "selected"
-        } else {
-            ""
-        },
-        if zone.zone_type == "city" {
-            "selected"
-        } else {
-            ""
-        },
-        if zone.zone_type == "instanced" {
-            "selected"
-        } else {
-            ""
-        },
-        if zone.zone_type == "mission" {
-            "selected"
-        } else {
-            ""
-        },
+        generate_zone_type_options(zone_types, &zone.zone_type),
         zone.level_ranges,
         zone.connections,
         zone.image_url,
@@ -4276,6 +4303,7 @@ async fn edit_instance_form(
     Ok(Html(format!("{}{}", header, body)))
 }
 
+#[cfg(feature = "admin")]
 fn get_instance_form_header(title: &str) -> String {
     format!(
         r#"
@@ -4311,6 +4339,7 @@ fn get_instance_form_header(title: &str) -> String {
     )
 }
 
+#[cfg(feature = "admin")]
 fn get_instance_form_body(
     instance_row: &sqlx::sqlite::SqliteRow,
     instance_id: Option<i32>,

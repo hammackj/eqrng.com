@@ -5,9 +5,9 @@ CREATE TABLE migrations (
             name TEXT NOT NULL UNIQUE,
             applied_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
-INSERT INTO migrations VALUES(1,'data_sql','2025-08-11 07:36:36');
+INSERT INTO migrations VALUES(3,'data_sql','2025-08-11 08:06:16');
 CREATE TABLE zones (                 id INTEGER PRIMARY KEY AUTOINCREMENT,                 name TEXT NOT NULL,                 level_ranges TEXT NOT NULL,                 expansion TEXT NOT NULL,                 continent TEXT NOT NULL DEFAULT '',                 zone_type TEXT NOT NULL,                 connections TEXT NOT NULL DEFAULT '[]',                 image_url TEXT NOT NULL DEFAULT '',                 map_url TEXT NOT NULL DEFAULT '',                 rating INTEGER NOT NULL DEFAULT 0,                 hot_zone BOOLEAN NOT NULL DEFAULT FALSE,                 mission BOOLEAN NOT NULL DEFAULT FALSE,                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP             , verified BOOLEAN NOT NULL DEFAULT FALSE);
-INSERT INTO zones VALUES(1,'Ak''Anon','[[0,0]]','Classic','Faydwer','city','["Steamfont Mountains"]','','',0,0,0,'2025-07-21 23:58:30',1);
+INSERT INTO zones VALUES(1,'Ak''Anon','[[0,0]]','Classic','Faydwer','Indoor','["Steamfont Mountains"]','','',0,0,0,'2025-07-21 23:58:30',1);
 INSERT INTO zones VALUES(2,'Befallen','[[7,25]]','Classic','Antonica','dungeon','["Commonlands"]','','',0,0,0,'2025-07-21 23:58:30',1);
 INSERT INTO zones VALUES(3,'Blackburrow','[[4,15]]','Classic','Antonica','Dungeon','[]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(4,'Castle Mistmoore','[[20,45]]','Classic','','Dungeon','[]','','',0,0,0,'2025-07-21 23:58:30',0);
@@ -118,7 +118,7 @@ INSERT INTO zones VALUES(108,'Western Wastes','[[50,65]]','Velious','Velious','O
 INSERT INTO zones VALUES(109,'Shadow Haven','[[0,0]]','Shadows of Luclin','Luclin','City','[]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(110,'The Nexus','[[0,0]]','Shadows of Luclin','Luclin','City','[]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(111,'Echo Caverns','[[20,45]]','Shadows of Luclin','Luclin','Dungeon','[]','','',0,0,0,'2025-07-21 23:58:30',0);
-INSERT INTO zones VALUES(112,'Acrylia Caverns','[[40,60]]','Shadows of Luclin','Luclin','dungeon','["Grimling Forest"]','','',0,0,0,'2025-07-21 23:58:30',1);
+INSERT INTO zones VALUES(112,'Acrylia Caverns','[[40,60]]','Shadows of Luclin','Luclin','Indoor','["Grimling Forest"]','','',0,0,0,'2025-07-21 23:58:30',1);
 INSERT INTO zones VALUES(113,'Shar Vahl','[[0,0]]','Shadows of Luclin','Luclin','City','[]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(114,'Paludal Caverns','[[5,25]]','Shadows of Luclin','Luclin','Dungeon','[]','','',0,1,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(115,'Fungus Grove','[[40,55]]','Shadows of Luclin','Luclin','Outdoor','[]','','',0,0,0,'2025-07-21 23:58:30',0);
@@ -141,7 +141,7 @@ INSERT INTO zones VALUES(131,'Maiden''s Eye','[[45,60]]','Shadows of Luclin','Lu
 INSERT INTO zones VALUES(132,'Dawnshroud Peaks','[[24,45]]','Shadows of Luclin','Luclin','Outdoor','[]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(133,'Scarlet Desert','[[30,50]]','Shadows of Luclin','Luclin','outdoor','[]','','',0,1,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(134,'Umbral Plains','[[50,65]]','Shadows of Luclin','Luclin','Outdoor','[]','','',0,0,0,'2025-07-21 23:58:30',0);
-INSERT INTO zones VALUES(135,'Akheva Ruins','[[45,65]]','Shadows of Luclin','Luclin','dungeon','["Maiden''s Eye"]','','',0,0,0,'2025-07-21 23:58:30',1);
+INSERT INTO zones VALUES(135,'Akheva Ruins','[[45,65]]','Shadows of Luclin','Luclin','Indoor','["Maiden''s Eye"]','','',0,0,0,'2025-07-21 23:58:30',1);
 INSERT INTO zones VALUES(136,'Doomfire, the Burning Lands (Plane of Fire)','[[65,75]]','Planes of Power','Power','Outdoor','[]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(137,'Drunder, Fortress of Zek (Plane of Tactics)','[[60,65]]','Planes of Power','Power','dungeon','[]','','',0,1,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(138,'Eryslai, the Kingdom of Wind (Plane of Air)','[[65,75]]','Planes of Power','Power','Outdoor','[]','','',0,0,0,'2025-07-21 23:58:30',0);
@@ -156,7 +156,7 @@ INSERT INTO zones VALUES(146,'Plane of Storms','[[55,65]]','Planes of Power','Po
 INSERT INTO zones VALUES(147,'Plane of Time A','[[65,75]]','Planes of Power','Power','Outdoor','[]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(148,'Plane of Time B','[[65,75]]','Planes of Power','Power','Outdoor','[]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(149,'Plane of Torment','[[55,65]]','Planes of Power','Power','Indoor','[]','','',0,0,0,'2025-07-21 23:58:30',0);
-INSERT INTO zones VALUES(150,'Plane of Tranquility','[[0,0]]','Planes of Power','Power','Outdoor City/Plane','[]','','',0,0,0,'2025-07-21 23:58:30',0);
+INSERT INTO zones VALUES(150,'Plane of Tranquility','[[0,0]]','Planes of Power','Power','Outdoor','[]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(151,'Plane of Valor','[[55,65]]','Planes of Power','Power','Outdoor','[]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(152,'Plane of War','[[65,100]]','Planes of Power','Power','Outdoor','[]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(153,'Ragrax, Stronghold of the Twelve','[[65,75]]','Planes of Power','Power','Outdoor','[]','','',0,0,0,'2025-07-21 23:58:30',0);
@@ -170,7 +170,7 @@ INSERT INTO zones VALUES(160,'Dulak''s Harbor','[[40,55]]','The Legacy of Ykesha
 INSERT INTO zones VALUES(161,'Torgiran Mines','[[45,60]]','The Legacy of Ykesha','Antonica','Indoors','[]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(162,'Crypt of Nadox','[[50,65]]','The Legacy of Ykesha','Antonica','Indoors','[]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(163,'Hate''s Fury, The Scorned Maiden','[[55,65]]','The Legacy of Ykesha','Antonica','Outdoors','[]','','',0,0,0,'2025-07-21 23:58:30',0);
-INSERT INTO zones VALUES(169,'Abysmal Sea','[[0,0]]','Gates of Discord','Taelosia','city','["Natimbi, The Broken Shores","Nedaria''s Landing"]','','',0,0,0,'2025-07-21 23:58:30',1);
+INSERT INTO zones VALUES(169,'Abysmal Sea','[[0,0]]','Gates of Discord','Taelosia','Outdoor','["Natimbi, The Broken Shores","Nedaria''s Landing"]','','',0,0,0,'2025-07-21 23:58:30',1);
 INSERT INTO zones VALUES(170,'Nedaria''s Landing','[[15,35]]','Gates of Discord','Antonica','Outdoors','["Guild Lobby","Abysmal Sea","Jaggedpine Forest","Natimbi, The Broken Shores","The Forgotton Halls"]','','',0,1,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(171,'Natimbi, The Broken Shores','[[43,60]]','Gates of Discord','Taelosia','Outdoors','["Abysmal Sea","Natimbi, The Broken Shores","Nedaria''s Landing","Qinimi, Court of Nihilia","Qvic, Prayer Grounds of Calling"]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(172,'Qinimi, Court of Nihilia','[[50,75]]','Gates of Discord','Taelosia','Outdoors','["Natimbi, The Broken Shores","Ferubi, Forgotten Temple of Taelosia","Riwwi, Coliseum of Games","Barindu, Hanging Gardens"]','','',0,0,0,'2025-07-21 23:58:30',0);
@@ -213,7 +213,7 @@ INSERT INTO zones VALUES(294,'Stoneroot Falls','[[45,70]]','Depths of Darkhollow
 INSERT INTO zones VALUES(295,'The Hive','[[45,70]]','Depths of Darkhollow','Antonica','Indoors','[]','','',0,1,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(296,'The Liberation of Runnyeye','[[45,70]]','Depths of Darkhollow','Antonica','Outdoors','[]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(297,'Undershore','[[45,70]]','Depths of Darkhollow','Antonica','Outdoors','[]','','',0,0,0,'2025-07-21 23:58:30',0);
-INSERT INTO zones VALUES(343,'Arcstone, Isle of Spirits','[[60,75]]','Prophecy of Ro','Antonica','outdoor',replace(replace('["East Freeport",\r\n"Guild Hall",\r\n"Relic, the Artifact City",\r\n"West Freeport"]','\r',char(13)),'\n',char(10)),'','',0,1,0,'2025-07-21 23:58:30',1);
+INSERT INTO zones VALUES(343,'Arcstone, Isle of Spirits','[[60,75]]','Prophecy of Ro','Antonica','Outdoor',replace(replace('["East Freeport",\r\n"Guild Hall",\r\n"Relic, the Artifact City",\r\n"West Freeport"]','\r',char(13)),'\n',char(10)),'','',0,1,0,'2025-07-21 23:58:30',1);
 INSERT INTO zones VALUES(344,'Relic, the Artifact City','[[50,70]]','Prophecy of Ro','Antonica','Outdoors','[]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(345,'Ruins of Takish-Hiz','[[50,70]]','Prophecy of Ro','Antonica','Outdoors','[]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(346,'Sverag, Stronghold of Rage','[[50,70]]','Prophecy of Ro','Antonica','Outdoors','[]','','',0,0,0,'2025-07-21 23:58:30',0);
@@ -323,7 +323,7 @@ INSERT INTO zones VALUES(625,'Neriak - Fourth Gate','[[95,100]]','Call of the Fo
 INSERT INTO zones VALUES(626,'Dead Hills','[[95,100]]','Call of the Forsaken','Antonica','outdoor','["Ethernere Tainted West Karana","Bixie Warfront"]','','',0,1,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(627,'Bixie Warfront','[[96,100]]','Call of the Forsaken','Faydwer','outdoor','["Dead Hills","Ethernere Tainted West Karana"]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(628,'Tower of Rot','[[100,100]]','Call of the Forsaken','Planes','dungeon','["Argin-Hiz"]','','',0,1,0,'2025-07-21 23:58:30',0);
-INSERT INTO zones VALUES(629,'Argin-Hiz','[[100,100]]','Call of the Forsaken','Planes','city','["Tower of Rot"]','','',0,0,0,'2025-07-21 23:58:30',0);
+INSERT INTO zones VALUES(629,'Argin-Hiz','[[100,105]]','Call of the Forsaken','Planes','Outdoor','["Tower of Rot"]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(630,'Tempest Temple','[[100,105]]','The Darkened Sea','Buried Sea','outdoor','["Brother Island","Caverns of Endless Song","Thuliasaur Island"]','','',0,1,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(631,'Brother Island','[[100,105]]','The Darkened Sea','Buried Sea','outdoor','["Tempest Temple"]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(632,'Caverns of Endless Song','[[100,105]]','The Darkened Sea','Buried Sea','dungeon','["Tempest Temple"]','','',0,0,0,'2025-07-21 23:58:30',0);
@@ -349,7 +349,7 @@ INSERT INTO zones VALUES(651,'Gorowyn','[[105,110]]','Ring of Scale','Kunark','c
 INSERT INTO zones VALUES(652,'Veeshan''s Peak','[[110,110]]','Ring of Scale','Kunark','raid','["Skyfire Mountains"]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(653,'Stratos: Zephyr''s Flight','[[108,110]]','The Burning Lands','Elemental Planes','outdoor','["Esianti: Palace of the Winds","Mearatas: The Stone Demesne"]','','',0,1,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(654,'Esianti: Palace of the Winds','[[109,110]]','The Burning Lands','Elemental Planes','city','["Stratos: Zephyr''s Flight","Aalishai: Palace of Embers"]','','',0,0,0,'2025-07-21 23:58:30',0);
-INSERT INTO zones VALUES(655,'Aalishai: Palace of Embers','[[108,114]]','The Burning Lands','Elemental Planes','outdoor','["Esianti: Palace of the Winds","Empyr: Realms of Ash"]','','',0,0,0,'2025-07-21 23:58:30',1);
+INSERT INTO zones VALUES(655,'Aalishai: Palace of Embers','[[108,114]]','The Burning Lands','Elemental Planes','Outdoor','["Esianti: Palace of the Winds","Empyr: Realms of Ash"]','','',0,0,0,'2025-07-21 23:58:30',1);
 INSERT INTO zones VALUES(656,'Empyr: Realms of Ash','[[109,110]]','The Burning Lands','Elemental Planes','outdoor','["Aalishai: Palace of Embers","Mearatas: The Stone Demesne"]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(657,'Mearatas: The Stone Demesne','[[110,110]]','The Burning Lands','Elemental Planes','raid','["Stratos: Zephyr''s Flight","Empyr: Realms of Ash"]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(658,'The Eastern Wastes','[[110,115]]','Torment of Velious','Velious','Outdoors','["The Ry''Gorr Mines","Crystal Caverns","The Great Divide"]','','',0,0,0,'2025-07-21 23:58:30',0);
@@ -393,6 +393,7 @@ INSERT INTO zones VALUES(697,'The Harbinger''s Cradle','[[120,125]]','The Outer 
 INSERT INTO zones VALUES(698,'The Chambers of Puissance','[[120,125]]','The Outer Brood','Antonica','outdoor','["The Harbinger''s Cradle"]','','',0,0,0,'2025-07-21 23:58:30',1);
 INSERT INTO zones VALUES(699,'The Gilded Spire','[[120,125]]','The Outer Brood','Antonica','outdoor','["Aureate Covert"]','','',0,0,0,'2025-07-21 23:58:30',1);
 INSERT INTO zones VALUES(704,'Great Divide','[[30,50]]','Velious','Velious','outdoor',replace(replace('["Eastern Wastes",\r\n"Icewell Keep",\r\n"Plane of Knowledge",\r\n"Plane of Mischief",\r\n"The Nexus",\r\n"Thurgadin",\r\n"Velketor''s Labyrinth"]','\r',char(13)),'\n',char(10)),'','',0,1,0,'2025-07-22 01:53:15',1);
+INSERT INTO zones VALUES(705,'The Mines of Gloomingdeep','[[1,15]]','The Serpent''s Spine','Antonica','dungeon',replace(replace('["Crescent Reach", "Plane of Knowledge"]\r\n\r\n','\r',char(13)),'\n',char(10)),'','',0,0,0,'2025-08-11 07:57:30',1);
 CREATE TABLE zone_ratings (                 id INTEGER PRIMARY KEY AUTOINCREMENT,                 zone_id INTEGER NOT NULL,                 user_ip TEXT NOT NULL,                 rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,                 FOREIGN KEY (zone_id) REFERENCES zones (id) ON DELETE CASCADE,                 UNIQUE(zone_id, user_ip)             );
 CREATE TABLE note_types (                 id INTEGER PRIMARY KEY AUTOINCREMENT,                 name TEXT NOT NULL UNIQUE,                 display_name TEXT NOT NULL,                 color_class TEXT NOT NULL DEFAULT 'bg-blue-500',                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP             );
 INSERT INTO note_types VALUES(1,'epic_1_0','Epic 1.0','bg-yellow-500','2025-07-22 01:27:24');
@@ -826,7 +827,6 @@ INSERT INTO zone_flags VALUES(61,653,1,'2025-08-10 19:33:51');
 INSERT INTO zone_flags VALUES(62,704,1,'2025-08-10 19:33:51');
 INSERT INTO zone_flags VALUES(63,382,5,'2025-08-10 19:54:06');
 INSERT INTO zone_flags VALUES(64,382,2,'2025-08-10 19:54:10');
-INSERT INTO zone_flags VALUES(66,44,3,'2025-08-10 19:56:47');
 INSERT INTO zone_flags VALUES(67,44,4,'2025-08-10 19:56:52');
 INSERT INTO zone_flags VALUES(68,44,2,'2025-08-10 19:56:57');
 INSERT INTO zone_flags VALUES(69,82,5,'2025-08-11 00:01:25');
@@ -838,8 +838,11 @@ INSERT INTO zone_flags VALUES(75,6,5,'2025-08-11 01:09:44');
 INSERT INTO zone_flags VALUES(76,6,15,'2025-08-11 01:09:48');
 INSERT INTO zone_flags VALUES(77,6,2,'2025-08-11 01:09:54');
 INSERT INTO zone_flags VALUES(78,2,2,'2025-08-11 07:20:37');
+INSERT INTO zone_flags VALUES(79,4,2,'2025-08-11 07:42:44');
+INSERT INTO zone_flags VALUES(80,33,11,'2025-08-11 07:44:16');
+INSERT INTO zone_flags VALUES(81,705,5,'2025-08-11 07:57:50');
 DELETE FROM sqlite_sequence;
-INSERT INTO sqlite_sequence VALUES('zones',704);
+INSERT INTO sqlite_sequence VALUES('zones',705);
 INSERT INTO sqlite_sequence VALUES('zone_ratings',5);
 INSERT INTO sqlite_sequence VALUES('note_types',6);
 INSERT INTO sqlite_sequence VALUES('zone_notes',25);
@@ -847,8 +850,8 @@ INSERT INTO sqlite_sequence VALUES('links',18);
 INSERT INTO sqlite_sequence VALUES('instances',318);
 INSERT INTO sqlite_sequence VALUES('instance_notes',3);
 INSERT INTO sqlite_sequence VALUES('flag_types',15);
-INSERT INTO sqlite_sequence VALUES('zone_flags',78);
-INSERT INTO sqlite_sequence VALUES('migrations',1);
+INSERT INTO sqlite_sequence VALUES('zone_flags',81);
+INSERT INTO sqlite_sequence VALUES('migrations',3);
 CREATE INDEX idx_zones_expansion ON zones(expansion);
 CREATE INDEX idx_zones_zone_type ON zones(zone_type);
 CREATE INDEX idx_zones_mission ON zones(mission);
