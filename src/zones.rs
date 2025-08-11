@@ -395,3 +395,15 @@ pub async fn get_zone_flags(pool: &SqlitePool, zone_id: i64) -> Result<Vec<ZoneF
 
     Ok(flags)
 }
+
+pub async fn get_flag_types_api(
+    State(state): State<crate::AppState>,
+) -> Result<Json<Vec<FlagType>>, StatusCode> {
+    let pool = &*state.zone_state.pool;
+
+    let flag_types = get_flag_types(pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    Ok(Json(flag_types))
+}

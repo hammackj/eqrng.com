@@ -97,63 +97,11 @@ import Layout from "../layouts/Layout.astro";
                 <label class="block text-sm font-medium text-slate-300 mb-3">
                     Zone Flags (optional - check to filter by specific flags)
                 </label>
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    <label class="flex items-center space-x-2 cursor-pointer">
-                        <input
-                            type="checkbox"
-                            id="flag-hot-zone"
-                            value="hot_zone"
-                            class="w-4 h-4 text-red-600 bg-slate-700 border-slate-600 rounded focus:ring-red-500 focus:ring-2"
-                        />
-                        <span class="text-sm text-slate-300">🔥 Hot Zone</span>
-                    </label>
-                    <label class="flex items-center space-x-2 cursor-pointer">
-                        <input
-                            type="checkbox"
-                            id="flag-undead"
-                            value="undead"
-                            class="w-4 h-4 text-purple-600 bg-slate-700 border-slate-600 rounded focus:ring-purple-500 focus:ring-2"
-                        />
-                        <span class="text-sm text-slate-300">💀 Undead</span>
-                    </label>
-                    <label class="flex items-center space-x-2 cursor-pointer">
-                        <input
-                            type="checkbox"
-                            id="flag-epic-zone"
-                            value="epic_zone"
-                            class="w-4 h-4 text-yellow-600 bg-slate-700 border-slate-600 rounded focus:ring-yellow-500 focus:ring-2"
-                        />
-                        <span class="text-sm text-slate-300">⚔️ Epic Zone</span>
-                    </label>
-                    <label class="flex items-center space-x-2 cursor-pointer">
-                        <input
-                            type="checkbox"
-                            id="flag-newbie-friendly"
-                            value="newbie_friendly"
-                            class="w-4 h-4 text-green-600 bg-slate-700 border-slate-600 rounded focus:ring-green-500 focus:ring-2"
-                        />
-                        <span class="text-sm text-slate-300"
-                            >🌱 Newbie Friendly</span
-                        >
-                    </label>
-                    <label class="flex items-center space-x-2 cursor-pointer">
-                        <input
-                            type="checkbox"
-                            id="flag-raid-zone"
-                            value="raid_zone"
-                            class="w-4 h-4 text-red-600 bg-slate-700 border-slate-600 rounded focus:ring-red-500 focus:ring-2"
-                        />
-                        <span class="text-sm text-slate-300">🏰 Raid Zone</span>
-                    </label>
-                    <label class="flex items-center space-x-2 cursor-pointer">
-                        <input
-                            type="checkbox"
-                            id="flag-pvp-zone"
-                            value="pvp_zone"
-                            class="w-4 h-4 text-orange-600 bg-slate-700 border-slate-600 rounded focus:ring-orange-500 focus:ring-2"
-                        />
-                        <span class="text-sm text-slate-300">⚔️ PvP Zone</span>
-                    </label>
+                <div
+                    id="flag-checkboxes"
+                    class="grid grid-cols-2 sm:grid-cols-3 gap-3"
+                >
+                    <!-- Flag checkboxes will be dynamically loaded here -->
                 </div>
             </div>
 
@@ -167,6 +115,64 @@ import Layout from "../layouts/Layout.astro";
     </div>
 
     <script>
+        // Function to load flag types from API and generate checkboxes
+        async function loadFlagTypes() {
+            try {
+                const response = await fetch("/flag-types");
+                if (!response.ok) {
+                    console.error("Failed to load flag types");
+                    return;
+                }
+
+                const flagTypes = await response.json();
+                const container = document.getElementById("flag-checkboxes");
+
+                if (!container) return;
+
+                // Define emoji mapping for flag types
+                const emojiMap = {
+                    hot_zone: "🔥",
+                    undead: "💀",
+                    epic_zone: "⚔️",
+                    newbie_friendly: "🌱",
+                    raid_zone: "🏰",
+                    pvp_zone: "⚔️",
+                };
+
+                // Function to extract color from color_class
+                const getColorFromClass = (colorClass) => {
+                    // Extract color from "bg-COLOR-500" format
+                    const match = colorClass.match(/bg-(\w+)-500/);
+                    return match ? match[1] : "blue";
+                };
+
+                // Generate checkboxes dynamically
+                container.innerHTML = flagTypes
+                    .map((flagType) => {
+                        const emoji = emojiMap[flagType.name] || "🔸";
+                        const color = getColorFromClass(flagType.color_class);
+
+                        return `
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                id="flag-${flagType.name}"
+                                value="${flagType.name}"
+                                class="w-4 h-4 text-${color}-600 bg-slate-700 border-slate-600 rounded focus:ring-${color}-500 focus:ring-2"
+                            />
+                            <span class="text-sm text-slate-300">${emoji} ${flagType.display_name}</span>
+                        </label>
+                    `;
+                    })
+                    .join("");
+            } catch (error) {
+                console.error("Error loading flag types:", error);
+            }
+        }
+
+        // Load flag types when page loads
+        document.addEventListener("DOMContentLoaded", loadFlagTypes);
+
         // Level inputs are now number inputs with built-in validation
         // No need to populate dropdowns
 
@@ -248,7 +254,15 @@ import Layout from "../layouts/Layout.astro";
             const originalContent = resultDiv.innerHTML;
 
             try {
-                const response = await fetch(`/random_zone?${params}`);
+                // Add cache-busting timestamp to ensure fresh data
+                params.set("_t", Date.now().toString());
+                console.log(`Fetching zone data: /random_zone?${params}`);
+                const response = await fetch(`/random_zone?${params}`, {
+                    cache: "no-store",
+                    headers: {
+                        "Cache-Control": "no-cache",
+                    },
+                });
                 if (!response.ok) {
                     resultDiv.style.opacity = "1";
                     resultDiv.innerHTML =
@@ -262,11 +276,23 @@ import Layout from "../layouts/Layout.astro";
                 const getColorClasses = (colorClass) => {
                     const colorMap = {
                         "bg-red-500": "bg-red-500 border-red-400",
-                        "bg-purple-500": "bg-purple-500 border-purple-400",
-                        "bg-blue-500": "bg-blue-500 border-blue-400",
-                        "bg-green-500": "bg-green-500 border-green-400",
-                        "bg-yellow-500": "bg-yellow-500 border-yellow-400",
                         "bg-orange-500": "bg-orange-500 border-orange-400",
+                        "bg-yellow-500": "bg-yellow-500 border-yellow-400",
+                        "bg-green-500": "bg-green-500 border-green-400",
+                        "bg-blue-500": "bg-blue-500 border-blue-400",
+                        "bg-indigo-500": "bg-indigo-500 border-indigo-400",
+                        "bg-purple-500": "bg-purple-500 border-purple-400",
+                        "bg-pink-500": "bg-pink-500 border-pink-400",
+                        "bg-gray-500": "bg-gray-500 border-gray-400",
+                        "bg-slate-500": "bg-slate-500 border-slate-400",
+                        "bg-cyan-500": "bg-cyan-500 border-cyan-400",
+                        "bg-teal-500": "bg-teal-500 border-teal-400",
+                        "bg-emerald-500": "bg-emerald-500 border-emerald-400",
+                        "bg-lime-500": "bg-lime-500 border-lime-400",
+                        "bg-amber-500": "bg-amber-500 border-amber-400",
+                        "bg-rose-500": "bg-rose-500 border-rose-400",
+                        "bg-fuchsia-500": "bg-fuchsia-500 border-fuchsia-400",
+                        "bg-violet-500": "bg-violet-500 border-violet-400",
                     };
                     return (
                         colorMap[colorClass] || "bg-gray-500 border-gray-400"
@@ -296,6 +322,7 @@ import Layout from "../layouts/Layout.astro";
                 resultDiv.innerHTML = `
         <div class="bg-slate-700 border border-slate-600 rounded-lg p-6">
           <h2 class="text-2xl font-bold text-white mb-4">${zone.name}</h2>
+          <div class="text-xs text-slate-500 mb-2">Zone ID: ${zone.id} | Generated: ${new Date().toLocaleTimeString()} | Flags: ${zone.flags ? zone.flags.length : 0}</div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div class="flex justify-between"><span class="font-medium text-slate-300">Levels:</span> <span class="text-white">${zone.level_ranges.map((r: number[]) => r.join("–")).join(", ")}</span></div>
             <div class="flex justify-between"><span class="font-medium text-slate-300">Expansion:</span> <span class="text-white">${zone.expansion}</span></div>
@@ -335,8 +362,26 @@ import Layout from "../layouts/Layout.astro";
             </div>
           </div>
           ${flagPillsHTML}
+          <div class="mt-4 pt-4 border-t border-slate-600">
+            <button id="refresh-zone-${zone.id}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">
+              Generate New Zone
+            </button>
+            <div class="text-xs text-slate-500 mt-2">
+              API Call: ${window.location.origin}/random_zone?${params}
+            </div>
+          </div>
         </div>
       `;
+
+                // Add click handler for refresh button
+                const refreshButton = document.getElementById(
+                    `refresh-zone-${zone.id}`,
+                );
+                if (refreshButton) {
+                    refreshButton.onclick = async () => {
+                        await generateZone();
+                    };
+                }
 
                 // Load zone rating
                 loadZoneRating(zone.id);

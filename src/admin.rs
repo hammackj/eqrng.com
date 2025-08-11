@@ -204,6 +204,8 @@ fn generate_sortable_header(
 
 #[cfg(feature = "admin")]
 pub fn admin_routes() -> Router<AppState> {
+    use axum::middleware;
+
     Router::new()
         .route("/admin", get(admin_dashboard))
         .route("/admin/zones", get(list_zones))
@@ -228,6 +230,15 @@ pub fn admin_routes() -> Router<AppState> {
             "/admin/zones/:id/flags/:flag_id/delete",
             post(delete_zone_flag),
         )
+        .route(
+            "/admin/zones/:id/flags/:flag_id/delete",
+            get(delete_zone_flag),
+        )
+        .route(
+            "/admin/zones/:id/remove-flag/:flag_id",
+            get(delete_zone_flag_simple),
+        )
+        .layer(middleware::from_fn(log_admin_requests))
         .route("/admin/instances", get(list_instances))
         .route("/admin/instances/:id", get(edit_instance_form))
         .route(
@@ -246,6 +257,8 @@ pub fn admin_routes() -> Router<AppState> {
         .route("/admin/note-types/:id/delete", post(delete_note_type))
         .route("/admin/flag-types", get(list_flag_types))
         .route("/admin/flag-types", post(create_flag_type))
+        .route("/admin/flag-types/:id", get(edit_flag_type_form))
+        .route("/admin/flag-types/:id", post(update_flag_type))
         .route("/admin/flag-types/:id/delete", post(delete_flag_type))
         .route("/admin/ratings", get(list_all_ratings))
         .route("/admin/ratings/:id/delete", post(handle_rating_delete))
@@ -260,6 +273,45 @@ pub fn admin_routes() -> Router<AppState> {
 #[cfg(not(feature = "admin"))]
 pub fn admin_routes() -> Router<AppState> {
     Router::new()
+}
+
+#[cfg(feature = "admin")]
+async fn log_admin_requests(
+    request: axum::extract::Request,
+    next: axum::middleware::Next,
+) -> axum::response::Response {
+    let method = request.method().clone();
+    let uri = request.uri().clone();
+    let headers = request.headers().clone();
+
+    println!("ADMIN DEBUG: {} {}", method, uri);
+    println!("ADMIN DEBUG: Headers:");
+    for (name, value) in headers.iter() {
+        println!("  {}: {:?}", name, value);
+    }
+
+    // Special debug for flag deletion routes
+    if uri.path().contains("remove-flag")
+        || uri.path().contains("flags") && uri.path().contains("delete")
+    {
+        println!("ADMIN DEBUG: FLAG DELETION ROUTE DETECTED");
+        println!("ADMIN DEBUG: Full URI: {}", uri);
+        println!("ADMIN DEBUG: Method: {}", method);
+        println!("ADMIN DEBUG: Path: {}", uri.path());
+        println!("ADMIN DEBUG: Query: {:?}", uri.query());
+    }
+
+    let response = next.run(request).await;
+    let status = response.status();
+    println!("ADMIN DEBUG: Response status: {}", status);
+
+    if status == axum::http::StatusCode::METHOD_NOT_ALLOWED {
+        println!(
+            "ADMIN DEBUG: 405 METHOD NOT ALLOWED - Route might not be registered for this method"
+        );
+    }
+
+    response
 }
 
 #[cfg(feature = "admin")]
@@ -888,9 +940,21 @@ async fn list_zones(
     );
 
     for zone in zones {
-        let flags_display = if zone.flags.is_empty() {
-            String::from("-")
+        let (flags_title, flags_display) = if zone.flags.is_empty() {
+            (String::from("-"), String::from("-"))
         } else {
+            let flag_names: Vec<String> = zone
+                .flags
+                .iter()
+                .map(|f| {
+                    f.flag_type
+                        .as_ref()
+                        .map(|ft| ft.display_name.as_str())
+                        .unwrap_or("Unknown")
+                        .to_string()
+                })
+                .collect();
+
             let pills: String = zone
                 .flags
                 .iter()
@@ -902,11 +966,23 @@ async fn list_zones(
                     let color = flag_type
                         .map(|ft| match ft.color_class.as_str() {
                             "bg-red-500" => "#ef4444",
-                            "bg-purple-500" => "#a855f7",
-                            "bg-blue-500" => "#3b82f6",
-                            "bg-green-500" => "#22c55e",
-                            "bg-yellow-500" => "#f59e0b",
                             "bg-orange-500" => "#ea580c",
+                            "bg-yellow-500" => "#f59e0b",
+                            "bg-green-500" => "#22c55e",
+                            "bg-blue-500" => "#3b82f6",
+                            "bg-indigo-500" => "#6366f1",
+                            "bg-purple-500" => "#a855f7",
+                            "bg-pink-500" => "#ec4899",
+                            "bg-gray-500" => "#6b7280",
+                            "bg-slate-500" => "#64748b",
+                            "bg-cyan-500" => "#06b6d4",
+                            "bg-teal-500" => "#14b8a6",
+                            "bg-emerald-500" => "#10b981",
+                            "bg-lime-500" => "#84cc16",
+                            "bg-amber-500" => "#f59e0b",
+                            "bg-rose-500" => "#f43f5e",
+                            "bg-fuchsia-500" => "#d946ef",
+                            "bg-violet-500" => "#8b5cf6",
                             _ => "#3b82f6",
                         })
                         .unwrap_or("#3b82f6");
@@ -917,7 +993,11 @@ async fn list_zones(
                 })
                 .collect::<Vec<_>>()
                 .join("");
-            format!(r#"<div class="flag-pills">{}</div>"#, pills)
+
+            (
+                flag_names.join(", "),
+                format!(r#"<div class="flag-pills">{}</div>"#, pills),
+            )
         };
 
         html.push_str(&format!(r#"
@@ -957,7 +1037,7 @@ async fn list_zones(
             if zone.mission { "✓" } else { "✗" },
             if zone.verified { "✓" } else { "✗" },
             zone.notes.len(),
-            flags_display, flags_display,
+            flags_title, flags_display,
             zone.id.unwrap_or(0),
             zone.id.unwrap_or(0),
             zone.id.unwrap_or(0),
@@ -1523,10 +1603,24 @@ fn get_zone_form_body_with_notes_and_flags(
         </div>
 "#,
                         note.note_type.as_ref().map(|nt| format!("background-color: {};", match nt.color_class.as_str() {
-                            "bg-yellow-500" => "#f59e0b",
-                            "bg-orange-500" => "#ea580c",
                             "bg-red-500" => "#ef4444",
+                            "bg-orange-500" => "#ea580c",
+                            "bg-yellow-500" => "#f59e0b",
+                            "bg-green-500" => "#22c55e",
+                            "bg-blue-500" => "#3b82f6",
+                            "bg-indigo-500" => "#6366f1",
                             "bg-purple-500" => "#a855f7",
+                            "bg-pink-500" => "#ec4899",
+                            "bg-gray-500" => "#6b7280",
+                            "bg-slate-500" => "#64748b",
+                            "bg-cyan-500" => "#06b6d4",
+                            "bg-teal-500" => "#14b8a6",
+                            "bg-emerald-500" => "#10b981",
+                            "bg-lime-500" => "#84cc16",
+                            "bg-amber-500" => "#f59e0b",
+                            "bg-rose-500" => "#f43f5e",
+                            "bg-fuchsia-500" => "#d946ef",
+                            "bg-violet-500" => "#8b5cf6",
                             _ => "#3b82f6"
                         })).unwrap_or_else(|| "background-color: #3b82f6;".to_string()),
                         note.note_type.as_ref().map(|nt| nt.display_name.as_str()).unwrap_or("Unknown"),
@@ -1610,11 +1704,23 @@ fn get_zone_form_body_with_notes_and_flags(
 "#,
                         flag.flag_type.as_ref().map(|ft| format!("background-color: {};", match ft.color_class.as_str() {
                             "bg-red-500" => "#ef4444",
-                            "bg-purple-500" => "#a855f7",
-                            "bg-blue-500" => "#3b82f6",
-                            "bg-green-500" => "#22c55e",
-                            "bg-yellow-500" => "#f59e0b",
                             "bg-orange-500" => "#ea580c",
+                            "bg-yellow-500" => "#f59e0b",
+                            "bg-green-500" => "#22c55e",
+                            "bg-blue-500" => "#3b82f6",
+                            "bg-indigo-500" => "#6366f1",
+                            "bg-purple-500" => "#a855f7",
+                            "bg-pink-500" => "#ec4899",
+                            "bg-gray-500" => "#6b7280",
+                            "bg-slate-500" => "#64748b",
+                            "bg-cyan-500" => "#06b6d4",
+                            "bg-teal-500" => "#14b8a6",
+                            "bg-emerald-500" => "#10b981",
+                            "bg-lime-500" => "#84cc16",
+                            "bg-amber-500" => "#f59e0b",
+                            "bg-rose-500" => "#f43f5e",
+                            "bg-fuchsia-500" => "#d946ef",
+                            "bg-violet-500" => "#8b5cf6",
                             _ => "#3b82f6"
                         })).unwrap_or_else(|| "background-color: #3b82f6;".to_string()),
                         flag.flag_type.as_ref().map(|ft| ft.display_name.as_str()).unwrap_or("Unknown"),
@@ -2416,22 +2522,62 @@ async fn create_zone_flag(
 }
 
 #[cfg(feature = "admin")]
-async fn delete_zone_flag(
+async fn delete_zone_flag_simple(
     State(state): State<AppState>,
     Path((zone_id, flag_id)): Path<(i32, i32)>,
 ) -> Result<Redirect, StatusCode> {
+    println!(
+        "DEBUG: delete_zone_flag_simple called with zone_id={}, flag_id={}",
+        zone_id, flag_id
+    );
     let pool = &state.zone_state.pool;
 
-    let _ = sqlx::query("DELETE FROM zone_flags WHERE id = ? AND zone_id = ?")
+    let result = sqlx::query("DELETE FROM zone_flags WHERE id = ? AND zone_id = ?")
         .bind(flag_id)
         .bind(zone_id)
         .execute(pool.as_ref())
         .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        .map_err(|e| {
+            println!("DEBUG: Database error in delete_zone_flag_simple: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
+
+    println!("DEBUG: Deleted {} rows", result.rows_affected());
 
     // Force WAL checkpoint to immediately update main database file
     let _ = crate::checkpoint_wal(pool.as_ref()).await;
 
+    println!("DEBUG: Redirecting to /admin/zones/{}", zone_id);
+    Ok(Redirect::to(&format!("/admin/zones/{}", zone_id)))
+}
+
+#[cfg(feature = "admin")]
+async fn delete_zone_flag(
+    State(state): State<AppState>,
+    Path((zone_id, flag_id)): Path<(i32, i32)>,
+) -> Result<Redirect, StatusCode> {
+    println!(
+        "DEBUG: delete_zone_flag called with zone_id={}, flag_id={}",
+        zone_id, flag_id
+    );
+    let pool = &state.zone_state.pool;
+
+    let result = sqlx::query("DELETE FROM zone_flags WHERE id = ? AND zone_id = ?")
+        .bind(flag_id)
+        .bind(zone_id)
+        .execute(pool.as_ref())
+        .await
+        .map_err(|e| {
+            println!("DEBUG: Database error in delete_zone_flag: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
+
+    println!("DEBUG: Deleted {} rows", result.rows_affected());
+
+    // Force WAL checkpoint to immediately update main database file
+    let _ = crate::checkpoint_wal(pool.as_ref()).await;
+
+    println!("DEBUG: Redirecting to /admin/zones/{}", zone_id);
     Ok(Redirect::to(&format!("/admin/zones/{}", zone_id)))
 }
 
@@ -2454,7 +2600,7 @@ async fn list_note_types(State(state): State<AppState>) -> Result<Html<String>, 
                         <strong>{}</strong><br>
                         <small style="color: #666;">Internal name: {}</small>
                     </div>
-                    <form method="post" action="/admin/note-types/{}" style="margin: 0;">
+                    <form method="post" action="/admin/note-types/{}/delete" style="margin: 0;">
                         <input type="hidden" name="_method" value="delete">
                         <button type="submit" style="background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;" onclick="return confirm('Are you sure?')">Delete</button>
                     </form>
@@ -2517,14 +2663,24 @@ async fn list_note_types(State(state): State<AppState>) -> Result<Html<String>, 
                 <div class="form-group">
                     <label>Color Class:</label>
                     <select name="color_class" required>
-                        <option value="bg-blue-500">Blue</option>
-                        <option value="bg-green-500">Green</option>
-                        <option value="bg-yellow-500">Yellow</option>
-                        <option value="bg-orange-500">Orange</option>
                         <option value="bg-red-500">Red</option>
+                        <option value="bg-orange-500">Orange</option>
+                        <option value="bg-yellow-500">Yellow</option>
+                        <option value="bg-green-500">Green</option>
+                        <option value="bg-blue-500">Blue</option>
+                        <option value="bg-indigo-500">Indigo</option>
                         <option value="bg-purple-500">Purple</option>
                         <option value="bg-pink-500">Pink</option>
-                        <option value="bg-indigo-500">Indigo</option>
+                        <option value="bg-gray-500">Gray</option>
+                        <option value="bg-slate-500">Slate</option>
+                        <option value="bg-cyan-500">Cyan</option>
+                        <option value="bg-teal-500">Teal</option>
+                        <option value="bg-emerald-500">Emerald</option>
+                        <option value="bg-lime-500">Lime</option>
+                        <option value="bg-amber-500">Amber</option>
+                        <option value="bg-rose-500">Rose</option>
+                        <option value="bg-fuchsia-500">Fuchsia</option>
+                        <option value="bg-violet-500">Violet</option>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-primary">Add Note Type</button>
@@ -2665,24 +2821,38 @@ async fn list_flag_types(State(state): State<AppState>) -> Result<Html<String>, 
                         <strong>{}</strong><br>
                         <small style="color: #666;">Internal name: {}</small>
                     </div>
-                    <form method="post" action="/admin/flag-types/{}" style="margin: 0;">
+                    <form method="post" action="/admin/flag-types/{}/delete" style="margin: 0;">
                         <input type="hidden" name="_method" value="delete">
+                        <a href="/admin/flag-types/{}" style="background: #007bff; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; text-decoration: none; margin-right: 5px;">Edit</a>
                         <button type="submit" style="background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;" onclick="return confirm('Are you sure?')">Delete</button>
                     </form>
                 </div>
 "#,
                 match flag_type.color_class.as_str() {
                     "bg-red-500" => "#ef4444",
-                    "bg-purple-500" => "#a855f7",
-                    "bg-blue-500" => "#3b82f6",
-                    "bg-green-500" => "#22c55e",
-                    "bg-yellow-500" => "#f59e0b",
                     "bg-orange-500" => "#ea580c",
+                    "bg-yellow-500" => "#f59e0b",
+                    "bg-green-500" => "#22c55e",
+                    "bg-blue-500" => "#3b82f6",
+                    "bg-indigo-500" => "#6366f1",
+                    "bg-purple-500" => "#a855f7",
+                    "bg-pink-500" => "#ec4899",
+                    "bg-gray-500" => "#6b7280",
+                    "bg-slate-500" => "#64748b",
+                    "bg-cyan-500" => "#06b6d4",
+                    "bg-teal-500" => "#14b8a6",
+                    "bg-emerald-500" => "#10b981",
+                    "bg-lime-500" => "#84cc16",
+                    "bg-amber-500" => "#f59e0b",
+                    "bg-rose-500" => "#f43f5e",
+                    "bg-fuchsia-500" => "#d946ef",
+                    "bg-violet-500" => "#8b5cf6",
                     _ => "#3b82f6"
                 },
                 flag_type.display_name,
                 flag_type.display_name,
                 flag_type.name,
+                flag_type.id.unwrap_or(0),
                 flag_type.id.unwrap_or(0)
             ));
         }
@@ -2719,11 +2889,23 @@ async fn list_flag_types(State(state): State<AppState>) -> Result<Html<String>, 
                     <label>Color:</label>
                     <select name="color_class" required>
                         <option value="bg-red-500">Red</option>
-                        <option value="bg-purple-500">Purple</option>
-                        <option value="bg-blue-500">Blue</option>
-                        <option value="bg-green-500">Green</option>
-                        <option value="bg-yellow-500">Yellow</option>
                         <option value="bg-orange-500">Orange</option>
+                        <option value="bg-yellow-500">Yellow</option>
+                        <option value="bg-green-500">Green</option>
+                        <option value="bg-blue-500">Blue</option>
+                        <option value="bg-indigo-500">Indigo</option>
+                        <option value="bg-purple-500">Purple</option>
+                        <option value="bg-pink-500">Pink</option>
+                        <option value="bg-gray-500">Gray</option>
+                        <option value="bg-slate-500">Slate</option>
+                        <option value="bg-cyan-500">Cyan</option>
+                        <option value="bg-teal-500">Teal</option>
+                        <option value="bg-emerald-500">Emerald</option>
+                        <option value="bg-lime-500">Lime</option>
+                        <option value="bg-amber-500">Amber</option>
+                        <option value="bg-rose-500">Rose</option>
+                        <option value="bg-fuchsia-500">Fuchsia</option>
+                        <option value="bg-violet-500">Violet</option>
                     </select>
                 </div>
 
@@ -2755,6 +2937,209 @@ async fn create_flag_type(
             .execute(pool.as_ref())
             .await
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    // Force WAL checkpoint to immediately update main database file
+    let _ = crate::checkpoint_wal(pool.as_ref()).await;
+
+    Ok(Redirect::to("/admin/flag-types"))
+}
+
+#[cfg(feature = "admin")]
+async fn edit_flag_type_form(
+    State(state): State<AppState>,
+    Path(id): Path<i32>,
+) -> Result<Html<String>, StatusCode> {
+    let pool = &state.zone_state.pool;
+
+    let flag_type =
+        sqlx::query("SELECT id, name, display_name, color_class FROM flag_types WHERE id = ?")
+            .bind(id)
+            .fetch_one(pool.as_ref())
+            .await
+            .map_err(|_| StatusCode::NOT_FOUND)?;
+
+    let html = format!(
+        r#"<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Flag Type - EQ RNG Admin</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }}
+        .nav {{ background: #f5f5f5; padding: 15px; margin-bottom: 20px; border-radius: 5px; }}
+        .nav a {{ margin-right: 15px; text-decoration: none; color: #333; font-weight: bold; }}
+        .nav a:hover {{ color: #007bff; }}
+        .form-group {{ margin-bottom: 15px; }}
+        .form-group label {{ display: block; margin-bottom: 5px; font-weight: bold; }}
+        .form-group input, .form-group select {{ width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }}
+        .btn {{ background: #007bff; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; margin-right: 10px; }}
+        .btn:hover {{ background: #0056b3; }}
+        .btn-secondary {{ background: #6c757d; }}
+        .btn-secondary:hover {{ background: #545b62; }}
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/zones">Manage Zones</a>
+        <a href="/admin/flag-types">Manage Flag Types</a>
+    </div>
+
+    <h1>Edit Flag Type</h1>
+
+    <form method="post" action="/admin/flag-types/{}">
+        <div class="form-group">
+            <label>Internal Name:</label>
+            <input type="text" name="name" value="{}" required>
+        </div>
+        <div class="form-group">
+            <label>Display Name:</label>
+            <input type="text" name="display_name" value="{}" required>
+        </div>
+        <div class="form-group">
+            <label>Color:</label>
+            <select name="color_class" required>
+                <option value="bg-red-500"{}>Red</option>
+                <option value="bg-orange-500"{}>Orange</option>
+                <option value="bg-yellow-500"{}>Yellow</option>
+                <option value="bg-green-500"{}>Green</option>
+                <option value="bg-blue-500"{}>Blue</option>
+                <option value="bg-indigo-500"{}>Indigo</option>
+                <option value="bg-purple-500"{}>Purple</option>
+                <option value="bg-pink-500"{}>Pink</option>
+                <option value="bg-gray-500"{}>Gray</option>
+                <option value="bg-slate-500"{}>Slate</option>
+                <option value="bg-cyan-500"{}>Cyan</option>
+                <option value="bg-teal-500"{}>Teal</option>
+                <option value="bg-emerald-500"{}>Emerald</option>
+                <option value="bg-lime-500"{}>Lime</option>
+                <option value="bg-amber-500"{}>Amber</option>
+                <option value="bg-rose-500"{}>Rose</option>
+                <option value="bg-fuchsia-500"{}>Fuchsia</option>
+                <option value="bg-violet-500"{}>Violet</option>
+            </select>
+        </div>
+        <button type="submit" class="btn">Update Flag Type</button>
+        <a href="/admin/flag-types" class="btn btn-secondary">Cancel</a>
+    </form>
+</body>
+</html>
+"#,
+        id,
+        flag_type.get::<String, _>("name"),
+        flag_type.get::<String, _>("display_name"),
+        if flag_type.get::<String, _>("color_class") == "bg-red-500" {
+            " selected"
+        } else {
+            ""
+        },
+        if flag_type.get::<String, _>("color_class") == "bg-orange-500" {
+            " selected"
+        } else {
+            ""
+        },
+        if flag_type.get::<String, _>("color_class") == "bg-yellow-500" {
+            " selected"
+        } else {
+            ""
+        },
+        if flag_type.get::<String, _>("color_class") == "bg-green-500" {
+            " selected"
+        } else {
+            ""
+        },
+        if flag_type.get::<String, _>("color_class") == "bg-blue-500" {
+            " selected"
+        } else {
+            ""
+        },
+        if flag_type.get::<String, _>("color_class") == "bg-indigo-500" {
+            " selected"
+        } else {
+            ""
+        },
+        if flag_type.get::<String, _>("color_class") == "bg-purple-500" {
+            " selected"
+        } else {
+            ""
+        },
+        if flag_type.get::<String, _>("color_class") == "bg-pink-500" {
+            " selected"
+        } else {
+            ""
+        },
+        if flag_type.get::<String, _>("color_class") == "bg-gray-500" {
+            " selected"
+        } else {
+            ""
+        },
+        if flag_type.get::<String, _>("color_class") == "bg-slate-500" {
+            " selected"
+        } else {
+            ""
+        },
+        if flag_type.get::<String, _>("color_class") == "bg-cyan-500" {
+            " selected"
+        } else {
+            ""
+        },
+        if flag_type.get::<String, _>("color_class") == "bg-teal-500" {
+            " selected"
+        } else {
+            ""
+        },
+        if flag_type.get::<String, _>("color_class") == "bg-emerald-500" {
+            " selected"
+        } else {
+            ""
+        },
+        if flag_type.get::<String, _>("color_class") == "bg-lime-500" {
+            " selected"
+        } else {
+            ""
+        },
+        if flag_type.get::<String, _>("color_class") == "bg-amber-500" {
+            " selected"
+        } else {
+            ""
+        },
+        if flag_type.get::<String, _>("color_class") == "bg-rose-500" {
+            " selected"
+        } else {
+            ""
+        },
+        if flag_type.get::<String, _>("color_class") == "bg-fuchsia-500" {
+            " selected"
+        } else {
+            ""
+        },
+        if flag_type.get::<String, _>("color_class") == "bg-violet-500" {
+            " selected"
+        } else {
+            ""
+        },
+    );
+
+    Ok(Html(html))
+}
+
+#[cfg(feature = "admin")]
+async fn update_flag_type(
+    State(state): State<AppState>,
+    Path(id): Path<i32>,
+    Form(form): Form<FlagTypeForm>,
+) -> Result<Redirect, StatusCode> {
+    let pool = &state.zone_state.pool;
+
+    let _ = sqlx::query(
+        "UPDATE flag_types SET name = ?, display_name = ?, color_class = ? WHERE id = ?",
+    )
+    .bind(&form.name)
+    .bind(&form.display_name)
+    .bind(&form.color_class)
+    .bind(id)
+    .execute(pool.as_ref())
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     // Force WAL checkpoint to immediately update main database file
     let _ = crate::checkpoint_wal(pool.as_ref()).await;
@@ -4191,11 +4576,24 @@ async fn instance_notes(
         .note-card {{ border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px; }}
         .note-header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }}
         .note-type {{ padding: 4px 8px; border-radius: 3px; color: white; font-size: 0.8em; }}
-        .bg-yellow-500 {{ background-color: #f59e0b; }}
-        .bg-orange-500 {{ background-color: #ea580c; }}
         .bg-red-500 {{ background-color: #ef4444; }}
-        .bg-purple-500 {{ background-color: #a855f7; }}
+        .bg-orange-500 {{ background-color: #ea580c; }}
+        .bg-yellow-500 {{ background-color: #f59e0b; }}
+        .bg-green-500 {{ background-color: #22c55e; }}
         .bg-blue-500 {{ background-color: #3b82f6; }}
+        .bg-indigo-500 {{ background-color: #6366f1; }}
+        .bg-purple-500 {{ background-color: #a855f7; }}
+        .bg-pink-500 {{ background-color: #ec4899; }}
+        .bg-gray-500 {{ background-color: #6b7280; }}
+        .bg-slate-500 {{ background-color: #64748b; }}
+        .bg-cyan-500 {{ background-color: #06b6d4; }}
+        .bg-teal-500 {{ background-color: #14b8a6; }}
+        .bg-emerald-500 {{ background-color: #10b981; }}
+        .bg-lime-500 {{ background-color: #84cc16; }}
+        .bg-amber-500 {{ background-color: #f59e0b; }}
+        .bg-rose-500 {{ background-color: #f43f5e; }}
+        .bg-fuchsia-500 {{ background-color: #d946ef; }}
+        .bg-violet-500 {{ background-color: #8b5cf6; }}
     </style>
 </head>
 <body>

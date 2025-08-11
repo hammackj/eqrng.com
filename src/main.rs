@@ -59,6 +59,7 @@ async fn main() {
         .route("/random_race", get(races::random_race))
         .route("/random_class", get(classes::random_class))
         .route("/version", get(version::version))
+        .route("/flag-types", get(zones::get_flag_types_api))
         .route("/zones/:zone_id/rating", get(ratings::get_zone_rating))
         .route(
             "/zones/:zone_id/rating",
