@@ -105,6 +105,7 @@ pub struct PaginationQuery {
     pub verified: Option<String>,
 
     pub zone_type: Option<String>,
+    pub expansion: Option<String>,
     pub flags: Option<String>,
 }
 
@@ -284,6 +285,40 @@ async fn get_distinct_zone_types(pool: &SqlitePool) -> Result<Vec<String>, sqlx:
         .collect();
 
     Ok(zone_types)
+}
+
+#[cfg(feature = "admin")]
+async fn get_distinct_expansions(pool: &SqlitePool) -> Result<Vec<String>, sqlx::Error> {
+    let rows = sqlx::query("SELECT DISTINCT expansion FROM zones ORDER BY expansion ASC")
+        .fetch_all(pool)
+        .await?;
+
+    let expansions = rows
+        .iter()
+        .map(|row| row.get::<String, _>("expansion"))
+        .collect();
+
+    Ok(expansions)
+}
+
+#[cfg(feature = "admin")]
+fn generate_expansion_options(expansions: &[String], selected_expansion: &str) -> String {
+    let mut options = String::new();
+
+    for expansion in expansions {
+        let selected = if expansion == selected_expansion {
+            " selected"
+        } else {
+            ""
+        };
+        options.push_str(&format!(
+            r#"                <option value="{}"{}>{}</option>
+"#,
+            expansion, selected, expansion
+        ));
+    }
+
+    options
 }
 
 #[cfg(feature = "admin")]
@@ -624,10 +659,16 @@ async fn list_zones(
     let order = params.order.clone().unwrap_or_else(|| "asc".to_string());
     let verified = params.verified.clone();
     let zone_type = params.zone_type.clone();
+    let expansion = params.expansion.clone();
 
     let flags = params.flags.clone();
 
     let pool = &state.zone_state.pool;
+
+    // Get distinct expansions for filter dropdown
+    let expansions = get_distinct_expansions(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     // Validate sort column and order
     let valid_columns = [
@@ -669,6 +710,10 @@ async fn list_zones(
         where_conditions.push("LOWER(zone_type) LIKE LOWER(?)".to_string());
     }
 
+    if params.expansion.is_some() {
+        where_conditions.push("LOWER(expansion) LIKE LOWER(?)".to_string());
+    }
+
     if params.flags.is_some() {
         where_conditions.push("EXISTS (SELECT 1 FROM zone_flags zf JOIN flag_types ft ON zf.flag_type_id = ft.id WHERE zf.zone_id = zones.id AND LOWER(ft.name) = LOWER(?))".to_string());
     }
@@ -692,6 +737,10 @@ async fn list_zones(
 
     if let Some(ref zone_type) = params.zone_type {
         count_query_builder = count_query_builder.bind(format!("%{}%", zone_type));
+    }
+
+    if let Some(ref expansion) = params.expansion {
+        count_query_builder = count_query_builder.bind(format!("%{}%", expansion));
     }
 
     if let Some(ref flag_name) = params.flags {
@@ -721,6 +770,10 @@ async fn list_zones(
 
     if let Some(ref zone_type) = params.zone_type {
         zones_query_builder = zones_query_builder.bind(format!("%{}%", zone_type));
+    }
+
+    if let Some(ref expansion) = params.expansion {
+        zones_query_builder = zones_query_builder.bind(format!("%{}%", expansion));
     }
 
     if let Some(ref flag_name) = params.flags {
@@ -814,8 +867,12 @@ async fn list_zones(
     <h1>Manage Zones{}</h1>
 
     <div class="controls">
-        <form method="get" style="display: flex; gap: 10px; align-items: center;">
+        <form method="get" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
             <input type="text" name="search" placeholder="Search zones..." value="{}" />
+            <select name="expansion" onchange="this.form.submit()">
+                <option value="">All Expansions</option>
+                {}
+            </select>
             <input type="hidden" name="page" value="1" />
             <input type="hidden" name="per_page" value="{}" />
             <button type="submit" class="btn">Search</button>
@@ -844,7 +901,7 @@ async fn list_zones(
         <tbody>
 "#,
         // Filter indicator for title
-        if verified.is_some() || zone_type.is_some() || flags.is_some() {
+        if verified.is_some() || zone_type.is_some() || expansion.is_some() || flags.is_some() {
             let mut filters = Vec::new();
             if let Some(ref v) = verified {
                 filters.push(if v == "true" {
@@ -856,6 +913,9 @@ async fn list_zones(
             if let Some(ref zt) = zone_type {
                 filters.push(format!("{} Zones", zt.to_uppercase()));
             }
+            if let Some(ref exp) = expansion {
+                filters.push(format!("{} Expansion", exp));
+            }
             if let Some(ref f) = flags {
                 filters.push(format!("{} Flag", f.replace("_", " ").to_uppercase()));
             }
@@ -864,9 +924,10 @@ async fn list_zones(
             String::new()
         },
         search,
+        generate_expansion_options(&expansions, &expansion.clone().unwrap_or_default()),
         per_page,
         // Clear filters link
-        if verified.is_some() || zone_type.is_some() || flags.is_some() {
+        if verified.is_some() || zone_type.is_some() || expansion.is_some() || flags.is_some() {
             r#"<a href="/admin/zones" class="btn" style="background: #6c757d;">Clear Filters</a>"#
         } else {
             ""
@@ -1058,6 +1119,12 @@ async fn list_zones(
         html.push_str(&format!(
             r#"<input type="hidden" id="zone-type-param" value="{}" />"#,
             zt.replace('"', "&quot;")
+        ));
+    }
+    if let Some(ref exp) = expansion {
+        html.push_str(&format!(
+            r#"<input type="hidden" id="expansion-param" value="{}" />"#,
+            exp.replace('"', "&quot;")
         ));
     }
     if let Some(ref f) = flags {
