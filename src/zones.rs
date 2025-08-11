@@ -91,14 +91,14 @@ pub async fn random_zone(
     let mut bindings: Vec<String> = Vec::new();
     let mut where_conditions = Vec::new();
 
-    // Add flag filtering if specified
+    // Add flag filtering if specified (only for filterable flags)
     if let Some(ref flags_param) = params.flags {
         let flag_names: Vec<&str> = flags_param.split(',').map(|s| s.trim()).collect();
         if !flag_names.is_empty() {
             query.push_str(" JOIN zone_flags zf ON z.id = zf.zone_id JOIN flag_types ft ON zf.flag_type_id = ft.id");
             let flag_placeholders = flag_names
                 .iter()
-                .map(|_| "LOWER(ft.name) = LOWER(?)")
+                .map(|_| "LOWER(ft.name) = LOWER(?) AND ft.filterable = 1")
                 .collect::<Vec<_>>()
                 .join(" OR ");
             where_conditions.push(format!("({})", flag_placeholders));
@@ -322,6 +322,27 @@ pub async fn get_note_types(pool: &SqlitePool) -> Result<Vec<NoteType>, sqlx::Er
 
 pub async fn get_flag_types(pool: &SqlitePool) -> Result<Vec<FlagType>, sqlx::Error> {
     let rows = sqlx::query(
+        "SELECT id, name, display_name, color_class FROM flag_types WHERE filterable = 1 ORDER BY display_name",
+    )
+    .fetch_all(pool)
+    .await?;
+
+    let mut flag_types = Vec::new();
+
+    for row in rows {
+        flag_types.push(FlagType {
+            id: Some(row.get("id")),
+            name: row.get("name"),
+            display_name: row.get("display_name"),
+            color_class: row.get("color_class"),
+        });
+    }
+
+    Ok(flag_types)
+}
+
+pub async fn get_all_flag_types(pool: &SqlitePool) -> Result<Vec<FlagType>, sqlx::Error> {
+    let rows = sqlx::query(
         "SELECT id, name, display_name, color_class FROM flag_types ORDER BY display_name",
     )
     .fetch_all(pool)
@@ -331,7 +352,7 @@ pub async fn get_flag_types(pool: &SqlitePool) -> Result<Vec<FlagType>, sqlx::Er
 
     for row in rows {
         flag_types.push(FlagType {
-            id: Some(row.get::<i64, _>("id")),
+            id: Some(row.get("id")),
             name: row.get("name"),
             display_name: row.get("display_name"),
             color_class: row.get("color_class"),

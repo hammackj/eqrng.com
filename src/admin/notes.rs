@@ -1,0 +1,300 @@
+// Note types-related admin functionality
+// This file contains note type management features for the admin interface
+
+#[cfg(feature = "admin")]
+use axum::{
+    Form,
+    extract::{Path, State},
+    http::StatusCode,
+    response::{Html, Redirect},
+};
+
+#[cfg(feature = "admin")]
+use sqlx::Row;
+
+#[cfg(feature = "admin")]
+use crate::AppState;
+#[cfg(feature = "admin")]
+use crate::admin::types::*;
+
+#[cfg(feature = "admin")]
+pub async fn list_note_types(State(state): State<AppState>) -> Result<Html<String>, StatusCode> {
+    let pool = &state.zone_state.pool;
+
+    // Get all note types
+    let note_type_rows = sqlx::query("SELECT * FROM note_types ORDER BY name")
+        .fetch_all(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let mut html = format!(
+        r#"
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Note Types - EQ RNG Admin</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px; }}
+        .nav {{ background: #f5f5f5; padding: 15px; margin-bottom: 20px; border-radius: 5px; }}
+        .nav a {{ margin-right: 15px; text-decoration: none; color: #333; font-weight: bold; }}
+        .nav a:hover {{ color: #007bff; }}
+        .form-section {{ background: #f8f9fa; padding: 20px; margin-bottom: 20px; border-radius: 5px; }}
+        .form-group {{ margin-bottom: 15px; display: inline-block; margin-right: 15px; }}
+        label {{ display: block; margin-bottom: 5px; font-weight: bold; }}
+        input, select {{ padding: 8px; border: 1px solid #ddd; border-radius: 4px; }}
+        .btn {{ background: #007bff; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; }}
+        .btn:hover {{ background: #0056b3; }}
+        .btn-danger {{ background: #dc3545; }}
+        .btn-danger:hover {{ background: #c82333; }}
+        .btn-small {{ padding: 4px 8px; font-size: 0.8em; }}
+        table {{ width: 100%; border-collapse: collapse; margin-bottom: 20px; }}
+        th, td {{ padding: 8px; border: 1px solid #ddd; text-align: left; }}
+        th {{ background: #f8f9fa; border-bottom: 2px solid #dee2e6; }}
+        .note-type-preview {{ display: inline-block; padding: 4px 8px; border-radius: 12px; color: white; font-size: 0.8em; font-weight: bold; }}
+
+        /* Color classes for note type previews */
+        .bg-blue-500 {{ background-color: #3b82f6; }}
+        .bg-green-500 {{ background-color: #22c55e; }}
+        .bg-yellow-500 {{ background-color: #eab308; color: #000; }}
+        .bg-red-500 {{ background-color: #ef4444; }}
+        .bg-purple-500 {{ background-color: #a855f7; }}
+        .bg-indigo-500 {{ background-color: #6366f1; }}
+        .bg-pink-500 {{ background-color: #ec4899; }}
+        .bg-gray-500 {{ background-color: #6b7280; }}
+        .bg-orange-500 {{ background-color: #f97316; }}
+        .bg-teal-500 {{ background-color: #14b8a6; }}
+        .bg-cyan-500 {{ background-color: #06b6d4; }}
+        .bg-emerald-500 {{ background-color: #10b981; }}
+        .bg-lime-500 {{ background-color: #84cc16; color: #000; }}
+        .bg-amber-500 {{ background-color: #f59e0b; color: #000; }}
+        .bg-rose-500 {{ background-color: #f43f5e; }}
+        .bg-fuchsia-500 {{ background-color: #d946ef; }}
+        .bg-violet-500 {{ background-color: #8b5cf6; }}
+        .bg-slate-500 {{ background-color: #64748b; }}
+        .bg-zinc-500 {{ background-color: #71717a; }}
+        .bg-neutral-500 {{ background-color: #737373; }}
+        .bg-stone-500 {{ background-color: #78716c; }}
+        .bg-sky-500 {{ background-color: #0ea5e9; }}
+    </style>
+    <script>
+        function deleteNoteType(id, name) {{
+            if (confirm('Are you sure you want to delete "' + name + '"? This will affect all existing notes of this type.')) {{
+                document.getElementById('delete-form-' + id).submit();
+            }}
+        }}
+
+        function updatePreview() {{
+            const displayName = document.getElementById('display_name').value || 'Preview';
+            const colorClass = document.getElementById('color_class').value;
+            const preview = document.getElementById('preview');
+
+            preview.textContent = displayName;
+            preview.className = 'note-type-preview ' + colorClass;
+        }}
+
+        document.addEventListener('DOMContentLoaded', function() {{
+            document.getElementById('display_name').addEventListener('input', updatePreview);
+            document.getElementById('color_class').addEventListener('change', updatePreview);
+            updatePreview();
+        }});
+    </script>
+</head>
+<body>
+    <div class="nav">
+        <a href="/admin">Dashboard</a>
+        <a href="/admin/zones">Manage Zones</a>
+        <a href="/admin/instances">Manage Instances</a>
+        <a href="/admin/ratings">Manage Ratings</a>
+        <a href="/admin/links">Manage Links</a>
+        <a href="/admin/note-types">Note Types</a>
+        <a href="/admin/flag-types">Flag Types</a>
+    </div>
+
+    <h1>Manage Note Types</h1>
+
+    <div class="form-section">
+        <h2>Add New Note Type</h2>
+        <form method="post" action="/admin/note-types" style="display: flex; align-items: end; gap: 15px; flex-wrap: wrap;">
+            <div class="form-group">
+                <label for="name">Internal Name:</label>
+                <input type="text" id="name" name="name" placeholder="e.g., important_info" required />
+            </div>
+
+            <div class="form-group">
+                <label for="display_name">Display Name:</label>
+                <input type="text" id="display_name" name="display_name" placeholder="e.g., Important Info" required />
+            </div>
+
+            <div class="form-group">
+                <label for="color_class">Color Class:</label>
+                <select id="color_class" name="color_class" required>
+                    <option value="bg-blue-500">Blue</option>
+                    <option value="bg-green-500">Green</option>
+                    <option value="bg-yellow-500">Yellow</option>
+                    <option value="bg-red-500">Red</option>
+                    <option value="bg-purple-500">Purple</option>
+                    <option value="bg-indigo-500">Indigo</option>
+                    <option value="bg-pink-500">Pink</option>
+                    <option value="bg-orange-500">Orange</option>
+                    <option value="bg-teal-500">Teal</option>
+                    <option value="bg-cyan-500">Cyan</option>
+                    <option value="bg-emerald-500">Emerald</option>
+                    <option value="bg-lime-500">Lime</option>
+                    <option value="bg-amber-500">Amber</option>
+                    <option value="bg-rose-500">Rose</option>
+                    <option value="bg-fuchsia-500">Fuchsia</option>
+                    <option value="bg-violet-500">Violet</option>
+                    <option value="bg-sky-500">Sky</option>
+                    <option value="bg-slate-500">Slate</option>
+                    <option value="bg-zinc-500">Zinc</option>
+                    <option value="bg-neutral-500">Neutral</option>
+                    <option value="bg-stone-500">Stone</option>
+                    <option value="bg-gray-500">Gray</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Preview:</label>
+                <div>
+                    <span id="preview" class="note-type-preview bg-blue-500">Preview</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn">Add Note Type</button>
+            </div>
+        </form>
+    </div>
+
+    <h2>Existing Note Types</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Display Name</th>
+                <th>Color</th>
+                <th>Preview</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+"#
+    );
+
+    // Add note type rows
+    for row in note_type_rows {
+        let id: i64 = row.get("id");
+        let name: String = row.get("name");
+        let display_name: String = row.get("display_name");
+        let color_class: String = row.get("color_class");
+        let created_at: String = row.get("created_at");
+
+        // Extract color name from class
+        let color_name = color_class
+            .replace("bg-", "")
+            .replace("-500", "")
+            .split('-')
+            .map(|s| {
+                let mut chars = s.chars();
+                match chars.next() {
+                    None => String::new(),
+                    Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+                }
+            })
+            .collect::<Vec<_>>()
+            .join(" ");
+
+        html.push_str(&format!(
+            r#"
+            <tr>
+                <td><code>{}</code></td>
+                <td>{}</td>
+                <td>{}</td>
+                <td><span class="note-type-preview {}">{}</span></td>
+                <td>{}</td>
+                <td>
+                    <button onclick="deleteNoteType({}, '{}')" class="btn btn-danger btn-small">Delete</button>
+                    <form id="delete-form-{}" method="post" action="/admin/note-types/{}/delete" style="display: none;">
+                        <input type="hidden" name="_method" value="DELETE" />
+                    </form>
+                </td>
+            </tr>
+            "#,
+            name,
+            display_name,
+            color_name,
+            color_class,
+            display_name,
+            created_at.split('T').next().unwrap_or(&created_at),
+            id,
+            name.replace("'", "\\'"),
+            id,
+            id
+        ));
+    }
+
+    html.push_str(
+        r#"
+        </tbody>
+    </table>
+
+    <div style="margin-top: 30px; padding: 20px; background: #e9ecef; border-radius: 5px;">
+        <h3>Note Type Usage</h3>
+        <p>Note types are used to categorize notes attached to zones and instances. They help organize different kinds of information:</p>
+        <ul>
+            <li><strong>Internal Name:</strong> Used in the database and code (lowercase, underscores)</li>
+            <li><strong>Display Name:</strong> What users see in the interface</li>
+            <li><strong>Color Class:</strong> Visual styling for the note type badge</li>
+        </ul>
+        <p><strong>Warning:</strong> Deleting a note type will affect all existing notes of that type. Use with caution.</p>
+    </div>
+</body>
+</html>
+"#,
+    );
+
+    Ok(Html(html))
+}
+
+#[cfg(feature = "admin")]
+pub async fn create_note_type(
+    State(state): State<AppState>,
+    Form(form): Form<NoteTypeForm>,
+) -> Result<Redirect, StatusCode> {
+    let pool = &state.zone_state.pool;
+
+    // Insert the new note type
+    sqlx::query(
+        r#"
+        INSERT INTO note_types (name, display_name, color_class)
+        VALUES (?, ?, ?)
+        "#,
+    )
+    .bind(&form.name)
+    .bind(&form.display_name)
+    .bind(&form.color_class)
+    .execute(pool.as_ref())
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    Ok(Redirect::to("/admin/note-types"))
+}
+
+#[cfg(feature = "admin")]
+pub async fn delete_note_type(
+    State(state): State<AppState>,
+    Path(id): Path<i32>,
+) -> Result<Redirect, StatusCode> {
+    let pool = &state.zone_state.pool;
+
+    // Delete the note type (this will cascade to related notes due to foreign key constraints)
+    sqlx::query("DELETE FROM note_types WHERE id = ?")
+        .bind(id)
+        .execute(pool.as_ref())
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    Ok(Redirect::to("/admin/note-types"))
+}

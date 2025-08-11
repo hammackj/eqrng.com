@@ -146,6 +146,11 @@ pub async fn setup_database() -> Result<SqlitePool, Box<dyn std::error::Error>> 
         create_tables(&pool).await?;
     }
 
+    // Run database migrations
+    if let Err(e) = run_migrations(&pool).await {
+        eprintln!("Warning: failed to run migrations: {}", e);
+    }
+
     // Anonymize any existing plaintext IPs in ratings before continuing
     if let Err(e) = migrate_hash_zone_ratings(&pool).await {
         eprintln!("Warning: failed to hash existing rating IPs: {}", e);
@@ -523,6 +528,7 @@ async fn create_tables(pool: &SqlitePool) -> Result<(), sqlx::Error> {
                 name TEXT NOT NULL UNIQUE,
                 display_name TEXT NOT NULL,
                 color_class TEXT NOT NULL DEFAULT 'bg-blue-500',
+                filterable BOOLEAN NOT NULL DEFAULT 1,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
             "#,
@@ -532,17 +538,18 @@ async fn create_tables(pool: &SqlitePool) -> Result<(), sqlx::Error> {
 
         // Insert default flag types
         let default_flag_types = [
-            ("hot_zone", "Hot Zone", "bg-red-500"),
-            ("undead", "Undead", "bg-purple-500"),
+            ("hot_zone", "Hot Zone", "bg-red-500", true),
+            ("undead", "Undead", "bg-purple-500", true),
         ];
 
-        for (name, display_name, color_class) in &default_flag_types {
+        for (name, display_name, color_class, filterable) in &default_flag_types {
             sqlx::query(
-                "INSERT INTO flag_types (name, display_name, color_class) VALUES (?, ?, ?)",
+                "INSERT INTO flag_types (name, display_name, color_class, filterable) VALUES (?, ?, ?, ?)",
             )
             .bind(name)
             .bind(display_name)
             .bind(color_class)
+            .bind(*filterable)
             .execute(pool)
             .await?;
         }
@@ -905,4 +912,28 @@ pub async fn migrate_hot_zones_to_flags(pool: &SqlitePool) -> Result<i32, sqlx::
     checkpoint_wal(pool).await?;
 
     Ok(migrated_count)
+}
+
+pub async fn run_migrations(pool: &SqlitePool) -> Result<(), sqlx::Error> {
+    println!("Running database migrations...");
+
+    // Migration 1: Add filterable column to flag_types
+    let filterable_column_exists =
+        sqlx::query("SELECT * FROM pragma_table_info('flag_types') WHERE name='filterable'")
+            .fetch_optional(pool)
+            .await?
+            .is_some();
+
+    if !filterable_column_exists {
+        println!("Adding filterable column to flag_types table...");
+        sqlx::query("ALTER TABLE flag_types ADD COLUMN filterable BOOLEAN NOT NULL DEFAULT 1")
+            .execute(pool)
+            .await?;
+        println!("Filterable column added successfully");
+    } else {
+        println!("Filterable column already exists in flag_types table");
+    }
+
+    println!("Database migrations completed successfully");
+    Ok(())
 }
