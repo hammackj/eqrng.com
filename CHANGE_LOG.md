@@ -9,6 +9,9 @@
 - **BREAKING CHANGE**: Removed the `hot_zone` boolean field from zones and instances.
 - Moved all data to data.sql and added a dump function in the admin interface. This allows PRs to the data and stops the dumb AI from deleting the database when updating the UI lol.
 - Removed zone json data, as its no longer needed.
+- Added Expansion filter to the admin interface.
+- Updated to Astro 5.12.9
+
 
 ## July 30, 2025 - Update 4
 - Added new front end, yes the front is 90% AI generated lol
