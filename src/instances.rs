@@ -49,7 +49,6 @@ pub struct Instance {
     pub map_url: String,
     pub rating: u8,
     pub hot_zone: bool,
-    pub mission: bool,
     pub verified: bool,
     pub notes: Vec<InstanceNote>,
 }
@@ -60,7 +59,6 @@ pub struct RangeQuery {
     pub max: Option<u8>,
     zone_type: Option<String>,
     expansion: Option<String>,
-    pub mission: Option<bool>,
     hot_zone: Option<bool>,
     continent: Option<String>,
 }
@@ -71,7 +69,9 @@ pub async fn random_instance(
 ) -> Result<Json<Instance>, StatusCode> {
     let pool = &*state.instance_state.pool;
 
-    let mut query = String::from("SELECT * FROM instances WHERE 1=1");
+    let mut query = String::from(
+        "SELECT id, name, level_ranges, expansion, continent, zone_type, connections, image_url, map_url, rating, hot_zone, verified FROM instances WHERE 1=1",
+    );
     let mut bindings: Vec<String> = Vec::new();
 
     if let Some(ref zone_type) = params.zone_type {
@@ -87,11 +87,6 @@ pub async fn random_instance(
     if let Some(ref continent) = params.continent {
         query.push_str(" AND LOWER(continent) = LOWER(?)");
         bindings.push(continent.clone());
-    }
-
-    if let Some(mission) = params.mission {
-        query.push_str(" AND mission = ?");
-        bindings.push(if mission { "1" } else { "0" }.to_string());
     }
 
     if let Some(hot_zone) = params.hot_zone {
@@ -134,7 +129,6 @@ pub async fn random_instance(
             map_url: row.get("map_url"),
             rating: row.get::<i32, _>("rating") as u8,
             hot_zone: row.get("hot_zone"),
-            mission: row.get("mission"),
             verified: row.get("verified"),
             notes: Vec::new(),
         };
@@ -192,7 +186,7 @@ pub async fn get_instance_notes_endpoint(
 }
 
 pub async fn get_all_instances(pool: &SqlitePool) -> Result<Vec<Instance>, sqlx::Error> {
-    let rows = sqlx::query("SELECT * FROM instances ORDER BY name")
+    let rows = sqlx::query("SELECT id, name, level_ranges, expansion, continent, zone_type, connections, image_url, map_url, rating, hot_zone, verified FROM instances ORDER BY name")
         .fetch_all(pool)
         .await?;
 
@@ -218,7 +212,6 @@ pub async fn get_all_instances(pool: &SqlitePool) -> Result<Vec<Instance>, sqlx:
             map_url: row.get("map_url"),
             rating: row.get::<i32, _>("rating") as u8,
             hot_zone: row.get("hot_zone"),
-            mission: row.get("mission"),
             verified: row.get("verified"),
             notes: Vec::new(), // Notes not loaded for bulk operations
         });

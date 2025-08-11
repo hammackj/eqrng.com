@@ -35,7 +35,7 @@ pub struct Zone {
     pub image_url: String,
     pub map_url: String,
     pub rating: i32,
-    pub mission: bool,
+
     pub verified: bool,
     pub notes: Vec<crate::zones::ZoneNote>,
     pub flags: Vec<crate::zones::ZoneFlag>,
@@ -54,7 +54,6 @@ pub struct ZoneForm {
     pub map_url: String,
     pub rating: i32,
 
-    pub mission: Option<String>,
     pub verified: Option<String>, // HTML forms send "on" or nothing
     pub _method: Option<String>,  // For method override
 }
@@ -72,7 +71,6 @@ pub struct InstanceForm {
     pub map_url: String,
     pub rating: i32,
     pub hot_zone: Option<String>, // HTML forms send "on" or nothing
-    pub mission: Option<String>,
     pub verified: Option<String>, // HTML forms send "on" or nothing
     pub _method: Option<String>,  // For method override
 }
@@ -91,7 +89,7 @@ pub struct Instance {
     pub map_url: String,
     pub rating: i32,
     pub hot_zone: bool,
-    pub mission: bool,
+
     pub verified: bool,
     pub notes: Vec<crate::instances::InstanceNote>,
 }
@@ -106,7 +104,6 @@ pub struct PaginationQuery {
     pub order: Option<String>,
     pub verified: Option<String>,
 
-    pub mission: Option<String>,
     pub zone_type: Option<String>,
     pub flags: Option<String>,
 }
@@ -387,13 +384,6 @@ async fn admin_dashboard(State(state): State<AppState>) -> Result<Html<String>, 
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    let mission_zone_count: i32 =
-        sqlx::query("SELECT COUNT(*) as count FROM zones WHERE mission = 1")
-            .fetch_one(pool.as_ref())
-            .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
-            .get("count");
-
     let verified_zone_count: i32 =
         sqlx::query("SELECT COUNT(*) as count FROM zones WHERE verified = 1")
             .fetch_one(pool.as_ref())
@@ -501,10 +491,6 @@ async fn admin_dashboard(State(state): State<AppState>) -> Result<Html<String>, 
             <div class="stat-label" style="font-weight: bold; color: #495057;">Zone Flags</div>
         </div>
         {}
-        <a href="/admin/zones?mission=true" class="stat-card">
-            <div class="stat-number">{}</div>
-            <div class="stat-label">Mission Zones</div>
-        </a>
         <a href="/admin/zones?verified=true" class="stat-card">
             <div class="stat-number">{}</div>
             <div class="stat-label">Verified Zones</div>
@@ -572,7 +558,6 @@ async fn admin_dashboard(State(state): State<AppState>) -> Result<Html<String>, 
             })
             .collect::<Vec<_>>()
             .join(""),
-        mission_zone_count,
         verified_zone_count,
         unverified_zone_count,
         verified_instance_count,
@@ -594,7 +579,7 @@ async fn list_zones(
     let order = params.order.clone().unwrap_or_else(|| "asc".to_string());
     let verified = params.verified.clone();
     let zone_type = params.zone_type.clone();
-    let mission = params.mission.clone();
+
     let flags = params.flags.clone();
 
     let pool = &state.zone_state.pool;
@@ -607,7 +592,6 @@ async fn list_zones(
         "expansion",
         "zone_type",
         "rating",
-        "mission",
         "verified",
         "created_at",
     ];
@@ -633,14 +617,6 @@ async fn list_zones(
             where_conditions.push("verified = 1".to_string());
         } else if verified_param == "false" {
             where_conditions.push("verified = 0".to_string());
-        }
-    }
-
-    if let Some(ref mission_param) = mission {
-        if mission_param == "true" {
-            where_conditions.push("mission = 1".to_string());
-        } else if mission_param == "false" {
-            where_conditions.push("mission = 0".to_string());
         }
     }
 
@@ -685,7 +661,7 @@ async fn list_zones(
 
     // Get zones
     let zones_query = format!(
-        "SELECT * FROM zones {} ORDER BY {} {} LIMIT ? OFFSET ?",
+        "SELECT id, name, level_ranges, expansion, continent, zone_type, connections, image_url, map_url, rating, verified FROM zones {} ORDER BY {} {} LIMIT ? OFFSET ?",
         where_clause, sort_column, sort_order
     );
 
@@ -735,7 +711,7 @@ async fn list_zones(
             image_url: row.get("image_url"),
             map_url: row.get("map_url"),
             rating: row.get("rating"),
-            mission: row.get("mission"),
+
             verified: row.get("verified"),
             notes,
             flags,
@@ -815,7 +791,6 @@ async fn list_zones(
                 <th>{}</th>
                 <th>{}</th>
                 <th>{}</th>
-                <th>{}</th>
                 <th>Notes</th>
                 <th>Flags</th>
                 <th>Actions</th>
@@ -824,7 +799,7 @@ async fn list_zones(
         <tbody>
 "#,
         // Filter indicator for title
-        if verified.is_some() || zone_type.is_some() || mission.is_some() || flags.is_some() {
+        if verified.is_some() || zone_type.is_some() || flags.is_some() {
             let mut filters = Vec::new();
             if let Some(ref v) = verified {
                 filters.push(if v == "true" {
@@ -839,13 +814,6 @@ async fn list_zones(
             if let Some(ref f) = flags {
                 filters.push(format!("{} Flag", f.replace("_", " ").to_uppercase()));
             }
-            if let Some(ref m) = mission {
-                filters.push(if m == "true" {
-                    "Mission Zones".to_string()
-                } else {
-                    "Non-Mission Zones".to_string()
-                });
-            }
             format!(" - {}", filters.join(", "))
         } else {
             String::new()
@@ -853,7 +821,7 @@ async fn list_zones(
         search,
         per_page,
         // Clear filters link
-        if verified.is_some() || zone_type.is_some() || mission.is_some() || flags.is_some() {
+        if verified.is_some() || zone_type.is_some() || flags.is_some() {
             r#"<a href="/admin/zones" class="btn" style="background: #6c757d;">Clear Filters</a>"#
         } else {
             ""
@@ -904,14 +872,6 @@ async fn list_zones(
         generate_sortable_header(
             "rating",
             "Rating",
-            &params.sort,
-            &params.order,
-            "/admin/zones",
-            &search,
-        ),
-        generate_sortable_header(
-            "mission",
-            "Mission",
             &params.sort,
             &params.order,
             "/admin/zones",
@@ -998,7 +958,6 @@ async fn list_zones(
                 <td>{}</td>
                 <td>{}</td>
                 <td>{}</td>
-                <td>{}</td>
                 <td class="truncate" title="{}">{}</td>
                 <td>
                     <a href="/admin/zones/{}" class="btn btn-small">Edit</a>
@@ -1020,7 +979,6 @@ async fn list_zones(
             zone.zone_type,
             zone.level_ranges,
             zone.rating,
-            if zone.mission { "✓" } else { "✗" },
             if zone.verified { "✓" } else { "✗" },
             zone.notes.len(),
             flags_title, flags_display,
@@ -1061,12 +1019,6 @@ async fn list_zones(
         html.push_str(&format!(
             r#"<input type="hidden" id="flags-param" value="{}" />"#,
             f.replace('"', "&quot;")
-        ));
-    }
-    if let Some(ref m) = mission {
-        html.push_str(&format!(
-            r#"<input type="hidden" id="mission-param" value="{}" />"#,
-            m.replace('"', "&quot;")
         ));
     }
     if page > 1 {
@@ -1138,10 +1090,6 @@ async fn list_zones(
             params.push(format!("flags={}", urlencoding::encode(f)));
         }
 
-        if let Some(ref m) = mission {
-            params.push(format!("mission={}", urlencoding::encode(m)));
-        }
-
         params.push(format!("sort={}", urlencoding::encode(&sort)));
         params.push(format!("order={}", urlencoding::encode(&order)));
 
@@ -1206,7 +1154,6 @@ async fn new_zone_form() -> Html<String> {
                 image_url: String::new(),
                 map_url: String::new(),
                 rating: 0,
-                mission: false,
                 verified: false,
                 notes: Vec::new(),
                 flags: Vec::new(),
@@ -1228,7 +1175,7 @@ async fn edit_zone_form(
 ) -> Result<Html<String>, StatusCode> {
     let pool = &state.zone_state.pool;
 
-    let zone_row = sqlx::query("SELECT * FROM zones WHERE id = ?")
+    let zone_row = sqlx::query("SELECT id, name, level_ranges, expansion, continent, zone_type, connections, image_url, map_url, rating, verified FROM zones WHERE id = ?")
         .bind(id)
         .fetch_one(pool.as_ref())
         .await
@@ -1265,7 +1212,6 @@ async fn edit_zone_form(
         image_url: zone_row.get("image_url"),
         map_url: zone_row.get("map_url"),
         rating: zone_row.get("rating"),
-        mission: zone_row.get("mission"),
         verified: zone_row.get("verified"),
         notes,
         flags,
@@ -1428,10 +1374,7 @@ fn get_zone_form_body_with_notes_and_flags(
         </div>
 
 
-        <div class="form-group checkbox-group">
-            <input type="checkbox" id="mission" name="mission" {} />
-            <label for="mission">Mission Zone</label>
-        </div>
+
 
         <div class="form-group checkbox-group">
             <input type="checkbox" id="verified" name="verified" {} />
@@ -1491,7 +1434,6 @@ fn get_zone_form_body_with_notes_and_flags(
         zone.image_url,
         zone.map_url,
         zone.rating,
-        if zone.mission { "checked" } else { "" },
         if zone.verified { "checked" } else { "" },
         button_text,
         if let Some(id) = zone_id {
@@ -1741,8 +1683,8 @@ async fn create_zone(
         r#"
         INSERT INTO zones (
             name, level_ranges, expansion, continent, zone_type,
-            connections, image_url, map_url, rating, mission, verified
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            connections, image_url, map_url, rating, verified
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         "#,
     )
     .bind(&form.name)
@@ -1754,7 +1696,6 @@ async fn create_zone(
     .bind(&form.image_url)
     .bind(&form.map_url)
     .bind(form.rating)
-    .bind(form.mission.is_some())
     .bind(form.verified.is_some())
     .execute(pool.as_ref())
     .await;
@@ -1802,7 +1743,7 @@ async fn update_zone(
         r#"
         UPDATE zones SET
             name = ?, level_ranges = ?, expansion = ?, continent = ?, zone_type = ?,
-            connections = ?, image_url = ?, map_url = ?, rating = ?, mission = ?, verified = ?
+            connections = ?, image_url = ?, map_url = ?, rating = ?, verified = ?
         WHERE id = ?
         "#,
     )
@@ -1815,7 +1756,6 @@ async fn update_zone(
     .bind(&form.image_url)
     .bind(&form.map_url)
     .bind(form.rating)
-    .bind(form.mission.is_some())
     .bind(form.verified.is_some())
     .bind(id)
     .execute(pool.as_ref())
@@ -2485,12 +2425,80 @@ async fn create_zone_flag(
 ) -> Result<Redirect, StatusCode> {
     let pool = &state.zone_state.pool;
 
-    let _ = sqlx::query("INSERT INTO zone_flags (zone_id, flag_type_id) VALUES (?, ?)")
-        .bind(zone_id)
+    eprintln!(
+        "Attempting to create zone flag: zone_id={}, flag_type_id={}",
+        zone_id, form.flag_type_id
+    );
+
+    // First check if the zone exists
+    let zone_exists = sqlx::query("SELECT id FROM zones WHERE id = ?")
+        .bind(zone_id as i64)
+        .fetch_optional(pool.as_ref())
+        .await
+        .map_err(|e| {
+            eprintln!("Error checking if zone exists: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
+
+    if zone_exists.is_none() {
+        eprintln!("Zone with id {} does not exist", zone_id);
+        return Err(StatusCode::NOT_FOUND);
+    }
+
+    // Check if the flag type exists
+    let flag_type_exists = sqlx::query("SELECT id FROM flag_types WHERE id = ?")
+        .bind(form.flag_type_id)
+        .fetch_optional(pool.as_ref())
+        .await
+        .map_err(|e| {
+            eprintln!("Error checking if flag type exists: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
+
+    if flag_type_exists.is_none() {
+        eprintln!("Flag type with id {} does not exist", form.flag_type_id);
+        return Err(StatusCode::BAD_REQUEST);
+    }
+
+    // Check if this flag already exists for this zone
+    let existing_flag =
+        sqlx::query("SELECT id FROM zone_flags WHERE zone_id = ? AND flag_type_id = ?")
+            .bind(zone_id as i64)
+            .bind(form.flag_type_id)
+            .fetch_optional(pool.as_ref())
+            .await
+            .map_err(|e| {
+                eprintln!("Error checking for existing flag: {}", e);
+                StatusCode::INTERNAL_SERVER_ERROR
+            })?;
+
+    if existing_flag.is_some() {
+        eprintln!(
+            "Flag already exists for zone {} with flag_type_id {}",
+            zone_id, form.flag_type_id
+        );
+        return Ok(Redirect::to(&format!("/admin/zones/{}", zone_id)));
+    }
+
+    let result = sqlx::query("INSERT INTO zone_flags (zone_id, flag_type_id) VALUES (?, ?)")
+        .bind(zone_id as i64)
         .bind(form.flag_type_id)
         .execute(pool.as_ref())
         .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        .map_err(|e| {
+            eprintln!(
+                "Error creating zone flag for zone_id={}, flag_type_id={}: {}",
+                zone_id, form.flag_type_id, e
+            );
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
+
+    eprintln!(
+        "Zone flag created successfully: zone_id={}, flag_type_id={}, rows_affected={}",
+        zone_id,
+        form.flag_type_id,
+        result.rows_affected()
+    );
 
     // Force WAL checkpoint to immediately update main database file
     let _ = crate::checkpoint_wal(pool.as_ref()).await;
@@ -3710,15 +3718,15 @@ async fn move_zone_to_instances(
     Form(params): Form<PaginationQuery>,
 ) -> Result<Redirect, StatusCode> {
     eprintln!(
-        "Move zone to instances - received params: page={:?}, search={:?}, verified={:?}, mission={:?}",
-        params.page, params.search, params.verified, params.mission
+        "Move zone to instances - received params: page={:?}, search={:?}, verified={:?}",
+        params.page, params.search, params.verified
     );
 
     let pool = &state.zone_state.pool;
     let instance_pool = &state.instance_state.pool;
 
     // Start a transaction-like operation by fetching the zone data first
-    let zone_row = sqlx::query("SELECT * FROM zones WHERE id = ?")
+    let zone_row = sqlx::query("SELECT id, name, level_ranges, expansion, continent, zone_type, connections, image_url, map_url, rating, verified, created_at FROM zones WHERE id = ?")
         .bind(zone_id)
         .fetch_one(pool.as_ref())
         .await
@@ -3730,8 +3738,8 @@ async fn move_zone_to_instances(
         INSERT INTO instances (
             name, level_ranges, expansion, continent, zone_type,
             connections, image_url, map_url, rating,
-            mission, verified, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            verified, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         "#,
     )
     .bind(zone_row.get::<String, _>("name"))
@@ -3743,7 +3751,6 @@ async fn move_zone_to_instances(
     .bind(zone_row.get::<String, _>("image_url"))
     .bind(zone_row.get::<String, _>("map_url"))
     .bind(zone_row.get::<i32, _>("rating"))
-    .bind(zone_row.get::<bool, _>("mission"))
     .bind(zone_row.get::<bool, _>("verified"))
     .bind(zone_row.get::<String, _>("created_at"))
     .execute(instance_pool.as_ref())
@@ -3832,10 +3839,6 @@ async fn move_zone_to_instances(
         redirect_params.push(format!("verified={}", urlencoding::encode(verified)));
     }
 
-    if let Some(ref mission) = params.mission {
-        redirect_params.push(format!("mission={}", urlencoding::encode(mission)));
-    }
-
     let redirect_url = if redirect_params.is_empty() {
         "/admin/zones".to_string()
     } else {
@@ -3870,7 +3873,6 @@ async fn list_instances(
         "zone_type",
         "rating",
         "hot_zone",
-        "mission",
         "verified",
         "created_at",
     ];
@@ -3926,7 +3928,7 @@ async fn list_instances(
 
     // Get instances
     let instances_query = format!(
-        "SELECT * FROM instances {} ORDER BY {} {} LIMIT ? OFFSET ?",
+        "SELECT id, name, level_ranges, expansion, continent, zone_type, connections, image_url, map_url, rating, hot_zone, verified FROM instances {} ORDER BY {} {} LIMIT ? OFFSET ?",
         where_clause, sort_column, sort_order
     );
 
@@ -3969,7 +3971,6 @@ async fn list_instances(
             map_url: row.get("map_url"),
             rating: row.get("rating"),
             hot_zone: row.get("hot_zone"),
-            mission: row.get("mission"),
             verified: row.get("verified"),
             notes,
         });
@@ -4037,7 +4038,6 @@ async fn list_instances(
     <table>
         <thead>
             <tr>
-                <th>{}</th>
                 <th>{}</th>
                 <th>{}</th>
                 <th>{}</th>
@@ -4134,14 +4134,6 @@ async fn list_instances(
             &search,
         ),
         generate_sortable_header(
-            "mission",
-            "Mission",
-            &params.sort,
-            &params.order,
-            "/admin/instances",
-            &search,
-        ),
-        generate_sortable_header(
             "verified",
             "Verified",
             &params.sort,
@@ -4152,15 +4144,13 @@ async fn list_instances(
     );
 
     for instance in instances {
-        html.push_str(&format!(
-            r#"
+        html.push_str(&format!(r#"
             <tr>
                 <td>{}</td>
                 <td class="truncate" title="{}">{}</td>
                 <td>{}</td>
                 <td>{}</td>
                 <td class="truncate">{}</td>
-                <td>{}</td>
                 <td>{}</td>
                 <td>{}</td>
                 <td>{}</td>
@@ -4183,7 +4173,6 @@ async fn list_instances(
             instance.level_ranges,
             instance.rating,
             if instance.hot_zone { "✓" } else { "✗" },
-            if instance.mission { "✓" } else { "✗" },
             if instance.verified { "✓" } else { "✗" },
             instance.notes.len(),
             instance.id.unwrap_or(0),
@@ -4264,7 +4253,7 @@ async fn edit_instance_form(
 ) -> Result<Html<String>, StatusCode> {
     let pool = &state.instance_state.pool;
 
-    let instance_row = sqlx::query("SELECT * FROM instances WHERE id = ?")
+    let instance_row = sqlx::query("SELECT id, name, level_ranges, expansion, continent, zone_type, connections, image_url, map_url, rating, hot_zone, verified FROM instances WHERE id = ?")
         .bind(instance_id)
         .fetch_one(pool.as_ref())
         .await
@@ -4383,10 +4372,7 @@ fn get_instance_form_body(
             <label for="hot_zone">Hot Zone</label>
         </div>
 
-        <div class="form-group checkbox-group">
-            <input type="checkbox" id="mission" name="mission" value="true" {}>
-            <label for="mission">Mission</label>
-        </div>
+
 
         <div class="form-group checkbox-group">
             <input type="checkbox" id="verified" name="verified" value="true" {}>
@@ -4412,11 +4398,6 @@ fn get_instance_form_body(
         instance_row.get::<String, _>("map_url"),
         instance_row.get::<i32, _>("rating"),
         if instance_row.get::<bool, _>("hot_zone") {
-            "checked"
-        } else {
-            ""
-        },
-        if instance_row.get::<bool, _>("mission") {
             "checked"
         } else {
             ""
@@ -4451,11 +4432,10 @@ async fn update_instance(
     let pool = &state.instance_state.pool;
 
     let hot_zone = form.hot_zone.is_some();
-    let mission = form.mission.is_some();
     let verified = form.verified.is_some();
 
     let _ = sqlx::query(
-        "UPDATE instances SET name = ?, level_ranges = ?, expansion = ?, continent = ?, zone_type = ?, connections = ?, image_url = ?, map_url = ?, rating = ?, hot_zone = ?, mission = ?, verified = ? WHERE id = ?",
+        "UPDATE instances SET name = ?, level_ranges = ?, expansion = ?, continent = ?, zone_type = ?, connections = ?, image_url = ?, map_url = ?, rating = ?, hot_zone = ?, verified = ? WHERE id = ?",
     )
     .bind(&form.name)
     .bind(&form.level_ranges)
@@ -4467,7 +4447,6 @@ async fn update_instance(
     .bind(&form.map_url)
     .bind(form.rating)
     .bind(hot_zone)
-    .bind(mission)
     .bind(verified)
     .bind(id)
     .execute(pool.as_ref())

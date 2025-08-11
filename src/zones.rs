@@ -64,7 +64,6 @@ pub struct Zone {
     pub image_url: String,
     pub map_url: String,
     pub rating: u8,
-    pub mission: bool,
     pub verified: bool,
     pub notes: Vec<ZoneNote>,
     pub flags: Vec<ZoneFlag>,
@@ -76,7 +75,6 @@ pub struct RangeQuery {
     pub max: Option<u8>,
     zone_type: Option<String>,
     expansion: Option<String>,
-    pub mission: Option<bool>,
     continent: Option<String>,
     flags: Option<String>, // Comma-separated flag names
 }
@@ -87,7 +85,9 @@ pub async fn random_zone(
 ) -> Result<Json<Zone>, StatusCode> {
     let pool = &*state.zone_state.pool;
 
-    let mut query = String::from("SELECT DISTINCT z.* FROM zones z");
+    let mut query = String::from(
+        "SELECT DISTINCT z.id, z.name, z.level_ranges, z.expansion, z.continent, z.zone_type, z.connections, z.image_url, z.map_url, z.rating, z.verified FROM zones z",
+    );
     let mut bindings: Vec<String> = Vec::new();
     let mut where_conditions = Vec::new();
 
@@ -123,11 +123,6 @@ pub async fn random_zone(
     if let Some(ref continent) = params.continent {
         where_conditions.push("LOWER(z.continent) = LOWER(?)".to_string());
         bindings.push(continent.clone());
-    }
-
-    if let Some(mission) = params.mission {
-        where_conditions.push("z.mission = ?".to_string());
-        bindings.push(if mission { "1" } else { "0" }.to_string());
     }
 
     query.push_str(" WHERE ");
@@ -171,7 +166,6 @@ pub async fn random_zone(
             image_url: row.get("image_url"),
             map_url: row.get("map_url"),
             rating: row.get::<i32, _>("rating") as u8,
-            mission: row.get("mission"),
             verified: row.get("verified"),
             notes: Vec::new(),
             flags,
@@ -230,7 +224,7 @@ pub async fn get_zone_notes_endpoint(
 }
 
 pub async fn get_all_zones(pool: &SqlitePool) -> Result<Vec<Zone>, sqlx::Error> {
-    let rows = sqlx::query("SELECT * FROM zones ORDER BY name")
+    let rows = sqlx::query("SELECT id, name, level_ranges, expansion, continent, zone_type, connections, image_url, map_url, rating, verified FROM zones ORDER BY name")
         .fetch_all(pool)
         .await?;
 
@@ -255,7 +249,6 @@ pub async fn get_all_zones(pool: &SqlitePool) -> Result<Vec<Zone>, sqlx::Error> 
             image_url: row.get("image_url"),
             map_url: row.get("map_url"),
             rating: row.get::<i32, _>("rating") as u8,
-            mission: row.get("mission"),
             verified: row.get("verified"),
             notes: Vec::new(), // Notes not loaded for bulk operations
             flags: Vec::new(), // Flags not loaded for bulk operations

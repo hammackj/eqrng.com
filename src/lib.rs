@@ -33,6 +33,11 @@ pub async fn setup_database() -> Result<SqlitePool, Box<dyn std::error::Error>> 
     // Run migrations
     create_tables(&pool).await?;
 
+    // Migration disabled - using fresh database schema without mission column
+
+    // TODO: Re-enable hot zone migration after fixing mission column removal
+    // migrate_hot_zones_to_flags(&pool).await?;
+
     // Force WAL checkpoint to consolidate changes into main database file
     checkpoint_wal(&pool).await?;
 
@@ -65,7 +70,6 @@ async fn create_tables(pool: &SqlitePool) -> Result<(), sqlx::Error> {
                 map_url TEXT NOT NULL DEFAULT '',
                 rating INTEGER NOT NULL DEFAULT 0,
                 hot_zone BOOLEAN NOT NULL DEFAULT FALSE,
-                mission BOOLEAN NOT NULL DEFAULT FALSE,
                 verified BOOLEAN NOT NULL DEFAULT FALSE,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
@@ -78,7 +82,6 @@ async fn create_tables(pool: &SqlitePool) -> Result<(), sqlx::Error> {
         let indexes = [
             "CREATE INDEX IF NOT EXISTS idx_zones_expansion ON zones(expansion)",
             "CREATE INDEX IF NOT EXISTS idx_zones_zone_type ON zones(zone_type)",
-            "CREATE INDEX IF NOT EXISTS idx_zones_mission ON zones(mission)",
             "CREATE INDEX IF NOT EXISTS idx_zones_hot_zone ON zones(hot_zone)",
             "CREATE INDEX IF NOT EXISTS idx_zones_rating ON zones(rating)",
             "CREATE INDEX IF NOT EXISTS idx_zones_continent ON zones(continent)",
@@ -112,6 +115,9 @@ async fn create_tables(pool: &SqlitePool) -> Result<(), sqlx::Error> {
 
             println!("Verified column added successfully");
         }
+
+        // Mission column migration disabled for fresh database creation
+        // The table schema above already excludes the mission column
     }
 
     // Check if zone_ratings table exists
@@ -314,7 +320,6 @@ async fn create_tables(pool: &SqlitePool) -> Result<(), sqlx::Error> {
                 map_url TEXT NOT NULL DEFAULT '',
                 rating INTEGER NOT NULL DEFAULT 0,
                 hot_zone BOOLEAN NOT NULL DEFAULT FALSE,
-                mission BOOLEAN NOT NULL DEFAULT FALSE,
                 verified BOOLEAN NOT NULL DEFAULT FALSE,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
@@ -327,7 +332,6 @@ async fn create_tables(pool: &SqlitePool) -> Result<(), sqlx::Error> {
         let instance_indexes = [
             "CREATE INDEX IF NOT EXISTS idx_instances_expansion ON instances(expansion)",
             "CREATE INDEX IF NOT EXISTS idx_instances_zone_type ON instances(zone_type)",
-            "CREATE INDEX IF NOT EXISTS idx_instances_mission ON instances(mission)",
             "CREATE INDEX IF NOT EXISTS idx_instances_hot_zone ON instances(hot_zone)",
             "CREATE INDEX IF NOT EXISTS idx_instances_rating ON instances(rating)",
             "CREATE INDEX IF NOT EXISTS idx_instances_continent ON instances(continent)",
@@ -341,6 +345,9 @@ async fn create_tables(pool: &SqlitePool) -> Result<(), sqlx::Error> {
         println!("Instances table and indexes created successfully");
     } else {
         println!("Instances table already exists");
+
+        // Mission column migration disabled for fresh database creation
+        // The table schema above already excludes the mission column
     }
 
     // Check if instance_notes table exists
