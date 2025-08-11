@@ -11,7 +11,8 @@
 - Removed zone json data, as its no longer needed.
 - Added Expansion filter to the admin interface.
 - Updated to Astro 5.12.9
-
+- Improved performance and stability
+- Improved security and logging
 
 ## July 30, 2025 - Update 4
 - Added new front end, yes the front is 90% AI generated lol

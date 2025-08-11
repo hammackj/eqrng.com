@@ -1,5 +1,8 @@
-use axum::{Router, http::Method, routing::get, serve};
+use axum::http::HeaderValue;
+use axum::response::Response;
+use axum::{Router, http::Method, middleware, routing::get, serve};
 use clap::Parser;
+use std::env;
 use std::net::SocketAddr;
 use tokio::net::TcpListener;
 use tower_http::cors::{Any, CorsLayer};
@@ -20,6 +23,46 @@ struct Args {
     /// Port to listen on
     #[arg(short, long, default_value_t = 3000)]
     port: u16,
+}
+
+// Security headers middleware
+async fn security_headers(mut response: Response) -> Response {
+    let headers = response.headers_mut();
+
+    // XSS Protection
+    headers.insert(
+        "X-XSS-Protection",
+        HeaderValue::from_static("1; mode=block"),
+    );
+
+    // Content Type Options
+    headers.insert(
+        "X-Content-Type-Options",
+        HeaderValue::from_static("nosniff"),
+    );
+
+    // Frame Options
+    headers.insert("X-Frame-Options", HeaderValue::from_static("DENY"));
+
+    // Content Security Policy
+    headers.insert(
+        "Content-Security-Policy",
+        HeaderValue::from_static(eq_rng::security::get_csp_header()),
+    );
+
+    // Referrer Policy
+    headers.insert(
+        "Referrer-Policy",
+        HeaderValue::from_static("strict-origin-when-cross-origin"),
+    );
+
+    // Permissions Policy
+    headers.insert(
+        "Permissions-Policy",
+        HeaderValue::from_static("geolocation=(), microphone=(), camera=()"),
+    );
+
+    response
 }
 
 #[tokio::main]
@@ -84,20 +127,45 @@ async fn main() {
         .route("/api/links/:id", axum::routing::delete(links::delete_link))
         .merge(admin::admin_routes())
         .with_state(state)
-        .layer(
-            CorsLayer::new()
-                .allow_origin(Any)
-                .allow_methods([
-                    Method::GET,
-                    Method::POST,
-                    Method::PUT,
-                    Method::DELETE,
-                    Method::HEAD,
-                    Method::OPTIONS,
-                ])
-                .allow_headers(Any)
-                .allow_credentials(false),
-        )
+        .layer(middleware::map_response(security_headers))
+        .layer({
+            // Configure CORS based on environment
+            let cors_layer = if env::var("EQ_RNG_ENV").unwrap_or_default() == "development" {
+                // Development: Allow localhost origins
+                CorsLayer::new()
+                    .allow_origin([
+                        "http://localhost:3000".parse().unwrap(),
+                        "http://localhost:5173".parse().unwrap(), // Vite dev server
+                        "http://127.0.0.1:3000".parse().unwrap(),
+                        "http://127.0.0.1:5173".parse().unwrap(),
+                    ])
+                    .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
+                    .allow_headers(Any)
+                    .allow_credentials(false)
+            } else {
+                // Production: Restrict to specific domain or same-origin only
+                let allowed_origins = env::var("ALLOWED_ORIGINS")
+                    .unwrap_or_else(|_| "https://yourdomain.com".to_string())
+                    .split(',')
+                    .filter_map(|origin| origin.trim().parse().ok())
+                    .collect::<Vec<_>>();
+
+                if allowed_origins.is_empty() {
+                    // Fallback to restrictive CORS if no valid origins
+                    CorsLayer::new()
+                        .allow_methods([Method::GET])
+                        .allow_headers(Any)
+                        .allow_credentials(false)
+                } else {
+                    CorsLayer::new()
+                        .allow_origin(allowed_origins)
+                        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
+                        .allow_headers(Any)
+                        .allow_credentials(false)
+                }
+            };
+            cors_layer
+        })
         .nest_service("/", ServeDir::new("dist"));
 
     let addr: SocketAddr = format!("0.0.0.0:{}", args.port).parse().unwrap();

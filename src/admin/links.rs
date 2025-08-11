@@ -1,14 +1,8 @@
 // Links-related admin functionality
 // This file contains link management features for the admin interface
 
-fn escape_html(input: &str) -> String {
-    input
-        .replace('&', "&amp;")
-        .replace('<', "&lt;")
-        .replace('>', "&gt;")
-        .replace('"', "&quot;")
-        .replace('\'', "&#x27;")
-}
+#[cfg(feature = "admin")]
+use crate::security::{escape_html, sanitize_url, sanitize_user_input};
 
 #[cfg(feature = "admin")]
 use axum::{

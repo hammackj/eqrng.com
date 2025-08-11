@@ -56,7 +56,13 @@ pub struct RatingQuery {
 // Hashing utilities to anonymize IP addresses for ratings
 fn rating_ip_hash_key() -> [u8; 32] {
     let key_material = env::var("RATING_IP_HASH_KEY")
-        .unwrap_or_else(|_| String::from("eq_rng_default_rating_ip_key_v1"));
+        .expect("RATING_IP_HASH_KEY environment variable must be set for secure IP hashing. Generate a random 32+ character key.");
+
+    // Ensure minimum key length for security
+    if key_material.len() < 32 {
+        panic!("RATING_IP_HASH_KEY must be at least 32 characters long for security");
+    }
+
     let hash = blake3::hash(key_material.as_bytes());
     let mut key = [0u8; 32];
     key.copy_from_slice(hash.as_bytes());
