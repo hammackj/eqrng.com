@@ -30,13 +30,15 @@ pub async fn setup_database() -> Result<SqlitePool, Box<dyn std::error::Error>> 
     // Connect to database
     let pool = SqlitePool::connect(database_url).await?;
 
-    // Run migrations
-    create_tables(&pool).await?;
-
-    // Migration disabled - using fresh database schema without mission column
-
-    // TODO: Re-enable hot zone migration after fixing mission column removal
-    // migrate_hot_zones_to_flags(&pool).await?;
+    // Check if data.sql exists - if so, load from it instead of creating tables
+    if std::path::Path::new("./data/data.sql").exists() {
+        println!("Found data.sql, loading from file...");
+        load_data_sql(&pool).await?;
+    } else {
+        println!("No data.sql found, creating tables from scratch...");
+        // Run migrations to create basic table structure
+        create_tables(&pool).await?;
+    }
 
     // Force WAL checkpoint to consolidate changes into main database file
     checkpoint_wal(&pool).await?;
@@ -513,6 +515,184 @@ pub async fn database_health_check(pool: &SqlitePool) -> Result<(), sqlx::Error>
     // Simple query to check if database is working
     sqlx::query("SELECT 1").fetch_one(pool).await?;
     Ok(())
+}
+
+/// Create migration tracking table if it doesn't exist
+async fn create_migration_table(pool: &SqlitePool) -> Result<(), sqlx::Error> {
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS migrations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            applied_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+        "#,
+    )
+    .execute(pool)
+    .await?;
+    Ok(())
+}
+
+/// Check if data.sql needs to be loaded based on file modification time
+async fn should_load_data_sql(pool: &SqlitePool) -> Result<bool, Box<dyn std::error::Error>> {
+    use std::fs;
+    use std::path::Path;
+
+    // Check if data.sql exists
+    let data_sql_path = "./data/data.sql";
+    if !Path::new(data_sql_path).exists() {
+        println!("data.sql not found, skipping data migration");
+        return Ok(false);
+    }
+
+    // Get file modification time
+    let metadata = fs::metadata(data_sql_path)?;
+    let file_modified = metadata.modified()?;
+    let file_modified_timestamp = file_modified
+        .duration_since(std::time::UNIX_EPOCH)?
+        .as_secs() as i64;
+
+    // Check if we've already loaded this version
+    let last_migration = sqlx::query(
+        "SELECT applied_at FROM migrations WHERE name = 'data_sql' ORDER BY applied_at DESC LIMIT 1"
+    )
+    .fetch_optional(pool)
+    .await?;
+
+    if let Some(row) = last_migration {
+        let applied_at: String = row.get("applied_at");
+        // Parse the SQLite datetime string to compare with file timestamp
+        let applied_timestamp = chrono::DateTime::parse_from_str(
+            &format!("{}+00:00", applied_at),
+            "%Y-%m-%d %H:%M:%S%z",
+        )
+        .map_err(|e| format!("Failed to parse migration timestamp: {}", e))?
+        .timestamp();
+
+        // If file is newer than last migration, we need to reload
+        Ok(file_modified_timestamp > applied_timestamp)
+    } else {
+        // No previous migration, we should load
+        Ok(true)
+    }
+}
+
+/// Load data from data.sql file if it's newer than the last migration
+pub async fn load_data_sql(pool: &SqlitePool) -> Result<(), Box<dyn std::error::Error>> {
+    use std::fs;
+
+    // Create migration tracking table first
+    create_migration_table(pool).await?;
+
+    // Check if we should load data.sql
+    if !should_load_data_sql(pool).await? {
+        println!("data.sql is up to date, skipping migration");
+        return Ok(());
+    }
+
+    println!("Loading data from data.sql...");
+
+    // Read and process the SQL file manually to handle schema differences
+    let sql_content = fs::read_to_string("./data/data.sql")?;
+
+    // Start a transaction to ensure atomicity
+    let mut transaction = pool.begin().await?;
+
+    // Drop all existing tables to start fresh
+    let drop_tables = [
+        "DROP TABLE IF EXISTS zone_flags",
+        "DROP TABLE IF EXISTS zone_notes",
+        "DROP TABLE IF EXISTS instance_notes",
+        "DROP TABLE IF EXISTS zone_ratings",
+        "DROP TABLE IF EXISTS instances",
+        "DROP TABLE IF EXISTS zones",
+        "DROP TABLE IF EXISTS flag_types",
+        "DROP TABLE IF EXISTS note_types",
+        "DROP TABLE IF EXISTS links",
+    ];
+
+    for drop_sql in &drop_tables {
+        sqlx::query(drop_sql).execute(&mut *transaction).await?;
+    }
+
+    // Process the SQL content line by line
+    let lines: Vec<&str> = sql_content.lines().collect();
+    let mut current_statement = String::new();
+
+    for line in lines {
+        let trimmed = line.trim();
+
+        // Skip empty lines and comments
+        if trimmed.is_empty() || trimmed.starts_with("--") {
+            continue;
+        }
+
+        // Skip PRAGMA statements and transaction statements that might cause issues
+        if trimmed.starts_with("PRAGMA")
+            || trimmed.starts_with("BEGIN")
+            || trimmed.starts_with("COMMIT")
+        {
+            continue;
+        }
+
+        current_statement.push_str(line);
+        current_statement.push(' ');
+
+        // Execute when we hit a semicolon
+        if trimmed.ends_with(';') {
+            let statement = current_statement.trim();
+            if !statement.is_empty() {
+                match sqlx::query(statement).execute(&mut *transaction).await {
+                    Ok(_) => {}
+                    Err(e) => {
+                        // Log the error but continue with other statements
+                        eprintln!("Warning: Failed to execute statement: {}", e);
+                        eprintln!("Statement was: {}", statement);
+                    }
+                }
+            }
+            current_statement.clear();
+        }
+    }
+
+    // Commit the transaction
+    transaction.commit().await?;
+
+    // Record this migration
+    sqlx::query("INSERT OR REPLACE INTO migrations (name) VALUES ('data_sql')")
+        .execute(pool)
+        .await?;
+
+    println!("Successfully loaded data from data.sql");
+    Ok(())
+}
+
+/// Export current database to a timestamped data.sql file
+pub async fn dump_database_to_sql(
+    _pool: &SqlitePool,
+) -> Result<String, Box<dyn std::error::Error>> {
+    use chrono::Utc;
+    use std::process::Command;
+
+    let timestamp = Utc::now().format("%Y%m%d_%H%M%S");
+    let filename = format!("data-{}.sql", timestamp);
+    let filepath = format!("./data/{}", filename);
+
+    println!("Dumping database to {}...", filepath);
+
+    let output = Command::new("sqlite3")
+        .arg("./data/zones.db")
+        .arg(".dump")
+        .output()?;
+
+    if output.status.success() {
+        std::fs::write(&filepath, output.stdout)?;
+        println!("Database successfully dumped to {}", filepath);
+        Ok(filename)
+    } else {
+        let error = String::from_utf8_lossy(&output.stderr);
+        Err(format!("Failed to dump database: {}", error).into())
+    }
 }
 
 pub async fn migrate_hot_zones_to_flags(pool: &SqlitePool) -> Result<i32, sqlx::Error> {

@@ -6,6 +6,9 @@
 - Mission Zones have been renamed to instanced zones. They are moving out of the zone list into their own random page in the future.
 - Added ZoneFlags, which provide additional information about zones.
 - **BREAKING CHANGE**: Removed the `mission` boolean field from zones and instances. Mission filtering is no longer available via API parameters. Zone type "Mission" is still used for categorization.
+- **BREAKING CHANGE**: Removed the `hot_zone` boolean field from zones and instances.
+- Moved all data to data.sql and added a dump function in the admin interface. This allows PRs to the data and stops the dumb AI from deleting the database when updating the UI lol.
+- Removed zone json data, as its no longer needed.
 
 ## July 30, 2025 - Update 4
 - Added new front end, yes the front is 90% AI generated lol

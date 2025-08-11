@@ -1,5 +1,5 @@
 [workspace]
-members = [".", "migrations", "tests"]
+members = [".", "tests"]
 
 [package]
 name = "eq_rng"
@@ -33,3 +33,4 @@ sqlx = { version = "0.8", features = [
 ] }
 urlencoding = "2.1"
 clap = { version = "4.0", features = ["derive"] }
+chrono = { version = "0.4", features = ["serde"] }

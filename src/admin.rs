@@ -5,7 +5,7 @@ use axum::{
     Form,
     extract::{Path, Query, State},
     http::StatusCode,
-    response::{Html, Redirect},
+    response::{Html, IntoResponse, Redirect},
     routing::{get, post},
 };
 #[cfg(feature = "admin")]
@@ -264,6 +264,7 @@ pub fn admin_routes() -> Router<AppState> {
         .route("/admin/links/:id", get(edit_link_form))
         .route("/admin/links/:id", post(handle_link_update_or_delete))
         .route("/admin/links/:id/delete", post(delete_link_admin))
+        .route("/admin/dump-database", post(dump_database_sql))
 }
 
 #[cfg(not(feature = "admin"))]
@@ -519,6 +520,16 @@ async fn admin_dashboard(State(state): State<AppState>) -> Result<Html<String>, 
 
         <p><a href="/admin/ratings">Manage all ratings</a> - View and delete zone ratings</p>
         <p><a href="/admin/links">Manage links</a> - View, edit, and delete links organized by category</p>
+
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd;">
+            <form action="/admin/dump-database" method="post" style="margin: 0;">
+                <button type="submit" style="background-color: #dc2626; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;"
+                        onclick="return confirm('This will create a new timestamped data.sql file. Continue?')">
+                    🗄️ Dump Database to SQL
+                </button>
+            </form>
+            <p style="margin-top: 8px; font-size: 0.875rem; color: #666;">Export complete database to timestamped data-YYYYMMDD_HHMMSS.sql file</p>
+        </div>
     </div>
 
     <div class="card">
@@ -4674,4 +4685,95 @@ async fn delete_instance_note(
         "/admin/instances/{}/notes",
         instance_id
     )))
+}
+
+#[cfg(feature = "admin")]
+async fn dump_database_sql(State(state): State<AppState>) -> impl IntoResponse {
+    match crate::dump_database_to_sql(&state.zone_state.pool).await {
+        Ok(filename) => {
+            let success_message = format!("Database successfully dumped to data/{}", filename);
+            Html(format!(
+                r#"
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Database Dump - EQ RNG Admin</title>
+                    <script src="https://cdn.tailwindcss.com"></script>
+                </head>
+                <body class="bg-gray-100 min-h-screen">
+                    <div class="container mx-auto px-4 py-8">
+                        <div class="max-w-2xl mx-auto">
+                            <div class="bg-white rounded-lg shadow-md p-6">
+                                <h1 class="text-2xl font-bold text-gray-800 mb-4">Database Dump Complete</h1>
+
+                                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                                    <p class="font-semibold">Success!</p>
+                                    <p>{}</p>
+                                </div>
+
+                                <div class="space-y-4">
+                                    <p class="text-gray-600">
+                                        The database has been exported to a timestamped SQL file. This file contains:
+                                    </p>
+                                    <ul class="list-disc list-inside text-gray-600 space-y-1">
+                                        <li>Complete database schema</li>
+                                        <li>All table data</li>
+                                        <li>Indexes and constraints</li>
+                                    </ul>
+
+                                    <div class="pt-4">
+                                        <a href="/admin" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                            Return to Admin Dashboard
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                "#,
+                success_message
+            ))
+        }
+        Err(e) => {
+            let error_message = format!("Failed to dump database: {}", e);
+            Html(format!(
+                r#"
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Database Dump Error - EQ RNG Admin</title>
+                    <script src="https://cdn.tailwindcss.com"></script>
+                </head>
+                <body class="bg-gray-100 min-h-screen">
+                    <div class="container mx-auto px-4 py-8">
+                        <div class="max-w-2xl mx-auto">
+                            <div class="bg-white rounded-lg shadow-md p-6">
+                                <h1 class="text-2xl font-bold text-gray-800 mb-4">Database Dump Failed</h1>
+
+                                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                                    <p class="font-semibold">Error!</p>
+                                    <p>{}</p>
+                                </div>
+
+                                <div class="pt-4">
+                                    <a href="/admin" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                        Return to Admin Dashboard
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                "#,
+                error_message
+            ))
+        }
+    }
 }
