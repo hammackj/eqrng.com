@@ -25,14 +25,14 @@ use chrono::Utc;
 // Reuse the same keyed blake3 scheme as ratings.rs
 fn rating_ip_hash_key() -> [u8; 32] {
     let key_material = std::env::var("RATING_IP_HASH_KEY").unwrap_or_else(|_| {
-        eprintln!("RATING_IP_HASH_KEY environment variable not set, using fallback key");
+        tracing::warn!("RATING_IP_HASH_KEY environment variable not set, using fallback key");
         // Generate a fallback key for development (not secure for production)
         "fallback-key-not-secure-for-production-use-32-chars".to_string()
     });
 
     // Ensure minimum key length for security
     let key_material = if key_material.len() < 32 {
-        eprintln!("RATING_IP_HASH_KEY must be at least 32 characters long for security");
+        tracing::warn!("RATING_IP_HASH_KEY must be at least 32 characters long for security");
         // Use a longer fallback key
         "fallback-key-not-secure-for-production-use-32-chars".to_string()
     } else {
@@ -183,12 +183,12 @@ pub async fn setup_database() -> Result<SqlitePool, Box<dyn std::error::Error>> 
 
     // Run database migrations (for schema updates like 'filterable' column)
     if let Err(e) = run_migrations(&pool).await {
-        eprintln!("Warning: failed to run migrations: {}", e);
+        tracing::warn!(error = %e, "Warning: failed to run migrations");
     }
 
     // Anonymize any existing plaintext IPs in ratings before continuing
     if let Err(e) = migrate_hash_zone_ratings(&pool).await {
-        eprintln!("Warning: failed to hash existing rating IPs: {}", e);
+        tracing::warn!(error = %e, "Warning: failed to hash existing rating IPs");
     }
 
     // Force WAL checkpoint to consolidate changes into main database file
@@ -774,13 +774,15 @@ pub async fn load_data_sql(pool: &SqlitePool) -> Result<(), Box<dyn std::error::
                     success_count += 1;
                 }
                 Err(e) => {
-                    eprintln!("Warning: failed to execute statement: {}", e);
-                    eprintln!("Statement: {}", trimmed);
+                    tracing::warn!(error = %e, statement = %trimmed, "Warning: failed to execute statement");
                     error_count += 1;
 
                     // If we get too many errors, abort the transaction
                     if error_count > 10 {
-                        eprintln!("Too many errors, aborting transaction");
+                        tracing::error!(
+                            count = error_count,
+                            "Too many errors, aborting transaction"
+                        );
                         transaction.rollback().await?;
                         return Err(format!(
                             "Failed to load data.sql: {} errors encountered",
