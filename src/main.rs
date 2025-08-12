@@ -69,18 +69,21 @@ async fn security_headers(mut response: Response) -> Response {
 async fn main() {
     let args = Args::parse();
     // Initialize database
-    let pool = eq_rng::setup_database()
-        .await
-        .expect("Failed to initialize database");
+    let pool = eq_rng::setup_database().await.map_err(|e| {
+        eprintln!("Failed to initialize database: {}", e);
+        std::process::exit(1);
+    })?;
 
     // Check database health
-    eq_rng::database_health_check(&pool)
-        .await
-        .expect("Database health check failed");
+    eq_rng::database_health_check(&pool).await.map_err(|e| {
+        eprintln!("Database health check failed: {}", e);
+        std::process::exit(1);
+    })?;
 
-    let zone_count = eq_rng::get_zones_count(&pool)
-        .await
-        .expect("Failed to get zone count");
+    let zone_count = eq_rng::get_zones_count(&pool).await.map_err(|e| {
+        eprintln!("Failed to get zone count: {}", e);
+        std::process::exit(1);
+    })?;
 
     println!("Database ready with {} zones", zone_count);
 
@@ -134,10 +137,22 @@ async fn main() {
                 // Development: Allow localhost origins
                 CorsLayer::new()
                     .allow_origin([
-                        "http://localhost:3000".parse().unwrap(),
-                        "http://localhost:5173".parse().unwrap(), // Vite dev server
-                        "http://127.0.0.1:3000".parse().unwrap(),
-                        "http://127.0.0.1:5173".parse().unwrap(),
+                        "http://localhost:3000".parse().map_err(|e| {
+                            eprintln!("Invalid CORS origin: http://localhost:3000 - {}", e);
+                            std::process::exit(1);
+                        })?,
+                        "http://localhost:5173".parse().map_err(|e| {
+                            eprintln!("Invalid CORS origin: http://localhost:5173 - {}", e);
+                            std::process::exit(1);
+                        })?, // Vite dev server
+                        "http://127.0.0.1:3000".parse().map_err(|e| {
+                            eprintln!("Invalid CORS origin: http://127.0.0.1:3000 - {}", e);
+                            std::process::exit(1);
+                        })?,
+                        "http://127.0.0.1:5173".parse().map_err(|e| {
+                            eprintln!("Invalid CORS origin: http://127.0.0.1:5173 - {}", e);
+                            std::process::exit(1);
+                        })?,
                     ])
                     .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
                     .allow_headers(Any)
@@ -168,9 +183,26 @@ async fn main() {
         })
         .nest_service("/", ServeDir::new("dist"));
 
-    let addr: SocketAddr = format!("0.0.0.0:{}", args.port).parse().unwrap();
-    let listener = TcpListener::bind(addr).await.unwrap();
-    println!("Listening on {}", listener.local_addr().unwrap());
+    let addr: SocketAddr = format!("0.0.0.0:{}", args.port).parse().map_err(|e| {
+        eprintln!("Failed to parse address: {}", e);
+        std::process::exit(1);
+    })?;
 
-    serve(listener, app.into_make_service()).await.unwrap();
+    let listener = TcpListener::bind(addr).await.map_err(|e| {
+        eprintln!("Failed to bind to address {}: {}", addr, e);
+        std::process::exit(1);
+    })?;
+
+    let local_addr = listener.local_addr().map_err(|e| {
+        eprintln!("Failed to get local address: {}", e);
+        std::process::exit(1);
+    })?;
+    println!("Listening on {}", local_addr);
+
+    serve(listener, app.into_make_service())
+        .await
+        .map_err(|e| {
+            eprintln!("Server error: {}", e);
+            std::process::exit(1);
+        })?;
 }
