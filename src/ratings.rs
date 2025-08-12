@@ -7,12 +7,12 @@ use axum::{
 use blake3;
 use serde::{Deserialize, Serialize};
 use sqlx::{Row, SqlitePool};
-use std::env;
 use std::fs::OpenOptions;
 use std::io::Write;
 use std::sync::Arc;
+use tracing::{error, warn};
 
-use crate::{RATING_MIN, RATING_MAX, MIN_IP_HASH_KEY_LENGTH};
+use crate::{AppState, AppError, AppResult};
 
 #[derive(Clone)]
 pub struct RatingState {
@@ -57,16 +57,16 @@ pub struct RatingQuery {
 
 // Hashing utilities to anonymize IP addresses for ratings
 fn rating_ip_hash_key() -> [u8; 32] {
-    let key_material = env::var("RATING_IP_HASH_KEY")
+    let key_material = std::env::var("RATING_IP_HASH_KEY")
         .unwrap_or_else(|_| {
-            eprintln!("RATING_IP_HASH_KEY environment variable not set, using fallback key");
+            warn!("RATING_IP_HASH_KEY environment variable not set, using fallback key");
             // Generate a fallback key for development (not secure for production)
             "fallback-key-not-secure-for-production-use-32-chars".to_string()
         });
 
     // Ensure minimum key length for security
-    let key_material = if key_material.len() < MIN_IP_HASH_KEY_LENGTH {
-        eprintln!("RATING_IP_HASH_KEY must be at least {} characters long for security", MIN_IP_HASH_KEY_LENGTH);
+    let key_material = if key_material.len() < 32 {
+        warn!("RATING_IP_HASH_KEY must be at least 32 characters long for security");
         // Use a longer fallback key
         "fallback-key-not-secure-for-production-use-32-chars".to_string()
     } else {
@@ -89,8 +89,8 @@ fn hash_ip(ip: &str) -> String {
 pub async fn get_zone_rating(
     Path(zone_id): Path<i64>,
     Query(params): Query<RatingQuery>,
-    State(state): State<crate::AppState>,
-) -> Result<Json<ZoneRatingStats>, StatusCode> {
+    State(state): State<AppState>,
+) -> AppResult<Json<ZoneRatingStats>> {
     let pool = &*state.zone_state.pool;
 
     // First, verify the zone exists
@@ -99,12 +99,12 @@ pub async fn get_zone_rating(
         .fetch_optional(pool)
         .await
         .map_err(|e| {
-            eprintln!("Database error checking zone existence for zone {}: {}", zone_id, e);
-            StatusCode::INTERNAL_SERVER_ERROR
+            error!("Database error checking zone existence for zone {}: {}", zone_id, e);
+            AppError::Database(e)
         })?;
 
     if zone_exists.is_none() {
-        return Err(StatusCode::NOT_FOUND);
+        return Err(AppError::ZoneNotFound(zone_id));
     }
 
     // Get rating statistics
@@ -121,8 +121,8 @@ pub async fn get_zone_rating(
     .fetch_one(pool)
     .await
     .map_err(|e| {
-        eprintln!("Database error getting rating stats for zone {}: {}", zone_id, e);
-        StatusCode::INTERNAL_SERVER_ERROR
+        error!("Database error getting rating stats for zone {}: {}", zone_id, e);
+        AppError::Database(e)
     })?;
 
     let total_ratings: i64 = stats.get("total_ratings");
@@ -137,8 +137,8 @@ pub async fn get_zone_rating(
             .fetch_optional(pool)
             .await
             .map_err(|e| {
-                eprintln!("Database error getting user rating for zone {}: {}", zone_id, e);
-                StatusCode::INTERNAL_SERVER_ERROR
+                error!("Database error getting user rating for zone {}: {}", zone_id, e);
+                AppError::Database(e)
             })?
             .map(|row| row.get::<i32, _>("rating") as u8)
     } else {
@@ -157,14 +157,14 @@ pub async fn get_zone_rating(
 pub async fn submit_zone_rating(
     Path(zone_id): Path<i64>,
     Query(params): Query<RatingQuery>,
-    State(state): State<crate::AppState>,
+    State(state): State<AppState>,
     Json(payload): Json<SubmitRatingRequest>,
-) -> Result<Json<ZoneRatingStats>, StatusCode> {
+) -> AppResult<Json<ZoneRatingStats>> {
     let pool = &*state.zone_state.pool;
 
-    // Validate rating
-    if payload.rating < RATING_MIN || payload.rating > RATING_MAX {
-        return Err(StatusCode::BAD_REQUEST);
+    // Validate rating (using hardcoded values for now, will be configurable later)
+    if payload.rating < 1 || payload.rating > 5 {
+        return Err(AppError::InvalidRating(payload.rating, 1, 5));
     }
 
     // Get user IP (in a real app, you'd extract this from the request headers) and hash it
@@ -177,12 +177,12 @@ pub async fn submit_zone_rating(
         .fetch_optional(pool)
         .await
         .map_err(|e| {
-            eprintln!("Database error checking zone existence for rating submission on zone {}: {}", zone_id, e);
-            StatusCode::INTERNAL_SERVER_ERROR
+            error!("Database error checking zone existence for rating submission on zone {}: {}", zone_id, e);
+            AppError::Database(e)
         })?;
 
     if zone_exists.is_none() {
-        return Err(StatusCode::NOT_FOUND);
+        return Err(AppError::ZoneNotFound(zone_id));
     }
 
     // Insert or update the rating
@@ -202,8 +202,8 @@ pub async fn submit_zone_rating(
     .execute(pool)
     .await
     .map_err(|e| {
-        eprintln!("Database error submitting rating for zone {}: {}", zone_id, e);
-        StatusCode::INTERNAL_SERVER_ERROR
+        error!("Database error submitting rating for zone {}: {}", zone_id, e);
+        AppError::Database(e)
     })?;
 
     // Write SQL transaction to log file (only logs hashed IP)
@@ -234,8 +234,8 @@ pub async fn submit_zone_rating(
 // Get all ratings for a zone (admin/debug endpoint)
 pub async fn get_zone_ratings(
     Path(zone_id): Path<i64>,
-    State(state): State<crate::AppState>,
-) -> Result<Json<Vec<ZoneRating>>, StatusCode> {
+    State(state): State<AppState>,
+) -> AppResult<Json<Vec<ZoneRating>>> {
     let pool = &*state.zone_state.pool;
 
     let rows = sqlx::query(
@@ -250,8 +250,8 @@ pub async fn get_zone_ratings(
     .fetch_all(pool)
     .await
     .map_err(|e| {
-        eprintln!("Database error getting zone ratings for zone {}: {}", zone_id, e);
-        StatusCode::INTERNAL_SERVER_ERROR
+        error!("Database error getting zone ratings for zone {}: {}", zone_id, e);
+        AppError::Database(e)
     })?;
 
     let mut ratings = Vec::new();
@@ -272,8 +272,8 @@ pub async fn get_zone_ratings(
 // Delete a rating by ID (admin/API endpoint)
 pub async fn delete_rating(
     Path(id): Path<i32>,
-    State(state): State<crate::AppState>,
-) -> Result<StatusCode, StatusCode> {
+    State(state): State<AppState>,
+) -> AppResult<StatusCode> {
     let pool = &*state.zone_state.pool;
 
     // First, get the rating details before deletion for transaction logging
@@ -283,8 +283,8 @@ pub async fn delete_rating(
             .fetch_optional(pool)
             .await
             .map_err(|e| {
-                eprintln!("Database error getting rating details for deletion (id {}): {}", id, e);
-                StatusCode::INTERNAL_SERVER_ERROR
+                error!("Database error getting rating details for deletion (id {}): {}", id, e);
+                AppError::Database(e)
             })?;
 
     if let Some(details) = rating_details {
@@ -298,8 +298,8 @@ pub async fn delete_rating(
             .execute(pool)
             .await
             .map_err(|e| {
-                eprintln!("Database error deleting rating (id {}): {}", id, e);
-                StatusCode::INTERNAL_SERVER_ERROR
+                error!("Database error deleting rating (id {}): {}", id, e);
+                AppError::Database(e)
             })?;
 
         // Write SQL transaction to log file
@@ -311,7 +311,7 @@ pub async fn delete_rating(
         );
 
         if let Err(e) = write_to_transaction_log(&sql_statement) {
-            eprintln!("Warning: Failed to write to transaction log: {}", e);
+            warn!("Warning: Failed to write to transaction log: {}", e);
             // Don't fail the request if logging fails
         }
 
@@ -320,7 +320,7 @@ pub async fn delete_rating(
 
         Ok(StatusCode::OK)
     } else {
-        Err(StatusCode::NOT_FOUND)
+        Err(AppError::RatingNotFound(id as i64))
     }
 }
 
