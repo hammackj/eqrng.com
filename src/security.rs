@@ -96,7 +96,8 @@ impl HtmlSanitizer {
                         found_end = true;
                         break;
                     }
-                    tag_content.push(chars.next().unwrap());
+                    // Safe to unwrap since we just checked chars.peek() returned Some
+                    tag_content.push(chars.next().expect("chars.next() should succeed after peek()"));
                 }
 
                 if found_end {
