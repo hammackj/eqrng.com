@@ -341,26 +341,27 @@ async fn create_tables(pool: &SqlitePool) -> Result<(), sqlx::Error> {
         .execute(pool)
         .await?;
 
-        // Insert default note types
-        let default_note_types = [
-            ("epic_1_0", "Epic 1.0", "bg-yellow-500"),
-            ("epic_1_5", "Epic 1.5", "bg-orange-500"),
-            ("epic_2_0", "Epic 2.0", "bg-red-500"),
-            ("zone_aug", "Zone Aug", "bg-purple-500"),
-        ];
+        // TODO REMOVE
+        // // Insert default note types
+        // let default_note_types = [
+        //     ("epic_1_0", "Epic 1.0", "bg-yellow-500"),
+        //     ("epic_1_5", "Epic 1.5", "bg-orange-500"),
+        //     ("epic_2_0", "Epic 2.0", "bg-red-500"),
+        //     ("zone_aug", "Zone Aug", "bg-purple-500"),
+        // ];
 
-        for (name, display_name, color_class) in &default_note_types {
-            sqlx::query(
-                "INSERT INTO note_types (name, display_name, color_class) VALUES (?, ?, ?)",
-            )
-            .bind(name)
-            .bind(display_name)
-            .bind(color_class)
-            .execute(pool)
-            .await?;
-        }
+        // for (name, display_name, color_class) in &default_note_types {
+        //     sqlx::query(
+        //         "INSERT INTO note_types (name, display_name, color_class) VALUES (?, ?, ?)",
+        //     )
+        //     .bind(name)
+        //     .bind(display_name)
+        //     .bind(color_class)
+        //     .execute(pool)
+        //     .await?;
+        // }
 
-        println!("Note types table created successfully with default types");
+        println!("Note types table created successfully.");
     } else {
         println!("Note types table already exists");
     }
@@ -565,31 +566,33 @@ async fn create_tables(pool: &SqlitePool) -> Result<(), sqlx::Error> {
                 name TEXT NOT NULL UNIQUE,
                 display_name TEXT NOT NULL,
                 color_class TEXT NOT NULL DEFAULT 'bg-blue-500',
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                filterable BOOLEAN NOT NULL DEFAULT 1
+            );
             "#,
         )
         .execute(pool)
         .await?;
 
-        // Insert default flag types
-        let default_flag_types = [
-            ("hot_zone", "Hot Zone", "bg-red-500"),
-            ("undead", "Undead", "bg-purple-500"),
-        ];
+        // TODO REMOVE
+        // // Insert default flag types
+        // let default_flag_types = [
+        //     ("hot_zone", "Hot Zone", "bg-red-500"),
+        //     ("undead", "Undead", "bg-purple-500"),
+        // ];
 
-        for (name, display_name, color_class) in &default_flag_types {
-            sqlx::query(
-                "INSERT INTO flag_types (name, display_name, color_class) VALUES (?, ?, ?)",
-            )
-            .bind(name)
-            .bind(display_name)
-            .bind(color_class)
-            .execute(pool)
-            .await?;
-        }
+        // for (name, display_name, color_class) in &default_flag_types {
+        //     sqlx::query(
+        //         "INSERT INTO flag_types (name, display_name, color_class) VALUES (?, ?, ?)",
+        //     )
+        //     .bind(name)
+        //     .bind(display_name)
+        //     .bind(color_class)
+        //     .execute(pool)
+        //     .await?;
+        // }
 
-        println!("Flag types table created successfully with default types");
+        println!("Flag types table created successfully.");
     } else {
         println!("Flag types table already exists");
     }
@@ -764,32 +767,39 @@ pub async fn load_data_sql(pool: &SqlitePool) -> Result<(), Box<dyn std::error::
 
     for statement in statements {
         let trimmed = statement.trim();
-        if !trimmed.is_empty()
-            && !trimmed.to_lowercase().starts_with("create table")
-            && !trimmed.to_lowercase().starts_with("create index")
-            && !trimmed.to_lowercase().starts_with("commit")
-        {
-            match sqlx::query(trimmed).execute(&mut *transaction).await {
-                Ok(_) => {
-                    success_count += 1;
-                }
-                Err(e) => {
-                    tracing::warn!(error = %e, statement = %trimmed, "Warning: failed to execute statement");
-                    error_count += 1;
+        let lower = trimmed.to_lowercase();
 
-                    // If we get too many errors, abort the transaction
-                    if error_count > 10 {
-                        tracing::error!(
-                            count = error_count,
-                            "Too many errors, aborting transaction"
-                        );
-                        transaction.rollback().await?;
-                        return Err(format!(
-                            "Failed to load data.sql: {} errors encountered",
-                            error_count
-                        )
-                        .into());
-                    }
+        // Skip statements that would conflict with the outer transaction we created,
+        // and skip obvious DDL that we already handled elsewhere.
+        if trimmed.is_empty()
+            || lower.starts_with("create table")
+            || lower.starts_with("create index")
+            || lower.starts_with("commit")
+            || lower.starts_with("begin")
+            || lower.starts_with("rollback")
+        {
+            // Log that we're intentionally skipping transaction/DDL control statements
+            tracing::debug!(statement = %trimmed, "Skipping control/DDL statement while loading data.sql");
+            continue;
+        }
+
+        match sqlx::query(trimmed).execute(&mut *transaction).await {
+            Ok(_) => {
+                success_count += 1;
+            }
+            Err(e) => {
+                tracing::warn!(error = %e, statement = %trimmed, "Warning: failed to execute statement");
+                error_count += 1;
+
+                // If we get too many errors, abort the transaction
+                if error_count > 10 {
+                    tracing::error!(count = error_count, "Too many errors, aborting transaction");
+                    transaction.rollback().await?;
+                    return Err(format!(
+                        "Failed to load data.sql: {} errors encountered",
+                        error_count
+                    )
+                    .into());
                 }
             }
         }
