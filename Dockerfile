@@ -49,7 +49,6 @@ COPY utils/backup_zone_ratings.sh /opt/eq_rng/utils/
 COPY utils/rating_transaction_log.sh /opt/eq_rng/utils/
 COPY utils/deploy_with_rating_log.sh /opt/eq_rng/utils/
 COPY utils/setup_logs.sh /opt/eq_rng/utils/
-COPY migrations/zone_ratings/ /opt/eq_rng/migrations/zone_ratings/
 COPY utils/docker-entrypoint.sh /opt/eq_rng/
 
 # Make scripts executable
@@ -57,8 +56,7 @@ RUN chmod +x /opt/eq_rng/utils/backup_zone_ratings.sh \
     && chmod +x /opt/eq_rng/utils/rating_transaction_log.sh \
     && chmod +x /opt/eq_rng/utils/deploy_with_rating_log.sh \
     && chmod +x /opt/eq_rng/utils/setup_logs.sh \
-    && chmod +x /opt/eq_rng/docker-entrypoint.sh \
-    && chmod +x /opt/eq_rng/migrations/zone_ratings/*.sh || true
+    && chmod +x /opt/eq_rng/docker-entrypoint.sh || true
 
 # Make binary executable
 RUN chmod +x /opt/eq_rng/eq_rng
