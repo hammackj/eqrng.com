@@ -3,6 +3,10 @@ use std::path::Path;
 use tracing::Level;
 use tracing_subscriber::fmt::time::UtcTime;
 
+// Tracing appender for file-based, non-blocking logging
+use tracing_appender::non_blocking::WorkerGuard;
+use tracing_appender::rolling;
+
 pub fn init_logging(
     config: &crate::config::LoggingConfig,
 ) -> Result<(), Box<dyn std::error::Error>> {
@@ -14,7 +18,27 @@ pub fn init_logging(
     // Parse log level
     let log_level = config.level.parse::<Level>().unwrap_or(Level::INFO);
 
-    // Initialize basic logging
+    // Build a rolling file appender (daily rotation).
+    // The appender will create files like "<log_dir>/<file_name>.<YYYY-MM-DD>"
+    let file_path = Path::new(&config.file_path);
+    let log_dir = file_path.parent().unwrap_or_else(|| Path::new("."));
+    let file_name = file_path
+        .file_name()
+        .and_then(|s| s.to_str())
+        .unwrap_or("eq_rng.log");
+
+    let file_appender = rolling::daily(log_dir, file_name);
+
+    // Convert to non-blocking writer and keep the guard alive for program lifetime.
+    let (non_blocking, guard): (tracing_appender::non_blocking::NonBlocking, WorkerGuard) =
+        tracing_appender::non_blocking(file_appender);
+
+    // Prevent the guard from being dropped (which would stop the logging worker).
+    // We intentionally leak it so it lives for the whole process lifetime.
+    // Alternative: store the guard in a global/static if you want explicit management.
+    Box::leak(Box::new(guard));
+
+    // Initialize tracing_subscriber with the file writer
     tracing_subscriber::fmt()
         .with_timer(UtcTime::rfc_3339())
         .with_target(true)
@@ -23,6 +47,7 @@ pub fn init_logging(
         .with_file(true)
         .with_line_number(true)
         .with_max_level(log_level)
+        .with_writer(non_blocking)
         .init();
 
     tracing::info!("Logging initialized with level: {}", log_level);
