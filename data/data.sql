@@ -402,11 +402,11 @@ INSERT INTO zones VALUES(697,'The Harbinger''s Cradle','[[120,125]]','The Outer 
 INSERT INTO zones VALUES(698,'The Chambers of Puissance','[[120,125]]','The Outer Brood','Antonica','outdoor','["The Harbinger''s Cradle"]','','',0,0,0,'2025-07-21 23:58:30',1);
 INSERT INTO zones VALUES(699,'The Gilded Spire','[[120,125]]','The Outer Brood','Antonica','outdoor','["Aureate Covert"]','','',0,0,0,'2025-07-21 23:58:30',1);
 INSERT INTO zones VALUES(704,'Great Divide','[[30,50]]','Velious','Velious','outdoor',replace(replace('["Eastern Wastes",\r\n"Icewell Keep",\r\n"Plane of Knowledge",\r\n"Plane of Mischief",\r\n"The Nexus",\r\n"Thurgadin",\r\n"Velketor''s Labyrinth"]','\r',char(13)),'\n',char(10)),'','',0,1,0,'2025-07-22 01:53:15',1);
-INSERT INTO zones VALUES(705,'The Mines of Gloomingdeep','[[1,15]]','The Serpent''s Spine','Antonica','Indoor','["Crescent Reach", "Plane of Knowledge"]\r\n\r\n','','',0,0,0,'2025-08-12 04:56:20',1);
-INSERT INTO zones VALUES(706,'Chapterhouse of the Fallen','[[100,105]]','Rain of Fear','Rain of Fear','Indoor','[\r\n"Commonlands",\r\n"Shard''s Landing"\r\n]','','',0,0,0,'2025-08-12 04:56:20',1);
+INSERT INTO zones VALUES(705,'The Mines of Gloomingdeep','[[1,15]]','The Serpent''s Spine','Antonica','Indoor','["Crescent Reach", "Plane of Knowledge"]','','',0,0,0,'2025-08-12 04:56:20',1);
+INSERT INTO zones VALUES(706,'Chapterhouse of the Fallen','[[100,105]]','Rain of Fear','Rain of Fear','Indoor','["Commonlands","Shard''s Landing"]','','',0,0,0,'2025-08-12 04:56:20',1);
 INSERT INTO zones VALUES(707,'Sathir''s Tomb','[[106,114]]','Ring of Scale','Kunark','Indoor','["Howling Stones [RoS]"]','','',0,0,0,'2025-08-12 04:56:20',1);
-INSERT INTO zones VALUES(708,'Ruins of Old Paineel (The Hole)','[[40,65]]','Classic','Odus','Indoor','[\r\n"Brell''s Rest",\r\n"Paineel"\r\n]','','',0,0,0,'2025-08-12 04:56:20',1);
-INSERT INTO zones VALUES(709,'Caverns of Exile (Solusek C)','[[50, 65]]','Ykesha','Antonica','Indoor','[\r\n"Nagafen''s Lair",\r\n"Solusek''s Eye (Solusek A)"\r\n]','','',0,0,0,'2025-08-12 04:56:20',1);
+INSERT INTO zones VALUES(708,'Ruins of Old Paineel (The Hole)','[[40,65]]','Classic','Odus','Indoor','["Brell''s Rest","Paineel"]','','',0,0,0,'2025-08-12 04:56:20',1);
+INSERT INTO zones VALUES(709,'Caverns of Exile (Solusek C)','[[50, 65]]','Ykesha','Antonica','Indoor','["Nagafen''s Lair","Solusek''s Eye (Solusek A)"]','','',0,0,0,'2025-08-12 04:56:20',1);
 CREATE TABLE zone_ratings (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 zone_id INTEGER NOT NULL,
@@ -424,10 +424,10 @@ CREATE TABLE note_types (
                 color_class TEXT NOT NULL DEFAULT 'bg-blue-500',
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             );
-INSERT INTO note_types VALUES(1,'epic_1_0','Epic 1.0','bg-yellow-500','2025-08-12 04:55:41');
-INSERT INTO note_types VALUES(2,'epic_1_5','Epic 1.5','bg-orange-500','2025-08-12 04:55:41');
-INSERT INTO note_types VALUES(3,'epic_2_0','Epic 2.0','bg-red-500','2025-08-12 04:55:41');
-INSERT INTO note_types VALUES(4,'zone_aug','Zone Aug','bg-purple-500','2025-08-12 04:55:41');
+INSERT INTO note_types VALUES(1,'epic_1_0','Epic 1.0','bg-yellow-500','2025-08-12 05:01:57');
+INSERT INTO note_types VALUES(2,'epic_1_5','Epic 1.5','bg-orange-500','2025-08-12 05:01:57');
+INSERT INTO note_types VALUES(3,'epic_2_0','Epic 2.0','bg-red-500','2025-08-12 05:01:57');
+INSERT INTO note_types VALUES(4,'zone_aug','Zone Aug','bg-purple-500','2025-08-12 05:01:57');
 INSERT INTO note_types VALUES(5,'ref','Ref','bg-green-500','2025-07-31 18:16:00');
 INSERT INTO note_types VALUES(6,'video','Video','bg-red-500','2025-07-31 19:34:11');
 CREATE TABLE zone_notes (
@@ -837,12 +837,10 @@ CREATE TABLE flag_types (
                 name TEXT NOT NULL UNIQUE,
                 display_name TEXT NOT NULL,
                 color_class TEXT NOT NULL DEFAULT 'bg-blue-500',
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
-                filterable BOOLEAN NOT NULL DEFAULT 1
-                );
-
-INSERT INTO flag_types VALUES(1,'hot_zone','Hot Zone','bg-red-500','2025-08-12 04:55:41',1);
-INSERT INTO flag_types VALUES(2,'undead','Undead','bg-purple-500','2025-08-12 04:55:41',1);
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            , filterable BOOLEAN NOT NULL DEFAULT 1);
+INSERT INTO flag_types VALUES(1,'hot_zone','Hot Zone','bg-red-500','2025-08-12 05:01:57',1);
+INSERT INTO flag_types VALUES(2,'undead','Undead','bg-purple-500','2025-08-12 05:01:57',1);
 INSERT INTO flag_types VALUES(3,'epic_zone','Epic Zone','bg-yellow-500','2025-08-10 19:28:29',0);
 INSERT INTO flag_types VALUES(4,'raid_zone','Raid Zone','bg-red-500','2025-08-10 19:28:29',0);
 INSERT INTO flag_types VALUES(5,'newbie_friendly','Newbie Friendly','bg-green-500','2025-08-10 19:28:29',1);
@@ -850,7 +848,6 @@ INSERT INTO flag_types VALUES(11,'druid_port','Druid Port','bg-cyan-500','2025-0
 INSERT INTO flag_types VALUES(15,'wizard_port','Wizard Port','bg-fuchsia-500','2025-08-11 01:09:15',0);
 INSERT INTO flag_types VALUES(16,'guild_hall_port','Guild Hall Portal','bg-lime-500','2025-08-11 22:30:56',0);
 INSERT INTO flag_types VALUES(17,'pok_port','PoK Portal Stone','bg-blue-500','2025-08-11 22:32:37',0);
-
 CREATE TABLE zone_flags (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 zone_id INTEGER NOT NULL,
@@ -1000,7 +997,7 @@ CREATE TABLE migrations (
             name TEXT NOT NULL UNIQUE,
             applied_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
-INSERT INTO migrations VALUES(1,'data_sql','2025-08-12 04:55:42');
+INSERT INTO migrations VALUES(2,'data_sql','2025-08-12 17:02:24');
 DELETE FROM sqlite_sequence;
 INSERT INTO sqlite_sequence VALUES('zones',709);
 INSERT INTO sqlite_sequence VALUES('zone_ratings',5);
@@ -1011,7 +1008,7 @@ INSERT INTO sqlite_sequence VALUES('instances',318);
 INSERT INTO sqlite_sequence VALUES('instance_notes',3);
 INSERT INTO sqlite_sequence VALUES('flag_types',17);
 INSERT INTO sqlite_sequence VALUES('zone_flags',146);
-INSERT INTO sqlite_sequence VALUES('migrations',1);
+INSERT INTO sqlite_sequence VALUES('migrations',2);
 CREATE INDEX idx_zones_expansion ON zones(expansion);
 CREATE INDEX idx_zones_zone_type ON zones(zone_type);
 CREATE INDEX idx_zones_hot_zone ON zones(hot_zone);
