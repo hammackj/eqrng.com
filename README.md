@@ -9,7 +9,7 @@ This is a Rust workspace with the following components:
 ### 📦 Packages
 
 - **`eq_rng`** (`src/`) - Main web server and API endpoints
-- **`eq_rng_tests`** (`tests/`) - Database testing and validation utilities
+
 
 ### 📁 Directory Layout
 
@@ -26,20 +26,10 @@ eq_rng.com/
 │   ├── links.rs           # Links API endpoints
 │   ├── admin.rs           # Admin interface (optional feature)
 │   └── version.rs         # Version API endpoint
-├── tests/                 # Testing subcrate
-│   ├── src/
-│   │   ├── lib.rs        # Test utilities library
-│   │   └── test_db.rs    # Database tests
-│   └── Cargo.toml        # Test dependencies
 ├── data/                  # Data files and database
 │   ├── data.sql          # Database source of truth (SQL dump)
-│   ├── zones.db          # SQLite database (generated from data.sql)
 │   ├── class_race.json   # Class/race compatibility data
-│   └── data-YYYYMMDD_HHMMSS.sql # Timestamped database dumps
 ├── dist/                  # Frontend build output
-├── docs/                  # Documentation
-│   └── data-sql-migration.md # Data.sql migration system docs
-├── run_tests.sh          # Test runner script
 └── Cargo.toml            # Workspace configuration
 ```
 
