@@ -1,5 +1,5 @@
 [workspace]
-members = [".", "tests"]
+members = ["."]
 
 [package]
 name = "eq_rng"
@@ -35,3 +35,8 @@ urlencoding = "2.1"
 clap = { version = "4.0", features = ["derive"] }
 chrono = { version = "0.4", features = ["serde"] }
 blake3 = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "time"] }
+config = "0.14"
+anyhow = "1.0"
+thiserror = "1.0"
