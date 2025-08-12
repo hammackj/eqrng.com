@@ -4,8 +4,11 @@ use tracing::Level;
 use tracing_subscriber::fmt::time::UtcTime;
 
 // Tracing appender for file-based, non-blocking logging
+use once_cell::sync::OnceCell;
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_appender::rolling;
+
+static LOG_GUARD: OnceCell<WorkerGuard> = OnceCell::new();
 
 pub fn init_logging(
     config: &crate::config::LoggingConfig,
@@ -33,10 +36,10 @@ pub fn init_logging(
     let (non_blocking, guard): (tracing_appender::non_blocking::NonBlocking, WorkerGuard) =
         tracing_appender::non_blocking(file_appender);
 
-    // Prevent the guard from being dropped (which would stop the logging worker).
-    // We intentionally leak it so it lives for the whole process lifetime.
-    // Alternative: store the guard in a global/static if you want explicit management.
-    Box::leak(Box::new(guard));
+    // Store the guard in a global OnceCell so it is not dropped for the process lifetime.
+    // This keeps the background logging worker alive without leaking memory.
+    // If set() fails it means the guard was already set; ignore that case.
+    LOG_GUARD.set(guard).ok();
 
     // Initialize tracing_subscriber with the file writer
     tracing_subscriber::fmt()
