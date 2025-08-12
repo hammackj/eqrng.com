@@ -135,7 +135,7 @@ pub async fn random_zone(
     }
 
     let rows = sql_query.fetch_all(pool).await.map_err(|e| {
-        eprintln!("Database error: {}", e);
+        eprintln!("Database error in random_zone query: {}", e);
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
