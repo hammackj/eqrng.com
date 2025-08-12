@@ -41,8 +41,8 @@ COPY --from=backend-builder /usr/src/eq_rng/data /opt/eq_rng/data
 COPY public/ /opt/eq_rng/public/
 COPY config/ /opt/eq_rng/config/
 
-# Copy built frontend assets
-COPY --from=frontend-builder /usr/src/eq_rng/frontend/dist /opt/eq_rng/dist
+# Copy built frontend assets (fixed source path to match frontend-builder WORKDIR)
+COPY --from=frontend-builder /usr/src/frontend/dist /opt/eq_rng/dist
 
 # Copy zone ratings and transaction log management utilities
 COPY utils/backup_zone_ratings.sh /opt/eq_rng/utils/
