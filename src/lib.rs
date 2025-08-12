@@ -223,8 +223,9 @@ async fn create_tables(pool: &SqlitePool) -> Result<(), sqlx::Error> {
                 map_url TEXT NOT NULL DEFAULT '',
                 rating INTEGER NOT NULL DEFAULT 0,
                 hot_zone BOOLEAN NOT NULL DEFAULT FALSE,
-                verified BOOLEAN NOT NULL DEFAULT FALSE,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                mission BOOLEAN NOT NULL DEFAULT FALSE,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                verified BOOLEAN NOT NULL DEFAULT FALSE
             )
             "#,
         )
@@ -473,6 +474,7 @@ async fn create_tables(pool: &SqlitePool) -> Result<(), sqlx::Error> {
                 map_url TEXT NOT NULL DEFAULT '',
                 rating INTEGER NOT NULL DEFAULT 0,
                 hot_zone BOOLEAN NOT NULL DEFAULT FALSE,
+                mission BOOLEAN NOT NULL DEFAULT FALSE,
                 verified BOOLEAN NOT NULL DEFAULT FALSE,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
@@ -563,7 +565,6 @@ async fn create_tables(pool: &SqlitePool) -> Result<(), sqlx::Error> {
                 name TEXT NOT NULL UNIQUE,
                 display_name TEXT NOT NULL,
                 color_class TEXT NOT NULL DEFAULT 'bg-blue-500',
-                filterable BOOLEAN NOT NULL DEFAULT 1,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
             "#,
@@ -573,18 +574,17 @@ async fn create_tables(pool: &SqlitePool) -> Result<(), sqlx::Error> {
 
         // Insert default flag types
         let default_flag_types = [
-            ("hot_zone", "Hot Zone", "bg-red-500", true),
-            ("undead", "Undead", "bg-purple-500", true),
+            ("hot_zone", "Hot Zone", "bg-red-500"),
+            ("undead", "Undead", "bg-purple-500"),
         ];
 
-        for (name, display_name, color_class, filterable) in &default_flag_types {
+        for (name, display_name, color_class) in &default_flag_types {
             sqlx::query(
-                "INSERT INTO flag_types (name, display_name, color_class, filterable) VALUES (?, ?, ?, ?)",
+                "INSERT INTO flag_types (name, display_name, color_class) VALUES (?, ?, ?)",
             )
             .bind(name)
             .bind(display_name)
             .bind(color_class)
-            .bind(*filterable)
             .execute(pool)
             .await?;
         }
@@ -755,17 +755,46 @@ pub async fn load_data_sql(pool: &SqlitePool) -> Result<(), Box<dyn std::error::
         .filter(|s| !s.is_empty())
         .collect();
 
+    // Use a transaction to avoid database locks and ensure consistency
+    let mut transaction = pool.begin().await?;
+
     // Execute each statement individually, skipping CREATE TABLE statements
+    let mut success_count = 0;
+    let mut error_count = 0;
+
     for statement in statements {
         let trimmed = statement.trim();
-        if !trimmed.is_empty() && !trimmed.to_lowercase().starts_with("create table") {
-            if let Err(e) = sqlx::query(trimmed).execute(pool).await {
-                // Log the error but continue with other statements
-                eprintln!("Warning: failed to execute statement: {}", e);
-                eprintln!("Statement: {}", trimmed);
+        if !trimmed.is_empty()
+            && !trimmed.to_lowercase().starts_with("create table")
+            && !trimmed.to_lowercase().starts_with("create index")
+            && !trimmed.to_lowercase().starts_with("commit")
+        {
+            match sqlx::query(trimmed).execute(&mut *transaction).await {
+                Ok(_) => {
+                    success_count += 1;
+                }
+                Err(e) => {
+                    eprintln!("Warning: failed to execute statement: {}", e);
+                    eprintln!("Statement: {}", trimmed);
+                    error_count += 1;
+
+                    // If we get too many errors, abort the transaction
+                    if error_count > 10 {
+                        eprintln!("Too many errors, aborting transaction");
+                        transaction.rollback().await?;
+                        return Err(format!(
+                            "Failed to load data.sql: {} errors encountered",
+                            error_count
+                        )
+                        .into());
+                    }
+                }
             }
         }
     }
+
+    // Commit the transaction
+    transaction.commit().await?;
 
     // Record the migration
     let now = chrono::Utc::now().format("%Y-%m-%d %H:%M:%S").to_string();
@@ -775,7 +804,10 @@ pub async fn load_data_sql(pool: &SqlitePool) -> Result<(), Box<dyn std::error::
         .execute(pool)
         .await?;
 
-    println!("Successfully loaded data from data.sql");
+    println!(
+        "Successfully loaded data from data.sql: {} statements executed, {} errors",
+        success_count, error_count
+    );
     Ok(())
 }
 
