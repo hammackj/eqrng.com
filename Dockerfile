@@ -19,8 +19,6 @@ WORKDIR /usr/src/eq_rng
 # Copy backend files
 COPY Cargo.toml Cargo.lock ./
 COPY src/ ./src/
-COPY migrations/ ./migrations/
-COPY tests/ ./tests/
 COPY data/ ./data/
 
 # Build the backend without admin features for production
