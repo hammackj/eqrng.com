@@ -1,5 +1,4 @@
 // Zone management functionality
-#[cfg(feature = "admin")]
 use axum::{
     Form,
     extract::{Path, Query, State},
@@ -7,20 +6,14 @@ use axum::{
     response::{Html, Redirect},
 };
 
-#[cfg(feature = "admin")]
 use sqlx::Row;
-#[cfg(feature = "admin")]
 use urlencoding;
 
-#[cfg(feature = "admin")]
 use crate::AppState;
-#[cfg(feature = "admin")]
-use crate::{DEFAULT_PAGE_SIZE, MIN_PAGE_SIZE, MAX_PAGE_SIZE, DEFAULT_SORT_COLUMN, DEFAULT_SORT_ORDER};
 use crate::admin::dashboard::{
     generate_expansion_options, generate_sortable_header, generate_zone_type_options,
     get_distinct_expansions, get_distinct_zone_types,
 };
-#[cfg(feature = "admin")]
 use crate::admin::types::*;
 
 #[cfg(feature = "admin")]
@@ -28,12 +21,13 @@ pub async fn list_zones(
     State(state): State<AppState>,
     Query(params): Query<PaginationQuery>,
 ) -> Result<Html<String>, StatusCode> {
+    // For now, use hardcoded values. In the future, these should come from configuration
     let page = params.page.unwrap_or(1).max(1);
-    let per_page = params.per_page.unwrap_or(DEFAULT_PAGE_SIZE).clamp(MIN_PAGE_SIZE, MAX_PAGE_SIZE);
+    let per_page = params.per_page.unwrap_or(20).clamp(5, 100);
     let offset = (page - 1) * per_page;
     let search = params.search.clone().unwrap_or_default();
-    let sort = params.sort.clone().unwrap_or_else(|| DEFAULT_SORT_COLUMN.to_string());
-    let order = params.order.clone().unwrap_or_else(|| DEFAULT_SORT_ORDER.to_string());
+    let sort = params.sort.clone().unwrap_or_else(|| "name".to_string());
+    let order = params.order.clone().unwrap_or_else(|| "asc".to_string());
     let verified = params.verified.clone();
     let zone_type = params.zone_type.clone();
     let expansion = params.expansion.clone();
@@ -61,7 +55,7 @@ pub async fn list_zones(
     let sort_column = if valid_columns.contains(&sort.as_str()) {
         sort.as_str()
     } else {
-        DEFAULT_SORT_COLUMN
+        "name"
     };
 
     let sort_order = if order == "asc" { "ASC" } else { "DESC" };
