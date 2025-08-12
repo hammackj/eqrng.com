@@ -129,7 +129,10 @@ pub async fn random_zone(
     query.push_str(&where_conditions.join(" AND "));
     query.push_str(" ORDER BY RANDOM() LIMIT 100");
 
+    // Diagnostic: log the constructed query and bindings to help debug 500s
     let mut sql_query = sqlx::query(&query);
+    eprintln!("random_zone SQL: {}", query);
+    eprintln!("random_zone bindings: {:?}", bindings);
     for binding in &bindings {
         sql_query = sql_query.bind(binding);
     }
@@ -145,15 +148,45 @@ pub async fn random_zone(
         let level_ranges_json: String = row.get("level_ranges");
         let connections_json: String = row.get("connections");
 
-        let level_ranges: Vec<[u8; 2]> = serde_json::from_str(&level_ranges_json)
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-        let connections: Vec<String> = serde_json::from_str(&connections_json)
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        // Parse level_ranges with diagnostics. If parsing fails, skip this row rather than returning 500.
+        let level_ranges: Vec<[u8; 2]> = match serde_json::from_str(&level_ranges_json) {
+            Ok(v) => v,
+            Err(err) => {
+                eprintln!(
+                    "Warning: failed to parse level_ranges for zone id {}: {}. Raw: {}",
+                    row.get::<i64, _>("id"),
+                    err,
+                    level_ranges_json
+                );
+                // Skip this row since we can't interpret its level ranges
+                continue;
+            }
+        };
+
+        // Parse connections; on failure fall back to empty list but continue processing the zone
+        let connections: Vec<String> = match serde_json::from_str(&connections_json) {
+            Ok(v) => v,
+            Err(err) => {
+                eprintln!(
+                    "Warning: failed to parse connections for zone id {}: {}. Raw: {}",
+                    row.get::<i64, _>("id"),
+                    err,
+                    connections_json
+                );
+                Vec::new()
+            }
+        };
 
         let zone_id = row.get::<i64, _>("id");
 
-        // Load flags for this zone
-        let flags = get_zone_flags(pool, zone_id).await.unwrap_or_default();
+        // Load flags for this zone with error handling
+        let flags = match get_zone_flags(pool, zone_id).await {
+            Ok(f) => f,
+            Err(e) => {
+                eprintln!("Warning: failed to load flags for zone {}: {}", zone_id, e);
+                Vec::new()
+            }
+        };
 
         let zone = Zone {
             id: Some(zone_id),
