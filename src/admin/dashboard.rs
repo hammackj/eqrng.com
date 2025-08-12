@@ -121,39 +121,18 @@ pub fn generate_expansion_options(expansions: &[String], selected_expansion: &st
 
 #[cfg(feature = "admin")]
 pub async fn log_admin_requests(
-    request: axum::extract::Request,
+    request: axum::http::Request<axum::body::Body>,
     next: axum::middleware::Next,
 ) -> axum::response::Response {
-    let method = request.method().clone();
-    let uri = request.uri().clone();
-    let headers = request.headers().clone();
+    let _method = request.method().clone();
+    let _uri = request.uri().clone();
+    let _headers = request.headers().clone();
 
-    println!("ADMIN DEBUG: {} {}", method, uri);
-    println!("ADMIN DEBUG: Headers:");
-    for (name, value) in headers.iter() {
-        println!("  {}: {:?}", name, value);
-    }
-
-    // Special debug for flag deletion routes
-    if uri.path().contains("remove-flag")
-        || uri.path().contains("flags") && uri.path().contains("delete")
-    {
-        println!("ADMIN DEBUG: FLAG DELETION ROUTE DETECTED");
-        println!("ADMIN DEBUG: Full URI: {}", uri);
-        println!("ADMIN DEBUG: Method: {}", method);
-        println!("ADMIN DEBUG: Path: {}", uri.path());
-        println!("ADMIN DEBUG: Query: {:?}", uri.query());
-    }
+    // Log admin requests for security monitoring (without sensitive details)
+    // TODO: Replace with proper structured logging
 
     let response = next.run(request).await;
-    let status = response.status();
-    println!("ADMIN DEBUG: Response status: {}", status);
-
-    if status == axum::http::StatusCode::METHOD_NOT_ALLOWED {
-        println!(
-            "ADMIN DEBUG: 405 METHOD NOT ALLOWED - Route might not be registered for this method"
-        );
-    }
+    let _status = response.status();
 
     response
 }
