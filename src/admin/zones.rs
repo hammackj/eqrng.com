@@ -1641,8 +1641,9 @@ fn get_enhanced_zone_form_body(
                         r#"<div class="note-item">
                         <div class="note-header">
                             <span class="note-badge {}">{}</span>
-                            <a href="/admin/zones/{}/notes/{}/delete" class="remove-link"
-                               onclick="return confirm('Delete this note?')">×</a>
+                            <form method="post" action="/admin/zones/{}/notes/{}/delete" style="display:inline;">
+                                <button type="submit" class="remove-link" onclick="return confirm('Delete this note?')">×</button>
+                            </form>
                         </div>
                         <div class="note-content">{}</div>
                     </div>"#,
