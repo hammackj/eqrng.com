@@ -206,7 +206,9 @@ import Layout from "../layouts/Layout.astro";
                 }
 
                 const flagTypes = await response.json();
-                const container = document.getElementById("flag-checkboxes");
+                const container = document.getElementById(
+                    "flag-checkboxes",
+                ) as HTMLElement | null;
 
                 if (!container) return;
 
@@ -257,24 +259,32 @@ import Layout from "../layouts/Layout.astro";
         // Generate zone handler
         async function generateZone(forceFlag = null) {
             const params = new URLSearchParams();
-            const minElement = document.getElementById("min");
-            const maxElement = document.getElementById("max");
-            const expansionElement = document.getElementById("expansion");
+            const minElement = document.getElementById(
+                "min",
+            ) as HTMLInputElement | null;
+            const maxElement = document.getElementById(
+                "max",
+            ) as HTMLInputElement | null;
+            const expansionElement = document.getElementById(
+                "expansion",
+            ) as HTMLSelectElement | null;
 
             const min = minElement?.value || "";
             const max = maxElement?.value || "";
             const expansion = expansionElement?.value || "";
 
             // Get selected flags
-            const selectedFlags = [];
-            const flagCheckboxes = document.querySelectorAll(
+            const selectedFlags: string[] = [];
+            const flagCheckboxes = document.querySelectorAll<HTMLInputElement>(
                 'input[type="checkbox"][id^="flag-"]:checked',
             );
             for (const checkbox of flagCheckboxes) {
                 selectedFlags.push(checkbox.value);
             }
 
-            const resultDiv = document.getElementById("result");
+            const resultDiv = document.getElementById(
+                "result",
+            ) as HTMLElement | null;
             if (!resultDiv) return;
 
             // Validate level inputs
@@ -461,7 +471,9 @@ import Layout from "../layouts/Layout.astro";
             }
         }
 
-        const generateButton = document.getElementById("generate-zone");
+        const generateButton = document.getElementById(
+            "generate-zone",
+        ) as HTMLButtonElement | null;
         if (generateButton) {
             generateButton.onclick = async () => {
                 await generateZone();
@@ -500,7 +512,7 @@ import Layout from "../layouts/Layout.astro";
 
             const notesContainer = document.getElementById(
                 `zone-notes-${zoneId}`,
-            );
+            ) as HTMLElement | null;
             if (!notesContainer) {
                 console.warn(
                     "displayZoneNotes: notes container not found for zone",
@@ -542,7 +554,7 @@ import Layout from "../layouts/Layout.astro";
             notes.forEach((note, index) => {
                 const el = notesContainer.querySelector(
                     `.note-content[data-note-index="${index}"]`,
-                );
+                ) as HTMLElement | null;
                 if (!el) return;
 
                 // If note_type indicates video, render thumbnail-only (no link text)
@@ -614,7 +626,7 @@ import Layout from "../layouts/Layout.astro";
                 console.error("Error loading rating:", error);
                 const ratingTextEl = document.getElementById(
                     `rating-text-${zoneId}`,
-                );
+                ) as HTMLElement | null;
                 if (ratingTextEl)
                     ratingTextEl.textContent = "Rating unavailable";
             }
@@ -623,8 +635,12 @@ import Layout from "../layouts/Layout.astro";
         function updateRatingDisplay(zoneId, ratingData) {
             const container = document.getElementById(
                 `rating-container-${zoneId}`,
-            );
-            const ratingText = document.getElementById(`rating-text-${zoneId}`);
+            ) as HTMLElement | null;
+            const ratingText = document.getElementById(
+                `rating-text-${zoneId}`,
+            ) as HTMLElement | null;
+
+            if (!container || !ratingText) return;
 
             // Update rating text
             if (ratingData.total_ratings > 0) {
@@ -642,9 +658,10 @@ import Layout from "../layouts/Layout.astro";
         function setupRatingInteractivity(zoneId, userIp) {
             const container = document.getElementById(
                 `rating-container-${zoneId}`,
-            );
+            ) as HTMLElement | null;
             if (!container) return;
-            const pickleButtons = container.querySelectorAll(".pickle-rating");
+            const pickleButtons =
+                container.querySelectorAll<HTMLButtonElement>(".pickle-rating");
 
             pickleButtons.forEach((button) => {
                 const rating = parseInt(button.dataset.rating || "0");
@@ -678,9 +695,10 @@ import Layout from "../layouts/Layout.astro";
         function highlightRating(zoneId, rating, isPermanent) {
             const container = document.getElementById(
                 `rating-container-${zoneId}`,
-            );
+            ) as HTMLElement | null;
             if (!container) return;
-            const pickleButtons = container.querySelectorAll(".pickle-rating");
+            const pickleButtons =
+                container.querySelectorAll<HTMLButtonElement>(".pickle-rating");
 
             pickleButtons.forEach((button, index) => {
                 const img = button.querySelector("img");
@@ -702,9 +720,10 @@ import Layout from "../layouts/Layout.astro";
         function clearRatingHighlight(zoneId) {
             const container = document.getElementById(
                 `rating-container-${zoneId}`,
-            );
+            ) as HTMLElement | null;
             if (!container) return;
-            const pickleButtons = container.querySelectorAll(".pickle-rating");
+            const pickleButtons =
+                container.querySelectorAll<HTMLButtonElement>(".pickle-rating");
 
             pickleButtons.forEach((button, index) => {
                 const img = button.querySelector("img");
