@@ -1,0 +1,43 @@
+# Development configuration for EQ RNG
+
+[server]
+port = 3000
+host = "0.0.0.0"
+
+[database]
+path = "./data/zones.db"
+backup_dir = "./backups/database"
+migrate_on_startup = true
+
+[security]
+rating_ip_hash_key = "development-key-change-for-production-use-32plus-chars"
+min_ip_hash_key_length = 32
+
+[ratings]
+min_rating = 1
+max_rating = 5
+transaction_log_path = "./data/rating_transaction.log"
+
+[admin]
+enabled = true
+page_size = 20
+min_page_size = 5
+max_page_size = 100
+default_sort_column = "name"
+default_sort_order = "asc"
+
+[cors]
+development_origins = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5173"
+]
+production_origins = ["https://eqrng.com"]
+
+[logging]
+level = "debug"
+format = "pretty"
+file_path = "./logs/eq_rng_dev.log"
+max_file_size = "10MB"
+max_files = 5
