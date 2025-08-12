@@ -2,7 +2,7 @@
 // This file contains flag type management features for the admin interface
 
 #[cfg(feature = "admin")]
-use crate::security::{escape_html, sanitize_user_input};
+use crate::security::escape_html;
 
 #[cfg(feature = "admin")]
 use axum::{
