@@ -12,6 +12,8 @@ use std::fs::OpenOptions;
 use std::io::Write;
 use std::sync::Arc;
 
+use crate::{RATING_MIN, RATING_MAX, MIN_IP_HASH_KEY_LENGTH};
+
 #[derive(Clone)]
 pub struct RatingState {
     pub pool: Arc<SqlitePool>,
@@ -56,12 +58,20 @@ pub struct RatingQuery {
 // Hashing utilities to anonymize IP addresses for ratings
 fn rating_ip_hash_key() -> [u8; 32] {
     let key_material = env::var("RATING_IP_HASH_KEY")
-        .expect("RATING_IP_HASH_KEY environment variable must be set for secure IP hashing. Generate a random 32+ character key.");
+        .unwrap_or_else(|_| {
+            eprintln!("RATING_IP_HASH_KEY environment variable not set, using fallback key");
+            // Generate a fallback key for development (not secure for production)
+            "fallback-key-not-secure-for-production-use-32-chars".to_string()
+        });
 
     // Ensure minimum key length for security
-    if key_material.len() < 32 {
-        panic!("RATING_IP_HASH_KEY must be at least 32 characters long for security");
-    }
+    let key_material = if key_material.len() < MIN_IP_HASH_KEY_LENGTH {
+        eprintln!("RATING_IP_HASH_KEY must be at least {} characters long for security", MIN_IP_HASH_KEY_LENGTH);
+        // Use a longer fallback key
+        "fallback-key-not-secure-for-production-use-32-chars".to_string()
+    } else {
+        key_material
+    };
 
     let hash = blake3::hash(key_material.as_bytes());
     let mut key = [0u8; 32];
@@ -89,7 +99,7 @@ pub async fn get_zone_rating(
         .fetch_optional(pool)
         .await
         .map_err(|e| {
-            eprintln!("Database error checking zone existence: {}", e);
+            eprintln!("Database error checking zone existence for zone {}: {}", zone_id, e);
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 
@@ -111,7 +121,7 @@ pub async fn get_zone_rating(
     .fetch_one(pool)
     .await
     .map_err(|e| {
-        eprintln!("Database error getting rating stats: {}", e);
+        eprintln!("Database error getting rating stats for zone {}: {}", zone_id, e);
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
@@ -127,7 +137,7 @@ pub async fn get_zone_rating(
             .fetch_optional(pool)
             .await
             .map_err(|e| {
-                eprintln!("Database error getting user rating: {}", e);
+                eprintln!("Database error getting user rating for zone {}: {}", zone_id, e);
                 StatusCode::INTERNAL_SERVER_ERROR
             })?
             .map(|row| row.get::<i32, _>("rating") as u8)
@@ -153,7 +163,7 @@ pub async fn submit_zone_rating(
     let pool = &*state.zone_state.pool;
 
     // Validate rating
-    if payload.rating < 1 || payload.rating > 5 {
+    if payload.rating < RATING_MIN || payload.rating > RATING_MAX {
         return Err(StatusCode::BAD_REQUEST);
     }
 
@@ -167,7 +177,7 @@ pub async fn submit_zone_rating(
         .fetch_optional(pool)
         .await
         .map_err(|e| {
-            eprintln!("Database error checking zone existence: {}", e);
+            eprintln!("Database error checking zone existence for rating submission on zone {}: {}", zone_id, e);
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 
@@ -192,7 +202,7 @@ pub async fn submit_zone_rating(
     .execute(pool)
     .await
     .map_err(|e| {
-        eprintln!("Database error submitting rating: {}", e);
+        eprintln!("Database error submitting rating for zone {}: {}", zone_id, e);
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
@@ -240,7 +250,7 @@ pub async fn get_zone_ratings(
     .fetch_all(pool)
     .await
     .map_err(|e| {
-        eprintln!("Database error getting zone ratings: {}", e);
+        eprintln!("Database error getting zone ratings for zone {}: {}", zone_id, e);
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
@@ -272,7 +282,10 @@ pub async fn delete_rating(
             .bind(id)
             .fetch_optional(pool)
             .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            .map_err(|e| {
+                eprintln!("Database error getting rating details for deletion (id {}): {}", id, e);
+                StatusCode::INTERNAL_SERVER_ERROR
+            })?;
 
     if let Some(details) = rating_details {
         let zone_id = details.get::<i64, _>("zone_id");
@@ -284,7 +297,10 @@ pub async fn delete_rating(
             .bind(id)
             .execute(pool)
             .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            .map_err(|e| {
+                eprintln!("Database error deleting rating (id {}): {}", id, e);
+                StatusCode::INTERNAL_SERVER_ERROR
+            })?;
 
         // Write SQL transaction to log file
         let sql_statement = format!(
