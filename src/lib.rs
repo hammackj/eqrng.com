@@ -156,17 +156,32 @@ pub async fn setup_database() -> Result<SqlitePool, Box<dyn std::error::Error>> 
     // Connect to database
     let pool = SqlitePool::connect(database_url).await?;
 
-    // Check if data.sql exists - if so, load from it instead of creating tables
+    // Always create tables first to ensure schema exists
+    println!("Creating/verifying database tables...");
+    create_tables(&pool).await?;
+
+    // Check if data.sql exists - if so, load from it
     if std::path::Path::new("./data/data.sql").exists() {
-        println!("Found data.sql, loading from file...");
-        load_data_sql(&pool).await?;
+        // Check if we already have data in the zones table
+        let zone_count: i64 = sqlx::query("SELECT COUNT(*) as count FROM zones")
+            .fetch_one(&pool)
+            .await?
+            .get("count");
+
+        if zone_count > 0 {
+            println!(
+                "Database already has {} zones, skipping data.sql load",
+                zone_count
+            );
+        } else {
+            println!("Found data.sql, loading from file...");
+            load_data_sql(&pool).await?;
+        }
     } else {
-        println!("No data.sql found, creating tables from scratch...");
-        // Run migrations to create basic table structure
-        create_tables(&pool).await?;
+        println!("No data.sql found, tables created but no data loaded");
     }
 
-    // Run database migrations
+    // Run database migrations (for schema updates like 'filterable' column)
     if let Err(e) = run_migrations(&pool).await {
         eprintln!("Warning: failed to run migrations: {}", e);
     }
@@ -730,83 +745,33 @@ pub async fn load_data_sql(pool: &SqlitePool) -> Result<(), Box<dyn std::error::
 
     println!("Loading data from data.sql...");
 
-    // Read and process the SQL file manually to handle schema differences
+    // Read the SQL file
     let sql_content = fs::read_to_string("./data/data.sql")?;
 
-    // Start a transaction to ensure atomicity
-    let mut transaction = pool.begin().await?;
+    // Split the SQL content into individual statements
+    let statements: Vec<&str> = sql_content
+        .split(';')
+        .map(|s| s.trim())
+        .filter(|s| !s.is_empty())
+        .collect();
 
-    // Drop all existing tables to start fresh
-    let drop_tables = [
-        "DROP TABLE IF EXISTS zone_flags",
-        "DROP TABLE IF EXISTS zone_notes",
-        "DROP TABLE IF EXISTS instance_notes",
-        "DROP TABLE IF EXISTS zone_ratings",
-        "DROP TABLE IF EXISTS instances",
-        "DROP TABLE IF EXISTS zones",
-        "DROP TABLE IF EXISTS flag_types",
-        "DROP TABLE IF EXISTS note_types",
-        "DROP TABLE IF EXISTS links",
-    ];
-
-    for drop_sql in &drop_tables {
-        sqlx::query(drop_sql).execute(&mut *transaction).await?;
-    }
-
-    // Process the SQL content line by line
-    let lines: Vec<&str> = sql_content.lines().collect();
-    let mut current_statement = String::new();
-
-    for line in lines {
-        let trimmed = line.trim();
-
-        // Skip empty lines and comments
-        if trimmed.is_empty() || trimmed.starts_with("--") {
-            continue;
-        }
-
-        // Skip PRAGMA statements and transaction statements that might cause issues
-        if trimmed.starts_with("PRAGMA")
-            || trimmed.starts_with("BEGIN")
-            || trimmed.starts_with("COMMIT")
-        {
-            continue;
-        }
-
-        current_statement.push_str(line);
-        current_statement.push(' ');
-
-        // Execute when we hit a semicolon
-        if trimmed.ends_with(';') {
-            let statement = current_statement.trim();
-            if !statement.is_empty() {
-                match sqlx::query(statement).execute(&mut *transaction).await {
-                    Ok(_) => {}
-                    Err(e) => {
-                        let error_message = e.to_string();
-
-                        // Skip harmless errors that are expected during data.sql loading
-                        if error_message.contains("table migrations already exists")
-                            || error_message.contains("UNIQUE constraint failed: migrations.id")
-                        {
-                            // These are expected - ignore silently
-                        } else {
-                            // Log unexpected errors but continue
-                            eprintln!("Warning: Failed to execute statement: {}", e);
-                            eprintln!("Statement was: {}", statement);
-                        }
-                    }
-                }
+    // Execute each statement individually, skipping CREATE TABLE statements
+    for statement in statements {
+        let trimmed = statement.trim();
+        if !trimmed.is_empty() && !trimmed.to_lowercase().starts_with("create table") {
+            if let Err(e) = sqlx::query(trimmed).execute(pool).await {
+                // Log the error but continue with other statements
+                eprintln!("Warning: failed to execute statement: {}", e);
+                eprintln!("Statement: {}", trimmed);
             }
-            current_statement.clear();
         }
     }
 
-    // Commit the transaction
-    transaction.commit().await?;
-
-    // Record this migration
-    sqlx::query("INSERT OR REPLACE INTO migrations (name) VALUES ('data_sql')")
+    // Record the migration
+    let now = chrono::Utc::now().format("%Y-%m-%d %H:%M:%S").to_string();
+    sqlx::query("INSERT OR REPLACE INTO migrations (name, applied_at) VALUES (?, ?)")
+        .bind("data_sql")
+        .bind(&now)
         .execute(pool)
         .await?;
 
@@ -827,15 +792,59 @@ pub async fn dump_database_to_sql(
 
     println!("Dumping database to {}...", filepath);
 
+    // Use a more comprehensive dump approach
     let output = Command::new("sqlite3")
         .arg("./data/zones.db")
-        .arg(".dump")
+        .args(&[".mode insert", ".headers off", ".dump"])
         .output()?;
 
     if output.status.success() {
-        std::fs::write(&filepath, output.stdout)?;
-        println!("Database successfully dumped to {}", filepath);
-        Ok(filename)
+        let dump_content = String::from_utf8(output.stdout)?;
+
+        // Verify the dump contains CREATE TABLE statements
+        if !dump_content.contains("CREATE TABLE") {
+            println!(
+                "Warning: Dump doesn't contain CREATE TABLE statements, trying alternative method..."
+            );
+
+            // Try alternative approach with explicit schema dump
+            let schema_output = Command::new("sqlite3")
+                .arg("./data/zones.db")
+                .arg(".schema")
+                .output()?;
+
+            if schema_output.status.success() {
+                let schema_content = String::from_utf8(schema_output.stdout)?;
+                let data_output = Command::new("sqlite3")
+                    .arg("./data/zones.db")
+                    .args(&[
+                        ".mode insert",
+                        ".headers off",
+                        "SELECT * FROM sqlite_master WHERE type='table'",
+                    ])
+                    .output()?;
+
+                if data_output.status.success() {
+                    let combined_content = format!(
+                        "-- EQ RNG Database Dump\n-- Generated: {}\n\n{}\n\n{}",
+                        Utc::now().format("%Y-%m-%d %H:%M:%S"),
+                        schema_content,
+                        String::from_utf8(data_output.stdout)?
+                    );
+                    std::fs::write(&filepath, combined_content)?;
+                    println!("Database successfully dumped to {} (with schema)", filepath);
+                    Ok(filename)
+                } else {
+                    Err("Failed to get data from database".into())
+                }
+            } else {
+                Err("Failed to get schema from database".into())
+            }
+        } else {
+            std::fs::write(&filepath, dump_content)?;
+            println!("Database successfully dumped to {}", filepath);
+            Ok(filename)
+        }
     } else {
         let error = String::from_utf8_lossy(&output.stderr);
         Err(format!("Failed to dump database: {}", error).into())
