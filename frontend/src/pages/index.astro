@@ -115,6 +115,87 @@ import Layout from "../layouts/Layout.astro";
     </div>
 
     <script>
+        // Helper: extract YouTube ID from common URL forms
+        function extractYouTubeId(href) {
+            if (!href || typeof href !== "string") return null;
+            const match = href.match(
+                /(?:https?:\/\/)?(?:(?:www|m)\.)?(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/,
+            );
+            return match ? match[1] : null;
+        }
+
+        // Build a clickable thumbnail element for a YouTube video id
+        function createYouTubeThumbnail(videoId) {
+            const wrapper = document.createElement("div");
+            wrapper.className = "inline-block video-thumb-wrapper";
+            wrapper.style.display = "inline-block";
+            wrapper.style.marginLeft = "8px";
+            wrapper.style.verticalAlign = "middle";
+            wrapper.style.cursor = "pointer";
+            wrapper.style.width = "240px";
+            wrapper.style.height = "135px";
+            wrapper.style.position = "relative";
+            wrapper.style.overflow = "hidden";
+            wrapper.style.borderRadius = "6px";
+            wrapper.style.boxShadow = "0 2px 8px rgba(0,0,0,0.4)";
+            wrapper.style.flex = "none";
+
+            const img = document.createElement("img");
+            // use higher-quality thumbnail (240x135)
+            img.src = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+            img.alt = "YouTube thumbnail";
+            img.style.width = "100%";
+            img.style.height = "100%";
+            img.style.objectFit = "cover";
+            img.loading = "lazy";
+            wrapper.appendChild(img);
+
+            // play button overlay
+            const play = document.createElement("div");
+            play.style.position = "absolute";
+            play.style.left = "50%";
+            play.style.top = "50%";
+            play.style.transform = "translate(-50%, -50%)";
+            play.style.width = "52px";
+            play.style.height = "52px";
+            play.style.borderRadius = "50%";
+            play.style.background = "rgba(0,0,0,0.6)";
+            play.style.display = "flex";
+            play.style.alignItems = "center";
+            play.style.justifyContent = "center";
+            play.style.boxShadow = "0 2px 6px rgba(0,0,0,0.5)";
+            play.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7L8 5z" fill="white"/></svg>`;
+            wrapper.appendChild(play);
+
+            // click-to-load iframe (no autoplay)
+            wrapper.addEventListener("click", () => {
+                const iframe = document.createElement("iframe");
+                iframe.width = "480";
+                iframe.height = "270";
+                iframe.src = `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`;
+                iframe.frameBorder = "0";
+                iframe.setAttribute(
+                    "allow",
+                    "accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture",
+                );
+                iframe.allowFullscreen = true;
+                iframe.style.borderRadius = "6px";
+                iframe.style.maxWidth = "100%";
+                iframe.loading = "lazy";
+
+                // replace wrapper with iframe but keep container sizing reasonable
+                const container = document.createElement("div");
+                container.style.display = "inline-block";
+                container.style.marginLeft = "8px";
+                container.style.verticalAlign = "middle";
+                container.appendChild(iframe);
+
+                wrapper.replaceWith(container);
+            });
+
+            return wrapper;
+        }
+
         // Function to load flag types from API and generate checkboxes
         async function loadFlagTypes() {
             try {
@@ -173,22 +254,12 @@ import Layout from "../layouts/Layout.astro";
         // Load flag types when page loads
         document.addEventListener("DOMContentLoaded", loadFlagTypes);
 
-        // Level inputs are now number inputs with built-in validation
-        // No need to populate dropdowns
-
         // Generate zone handler
-        // Reusable zone generation function
         async function generateZone(forceFlag = null) {
             const params = new URLSearchParams();
-            const minElement = document.getElementById(
-                "min",
-            ) as HTMLInputElement;
-            const maxElement = document.getElementById(
-                "max",
-            ) as HTMLInputElement;
-            const expansionElement = document.getElementById(
-                "expansion",
-            ) as HTMLSelectElement;
+            const minElement = document.getElementById("min");
+            const maxElement = document.getElementById("max");
+            const expansionElement = document.getElementById("expansion");
 
             const min = minElement?.value || "";
             const max = maxElement?.value || "";
@@ -200,7 +271,7 @@ import Layout from "../layouts/Layout.astro";
                 'input[type="checkbox"][id^="flag-"]:checked',
             );
             for (const checkbox of flagCheckboxes) {
-                selectedFlags.push((checkbox as HTMLInputElement).value);
+                selectedFlags.push(checkbox.value);
             }
 
             const resultDiv = document.getElementById("result");
@@ -263,6 +334,7 @@ import Layout from "../layouts/Layout.astro";
                         "Cache-Control": "no-cache",
                     },
                 });
+
                 if (!response.ok) {
                     resultDiv.style.opacity = "1";
                     resultDiv.innerHTML =
@@ -319,16 +391,16 @@ import Layout from "../layouts/Layout.astro";
                     `
                         : "";
 
+                // Build the zone card HTML. Place notes placeholder at the BOTTOM of the card (after flags).
                 resultDiv.innerHTML = `
-        <div class="bg-slate-700 border border-slate-600 rounded-lg p-6">
+        <div class="bg-slate-700 border border-slate-600 rounded-lg p-6" id="zone-details">
           <h2 class="text-4xl font-bold text-white mb-4">${zone.name}</h2>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-base">
-            <div class="flex justify-between"><span class="font-medium text-slate-300">Levels:</span> <span class="text-white">${zone.level_ranges.map((r: number[]) => r.join("–")).join(", ")}</span></div>
+            <div class="flex justify-between"><span class="font-medium text-slate-300">Levels:</span> <span class="text-white">${zone.level_ranges.map((r) => r.join("–")).join(", ")}</span></div>
             <div class="flex justify-between"><span class="font-medium text-slate-300">Expansion:</span> <span class="text-white">${zone.expansion}</span></div>
             <div class="flex justify-between"><span class="font-medium text-slate-300">Continent:</span> <span class="text-white">${zone.continent || "Unknown"}</span></div>
             <div class="flex justify-between"><span class="font-medium text-slate-300">Type:</span> <span class="text-white">${zone.zone_type}</span></div>
-
 
             <div class="flex justify-between items-center"><span class="font-medium text-slate-300">Verified:</span> <img src="/assets/images/gouda.png" alt="Verified" class="w-6 h-6 ${zone.verified ? "opacity-100" : "opacity-30"}" /></div>
           </div>
@@ -361,18 +433,26 @@ import Layout from "../layouts/Layout.astro";
               </div>
             </div>
           </div>
+
           ${flagPillsHTML}
+
+          <!-- Notes will be inserted here at the BOTTOM of the card -->
+          <div id="zone-notes-${zone.id}" class="mt-4 pt-4 border-t border-slate-600"></div>
 
         </div>
       `;
 
-                // Load zone rating
-                loadZoneRating(zone.id);
-
-                // Load and display zone notes
-                loadZoneNotes(zone.id);
                 // Smooth transition to new content
                 resultDiv.style.opacity = "1";
+
+                // Load zone rating and display notes (notes may be included in the zone response)
+                loadZoneRating(zone.id);
+                // If zone.notes provided from server use them, otherwise fetch
+                if (zone.notes && zone.notes.length > 0) {
+                    displayZoneNotes(zone.id, zone.notes);
+                } else {
+                    loadZoneNotes(zone.id);
+                }
             } catch (error) {
                 console.error("Error fetching zone:", error);
                 resultDiv.style.opacity = "1";
@@ -390,76 +470,124 @@ import Layout from "../layouts/Layout.astro";
 
         // Function to load and display zone notes
         async function loadZoneNotes(zoneId) {
+            console.log("loadZoneNotes: called for zoneId =", zoneId);
             try {
                 const response = await fetch(`/zones/${zoneId}/notes`);
+                console.log(
+                    "loadZoneNotes: fetch completed, ok =",
+                    response.ok,
+                    "status =",
+                    response.status,
+                );
                 if (response.ok) {
                     const notes = await response.json();
-                    displayZoneNotes(notes);
+                    console.log("loadZoneNotes: received notes:", notes);
+                    displayZoneNotes(zoneId, notes);
+                } else {
+                    console.warn(
+                        "loadZoneNotes: response not ok for zoneId",
+                        zoneId,
+                    );
                 }
             } catch (error) {
                 console.error("Error loading zone notes:", error);
             }
         }
 
-        // Function to display zone notes
-        function displayZoneNotes(notes) {
+        // Function to display zone notes — inserts into placeholder at bottom of the card
+        function displayZoneNotes(zoneId, notes) {
             if (!notes || notes.length === 0) return;
 
-            const resultDiv = document.getElementById("result");
-            if (!resultDiv) return;
+            const notesContainer = document.getElementById(
+                `zone-notes-${zoneId}`,
+            );
+            if (!notesContainer) {
+                console.warn(
+                    "displayZoneNotes: notes container not found for zone",
+                    zoneId,
+                );
+                return;
+            }
 
-            // Find the zone display div
-            const zoneDiv = resultDiv.querySelector(".bg-slate-700");
-            if (!zoneDiv) return;
-
-            // Create notes section
             const notesHtml = `
-                <div class="mt-4 pt-4 border-t border-slate-600">
-                    <div class="font-medium mb-3 text-slate-300">Zone Notes:</div>
-                    <div class="space-y-2">
-                        ${notes
-                            .map(
-                                (note, index) => `
-                            <div class="flex items-center gap-2">
-                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-white ${note.note_type.color_class}">
-                                    ${note.note_type.display_name}
-                                </span>
-                                <span class="text-base text-slate-300 note-content" data-note-index="${index}">${note.content}</span>
+                <div class="font-medium mb-3 text-slate-300">Zone Notes:</div>
+                <div class="space-y-2 notes-list">
+                    ${notes
+                        .map((note, index) => {
+                            // For non-video notes just display content
+                            const typeClass =
+                                note.note_type && note.note_type.color_class
+                                    ? note.note_type.color_class
+                                    : "bg-gray-500";
+                            const displayName =
+                                note.note_type && note.note_type.display_name
+                                    ? note.note_type.display_name
+                                    : "";
+                            // Put a placeholder for note content; we'll process it below
+                            return `
+                            <div class="note-row flex items-start gap-3">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-white ${typeClass}">${displayName}</span>
+                                <div class="note-content text-base text-slate-300" data-note-index="${index}">${note.content}</div>
                             </div>
-                        `,
-                            )
-                            .join("")}
-                    </div>
+                        `;
+                        })
+                        .join("")}
                 </div>
             `;
 
-            // Find the rating section and insert notes before it
-            const ratingSection = zoneDiv.querySelector(
-                ".mt-6.pt-4.border-t.border-slate-600",
-            );
-            if (ratingSection) {
-                ratingSection.insertAdjacentHTML("beforebegin", notesHtml);
+            // Replace content of notes container
+            notesContainer.innerHTML = notesHtml;
 
-                // Process note content for HTML links
-                processNoteContent(notes);
-            }
-        }
-
-        // Function to process note content and enable HTML rendering
-        function processNoteContent(notes) {
-            if (!notes || notes.length === 0) return;
-
+            // Now process each note content element: convert raw URLs to thumbnails for video notes
             notes.forEach((note, index) => {
-                const noteElement = document.querySelector(
+                const el = notesContainer.querySelector(
                     `.note-content[data-note-index="${index}"]`,
                 );
-                if (noteElement && note.content) {
-                    // Allow basic HTML tags like <a>, <strong>, <em>, etc.
-                    // This is safe for admin-controlled content
-                    noteElement.innerHTML = note.content;
+                if (!el) return;
 
-                    // Style any links
-                    const links = noteElement.querySelectorAll("a");
+                // If note_type indicates video, render thumbnail-only (no link text)
+                if (note.note_type && note.note_type.name === "video") {
+                    // Determine the URL from content: could be raw URL or an <a> anchor
+                    let href = "";
+                    // If content contains an anchor, try to extract href
+                    try {
+                        // Create a temporary div to parse HTML
+                        const tmp = document.createElement("div");
+                        tmp.innerHTML = note.content;
+                        const a = tmp.querySelector("a");
+                        if (a && a.getAttribute("href")) {
+                            href = a.getAttribute("href");
+                        } else {
+                            // if no anchor, maybe the content is a plain URL text
+                            const text = tmp.textContent
+                                ? tmp.textContent.trim()
+                                : "";
+                            if (text && text.startsWith("http")) {
+                                href = text;
+                            }
+                        }
+                    } catch (e) {
+                        console.warn(
+                            "displayZoneNotes: failed to parse note content",
+                            e,
+                        );
+                    }
+
+                    const videoId = extractYouTubeId(href);
+                    if (videoId) {
+                        // clear existing content and append thumbnail-only element
+                        el.innerHTML = "";
+                        const thumb = createYouTubeThumbnail(videoId);
+                        el.appendChild(thumb);
+                    } else {
+                        // Couldn't extract id — fallback to rendering content as link/text
+                        el.innerHTML = note.content;
+                    }
+                } else {
+                    // Non-video note: render HTML content (admin-controlled)
+                    el.innerHTML = note.content;
+                    // Style any links if present
+                    const links = el.querySelectorAll("a");
                     links.forEach((link) => {
                         link.className =
                             "text-blue-400 hover:text-blue-300 underline";
@@ -484,8 +612,11 @@ import Layout from "../layouts/Layout.astro";
                 }
             } catch (error) {
                 console.error("Error loading rating:", error);
-                document.getElementById(`rating-text-${zoneId}`).textContent =
-                    "Rating unavailable";
+                const ratingTextEl = document.getElementById(
+                    `rating-text-${zoneId}`,
+                );
+                if (ratingTextEl)
+                    ratingTextEl.textContent = "Rating unavailable";
             }
         }
 
@@ -512,12 +643,11 @@ import Layout from "../layouts/Layout.astro";
             const container = document.getElementById(
                 `rating-container-${zoneId}`,
             );
+            if (!container) return;
             const pickleButtons = container.querySelectorAll(".pickle-rating");
 
             pickleButtons.forEach((button) => {
-                const rating = parseInt(
-                    (button as HTMLElement).dataset.rating || "0",
-                );
+                const rating = parseInt(button.dataset.rating || "0");
 
                 // Hover effects
                 button.addEventListener("mouseenter", () => {
@@ -526,8 +656,7 @@ import Layout from "../layouts/Layout.astro";
 
                 button.addEventListener("mouseleave", () => {
                     // Reset to user's actual rating or no highlight
-                    const currentUserRating = (container as HTMLElement).dataset
-                        .userRating;
+                    const currentUserRating = container.dataset.userRating;
                     if (currentUserRating) {
                         highlightRating(
                             zoneId,
@@ -550,6 +679,7 @@ import Layout from "../layouts/Layout.astro";
             const container = document.getElementById(
                 `rating-container-${zoneId}`,
             );
+            if (!container) return;
             const pickleButtons = container.querySelectorAll(".pickle-rating");
 
             pickleButtons.forEach((button, index) => {
@@ -565,8 +695,7 @@ import Layout from "../layouts/Layout.astro";
             });
 
             if (isPermanent) {
-                (container as HTMLElement).dataset.userRating =
-                    rating.toString();
+                container.dataset.userRating = rating.toString();
             }
         }
 
@@ -574,6 +703,7 @@ import Layout from "../layouts/Layout.astro";
             const container = document.getElementById(
                 `rating-container-${zoneId}`,
             );
+            if (!container) return;
             const pickleButtons = container.querySelectorAll(".pickle-rating");
 
             pickleButtons.forEach((button, index) => {
