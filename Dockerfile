@@ -41,14 +41,16 @@ COPY --from=backend-builder /usr/src/eq_rng/target/release/eq_rng /opt/eq_rng/eq
 # Copy backend data and assets
 COPY --from=backend-builder /usr/src/eq_rng/data /opt/eq_rng/data
 COPY public/ /opt/eq_rng/public/
+COPY config/ /opt/eq_rng/config/
 
 # Copy built frontend assets
-COPY --from=frontend-builder /usr/src/frontend/dist /opt/eq_rng/dist
+COPY --from=frontend-builder /usr/src/eq_rng/frontend/dist /opt/eq_rng/dist
 
 # Copy zone ratings and transaction log management utilities
 COPY utils/backup_zone_ratings.sh /opt/eq_rng/utils/
 COPY utils/rating_transaction_log.sh /opt/eq_rng/utils/
 COPY utils/deploy_with_rating_log.sh /opt/eq_rng/utils/
+COPY utils/setup_logs.sh /opt/eq_rng/utils/
 COPY migrations/zone_ratings/ /opt/eq_rng/migrations/zone_ratings/
 COPY utils/docker-entrypoint.sh /opt/eq_rng/
 
@@ -56,6 +58,7 @@ COPY utils/docker-entrypoint.sh /opt/eq_rng/
 RUN chmod +x /opt/eq_rng/utils/backup_zone_ratings.sh \
     && chmod +x /opt/eq_rng/utils/rating_transaction_log.sh \
     && chmod +x /opt/eq_rng/utils/deploy_with_rating_log.sh \
+    && chmod +x /opt/eq_rng/utils/setup_logs.sh \
     && chmod +x /opt/eq_rng/docker-entrypoint.sh \
     && chmod +x /opt/eq_rng/migrations/zone_ratings/*.sh || true
 
@@ -65,7 +68,8 @@ RUN chmod +x /opt/eq_rng/eq_rng
 # Create directories for backups and migrations
 RUN mkdir -p /opt/eq_rng/backups/zone_ratings \
     && mkdir -p /opt/eq_rng/backups/database \
-    && mkdir -p /opt/eq_rng/backups/rating_transactions
+    && mkdir -p /opt/eq_rng/backups/rating_transactions \
+    && mkdir -p /opt/eq_rng/logs
 
 # Create symlink for convenience
 RUN ln -s /opt/eq_rng/eq_rng /usr/local/bin/eq_rng
