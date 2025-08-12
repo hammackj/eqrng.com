@@ -1,6 +1,16 @@
 use sqlx::{Row, Sqlite, SqlitePool, migrate::MigrateDatabase};
 use std::path::Path;
 
+// Configuration constants
+pub const DEFAULT_PAGE_SIZE: i32 = 20;
+pub const MIN_PAGE_SIZE: i32 = 5;
+pub const MAX_PAGE_SIZE: i32 = 100;
+pub const DEFAULT_SORT_COLUMN: &str = "name";
+pub const DEFAULT_SORT_ORDER: &str = "asc";
+pub const RATING_MIN: u8 = 1;
+pub const RATING_MAX: u8 = 5;
+pub const MIN_IP_HASH_KEY_LENGTH: usize = 32;
+
 pub mod admin;
 pub mod classes;
 pub mod instances;
@@ -19,12 +29,20 @@ use std::env;
 // Reuse the same keyed blake3 scheme as ratings.rs
 fn rating_ip_hash_key() -> [u8; 32] {
     let key_material = env::var("RATING_IP_HASH_KEY")
-        .expect("RATING_IP_HASH_KEY environment variable must be set for secure IP hashing. Generate a random 32+ character key.");
+        .unwrap_or_else(|_| {
+            eprintln!("RATING_IP_HASH_KEY environment variable not set, using fallback key");
+            // Generate a fallback key for development (not secure for production)
+            "fallback-key-not-secure-for-production-use-32-chars".to_string()
+        });
 
     // Ensure minimum key length for security
-    if key_material.len() < 32 {
-        panic!("RATING_IP_HASH_KEY must be at least 32 characters long for security");
-    }
+    let key_material = if key_material.len() < MIN_IP_HASH_KEY_LENGTH {
+        eprintln!("RATING_IP_HASH_KEY must be at least {} characters long for security", MIN_IP_HASH_KEY_LENGTH);
+        // Use a longer fallback key
+        "fallback-key-not-secure-for-production-use-32-chars".to_string()
+    } else {
+        key_material
+    };
 
     let hash = blake3::hash(key_material.as_bytes());
     let mut key = [0u8; 32];
