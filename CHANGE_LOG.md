@@ -1,6 +1,6 @@
 # Change Log
 
-## August XX, 2025 - Update 5
+## August 12, 2025 - Update 5
 - Data Updates/Corrections
 - Zones marked Verified have been processed and verified.
 - Mission Zones have been renamed to instanced zones. They are moving out of the zone list into their own random page in the future.
@@ -13,6 +13,7 @@
 - Updated to Astro 5.12.9
 - Improved performance and stability
 - Improved security and logging
+- Tons of bug fixes and improvements
 
 ## July 30, 2025 - Update 4
 - Added new front end, yes the front is 90% AI generated lol

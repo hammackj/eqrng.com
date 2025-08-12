@@ -1,459 +1,245 @@
 # EQRng.com
 
-Server runs on port 3000 this is exported from docker to the host machine. The host machine is running nginx and proxies 3000 to 80/443. Currently the frontend is a dev test front end. I plan on making a proper frontend once I have all the features implemented.
+A small Rust web service that provides randomized EverQuest-related data (zones, instances, classes, races) plus management utilities and a lightweight admin interface. The project uses `data/data.sql` as the single source of truth for the application's database content and can generate a local SQLite database at `data/zones.db` on startup.
 
-## Project Structure
+This README is a modernized, concise reference for developers and operators. If you need more in-depth documentation about specific subsystems (migration system, rating transaction logs, etc.), check the `docs/` directory.
 
-This is a Rust workspace with the following components:
+---
 
-### 📦 Packages
+## Quick overview
 
-- **`eq_rng`** (`src/`) - Main web server and API endpoints
+- Primary binary: `eq_rng` (web server + API)
+- Test binary: `test_db` (database validation)
+- Default HTTP port: 3000 (the container exposes 3000 and common setups proxy 80/443 → 3000)
+- Data source of truth: `data/data.sql`
+- Generated DB file: `data/zones.db` (created from `data/data.sql` on startup)
+- Admin UI: optional feature compiled in with the `admin` Cargo feature
 
+---
 
-### 📁 Directory Layout
+## Table of contents
 
-```
-eq_rng.com/
-├── src/                    # Main application source
-│   ├── main.rs            # Web server entry point
-│   ├── lib.rs             # Database setup and utilities
-│   ├── zones.rs           # Zone API endpoints
-│   ├── instances.rs       # Instance API endpoints
-│   ├── classes.rs         # Class API endpoints
-│   ├── races.rs           # Race API endpoints
-│   ├── ratings.rs         # Rating API endpoints
-│   ├── links.rs           # Links API endpoints
-│   ├── admin.rs           # Admin interface (optional feature)
-│   └── version.rs         # Version API endpoint
-├── data/                  # Data files and database
-│   ├── data.sql          # Database source of truth (SQL dump)
-│   ├── class_race.json   # Class/race compatibility data
-├── dist/                  # Frontend build output
-└── Cargo.toml            # Workspace configuration
-```
+- [Requirements](#requirements)
+- [Quick start (local)](#quick-start-local)
+- [Building](#building)
+- [Running](#running)
+- [API summary](#api-summary)
+- [Data management](#data-management)
+- [Admin interface](#admin-interface)
+- [Testing](#testing)
+- [Docker](#docker)
+- [Security notes](#security-notes)
+- [Contributing](#contributing)
 
-### 🔧 Available Binaries
+---
 
-- **`eq_rng`** - Main web server application
-- **`test_db`** - Database testing and validation tool
+## Requirements
 
-## API Endpoints
+- Rust toolchain (stable)
+- Cargo
+- SQLite (for inspecting `data/zones.db`)
+- Docker & docker-compose (optional, for containerized deployment)
 
-### /random_zone
-#### Parameters
-- min_level
-- max_level
-- zone_type
-- expansion
-- continent
-- flags (comma-separated list, e.g., "hot_zone,undead")
+---
 
-This endpoint will return a random zone based on the given parameters.
+## Quick start (local)
 
-### /random_instance
-#### Parameters
-- min_level
-- max_level
-- zone_type
-- expansion
-- continent
-- hot_zone
+1. Ensure `data/data.sql` exists in the repository root.
+2. Build and run the server with the admin interface enabled (recommended for local development):
+   - Use the admin feature: `cargo run --bin eq_rng --features admin`
+3. Visit the API at `http://localhost:3000/` (or use `curl` to exercise endpoints).
 
-Returns a random instance based on the given parameters.
+Note: On first run the app will create `data/zones.db` from `data/data.sql` if it cannot find an existing DB.
 
-### /random_class
-#### Parameters
-- race (optional)
+---
 
-Returns a random class, optionally filtered by race compatibility.
+## Building
 
-### /random_race
+Recommended build patterns:
 
-Returns a random race with gender and image information.
+- Development (with admin):
+  - `cargo build`
+  - or `cargo build --features admin` (explicit)
+- Production (exclude admin):
+  - `cargo build --release --no-default-features`
+- Build only the main app:
+  - `cargo build --package eq_rng`
 
-### /version
+The repository includes helper scripts (`./build.sh`, `./run_tests.sh`) to simplify common flows; review them before use.
 
-Returns the current application version.
+---
 
-### Zone Ratings
-- `GET /zones/:zone_id/rating` - Get average rating for a zone
-- `POST /zones/:zone_id/rating` - Submit a rating for a zone
-- `GET /zones/:zone_id/ratings` - Get all ratings for a zone
-- `DELETE /api/ratings/:id` - Delete a specific rating
+## Running
 
-### Rating Transaction Log
-- File-based transaction logging to `data/rating_transaction.log`
-- Extract and apply via utility scripts (no API endpoints for security)
+- Development with admin:
+  - `cargo run --bin eq_rng --features admin`
+- Production (admin disabled):
+  - `cargo run --bin eq_rng --no-default-features`
+- Run the database test tool:
+  - `cargo run --bin test_db --package eq_rng_tests`
 
-### Zone Notes
-- `GET /zones/:zone_id/notes` - Get notes for a zone
-- `GET /instances/:instance_id/notes` - Get notes for an instance
+The server listens on port 3000 by default. Typical deployments place an HTTP proxy (nginx, Traefik) in front of the container to serve 80/443.
 
-### Links API
-- `GET /api/links` - Get all links
-- `GET /api/links/by-category` - Get links grouped by category
-- `GET /api/links/categories` - Get all link categories
-- `POST /api/links` - Create a new link
-- `GET /api/links/:id` - Get a specific link
-- `PUT /api/links/:id` - Update a link
-- `DELETE /api/links/:id` - Delete a link
+---
 
-## Data Management
+## API summary
 
-### New Data.sql Migration System
+Below are the primary public endpoints. Use query parameters as documented by the endpoint. Responses are JSON.
 
-The application now uses a **data.sql file** as the single source of truth for all database content. This replaces the previous JSON-based migration system.
+- `GET /random_zone`
+  - Filter params: `min_level`, `max_level`, `zone_type`, `expansion`, `continent`, `flags` (comma-separated)
+- `GET /random_instance`
+  - Filter params: `min_level`, `max_level`, `zone_type`, `expansion`, `continent`, `hot_zone`
+- `GET /random_class`
+  - Optional param: `race` (returns a class compatible with the supplied race)
+- `GET /random_race`
+  - Returns race with optional gender and image meta
+- `GET /version`
+  - Returns the running application version
 
-#### Key Benefits
-- **Version Control Friendly**: SQL files can be easily reviewed in PRs
-- **Hand Editable**: Direct SQL editing for data changes
-- **Simplified Deployment**: No binary database files to ship
-- **Atomic Updates**: All changes applied in single transaction
-- **Backup System**: Admin interface creates timestamped dumps
+Ratings & notes:
 
-#### How It Works
-1. **On startup**: Application checks if `data/data.sql` exists
-2. **If newer**: Compares file timestamp vs last migration
-3. **If updated**: Drops all tables and loads fresh from `data.sql`
-4. **Tracking**: Records migration timestamp in `migrations` table
+- `GET /zones/:zone_id/rating` — average rating for a zone
+- `POST /zones/:zone_id/rating` — submit a rating (logged to transaction log)
+- `GET /zones/:zone_id/ratings` — all ratings
+- `DELETE /api/ratings/:id` — remove a rating (admin)
+- `GET /zones/:zone_id/notes`, `GET /instances/:instance_id/notes` — notes APIs
 
-#### File Locations
-- **`data/data.sql`** - Current database content (ships with build)
-- **`data/zones.db`** - Generated SQLite database file
-- **`data/data-YYYYMMDD_HHMMSS.sql`** - Timestamped backups from admin interface
+Links API:
 
-### Database Structure
+- `GET /api/links`
+- `GET /api/links/by-category`
+- `GET /api/links/categories`
+- `POST /api/links`, `PUT /api/links/:id`, `DELETE /api/links/:id`
 
-The database contains the following main tables:
-- **zones** - Zone information (386 zones across all expansions)
-- **instances** - Instance information (moved from zones)
-- **zone_ratings** - User ratings for zones
-- **data/rating_transaction.log** - File-based audit trail of all rating operations
-- **zone_notes** - Categorized notes for zones
-- **instance_notes** - Categorized notes for instances
-- **note_types** - Note categories (Epic 1.0, Epic 1.5, Epic 2.0, Zone Aug)
-- **flag_types** - Flag categories for zones
-- **zone_flags** - Zone flag associations
-- **links** - External links organized by category
-- **migrations** - Migration tracking
+This README aims to give a high-level index — consult the source code for exact parameter names and response shapes.
 
-### Making Data Changes
+---
 
-#### Option A: Direct SQL Editing
-```bash
-# Edit the SQL file directly
-vim data/data.sql
+## Data management
 
-# Restart application to load changes
-cargo run --features admin
-```
+Primary data strategy:
 
-#### Option B: Admin Interface
-```bash
-# Start the application
-cargo run --features admin
+- `data/data.sql` is the canonical source of truth for the application's content.
+- On startup the application checks `data/data.sql` and, if the SQL file is newer than the last applied migration, will recreate the database from it and record a migration timestamp in the `migrations` table.
+- The generated SQLite DB lives at `data/zones.db` (do not check generated DBs into version control).
 
-# Make changes via admin interface at /admin
-# Then create a new dump
-curl -X POST http://localhost:3000/admin/dump-database
+Benefits:
 
-# Replace data.sql with the new dump
-mv data/data-YYYYMMDD_HHMMSS.sql data/data.sql
-```
+- Human-reviewable diffs in PRs
+- Atomic application of data changes
+- Simple rollback via VCS
 
-### Class/Race Data
+Workflow to update data:
 
-The class/race compatibility data remains in JSON format:
-- **`data/class_race.json`** - Defines which classes each race can be
-- Used by the `/random_class?race=RaceName` endpoint
-- Contains EverQuest game rules for race/class combinations
+1. Make changes via admin UI or by editing `data/data.sql` directly.
+2. If using admin UI, use the "Dump Database" feature to produce `data/data-YYYYMMDD_HHMMSS.sql`.
+3. Replace `data/data.sql` with the new dump and commit.
+
+If you edit `data/data.sql` manually, restart the app to trigger a reload.
+
+---
+
+## Rating transaction log
+
+The project uses a file-based rating transaction log to preserve user-submitted rating changes between deployments. Key points:
+
+- Location: `data/rating_transaction.log` (or timestamped exports in `backups/`)
+- Format: SQL statements (INSERT/UPDATE/DELETE) that can be applied to the DB
+- Management utilities are provided under `utils/` to extract and apply logs
+- No public API exists to retrieve or apply the transaction log; it is operated via file-level tooling for safety
+
+Follow the `utils/` scripts when deploying to ensure rating continuity.
+
+---
+
+## Admin interface
+
+- The admin interface is an optional feature controlled by the Cargo `admin` feature flag.
+- When compiled out (production build), admin routes are excluded from the binary entirely.
+- Admin features include:
+  - Zone/instance management
+  - Ratings and notes management
+  - Link category management
+  - Database dump (exports to `data/data-YYYYMMDD_HHMMSS.sql`)
+- Important: The admin UI intentionally has no authentication in the project. Only enable it in trusted environments (local/dev). For production, compile without the admin feature.
+
+---
 
 ## Testing
 
-The project includes a separate tests subcrate for database validation:
+- Use the included test utilities: `./run_tests.sh` supports `db`, `build`, and `all` suites.
+- Or run the test binary:
+  - `cargo run --bin test_db --package eq_rng_tests`
+- Tests focus on:
+  - Database schema and content validation
+  - Read-only integrity checks
+  - Build validations for crates in the workspace
 
-### Running Tests
+See `tests/README.md` for more details about test cases and expected environment.
 
-```bash
-# Using the test script (recommended)
-./run_tests.sh db          # Database tests only
-./run_tests.sh build       # Build tests only
-./run_tests.sh all         # All test suites
+---
 
-# Or directly with cargo
-cargo run --bin test_db --package eq_rng_tests
-```
+## Docker & deployment
 
-### Test Features
+Two primary workflows are supported:
 
-- Database connectivity and permission validation
-- Main application database integrity checks
-- Non-destructive testing (read-only operations)
-- Detailed test output with success/failure indicators
+- Production image (admin disabled):
+  - `./build.sh production` (builds optimized image without admin)
+  - `docker-compose up -d` to run
+- Development image (admin enabled):
+  - `./build.sh development`
+  - `docker-compose -f docker-compose.dev.yml up -d`
 
-See `tests/README.md` for more details.
+Before deploying:
+- Extract `data/rating_transaction.log` if you need to preserve live user ratings between releases.
+- Ensure `data/data.sql` in the image is the intended content.
 
-## Development
+A minimal deployment checklist:
+- Review `data/data.sql`
+- Build a production image (no admin)
+- Extract and preserve rating transaction log prior to update
+- Start new container and apply transaction log if needed
 
-### Building
+---
 
-The project supports multiple build configurations for different environments:
+## Security notes
 
-#### Using the Build Script (Recommended)
-```bash
-# Production build (no admin interface)
-./build.sh production
+- Do not enable the admin feature in production images — it contains management routes that are intentionally unauthenticated.
+- Treat `data/data.sql` as source code: review in PRs and audit changes.
+- The rating transaction log is file-based for portability; protect file access and backups as you would any sensitive data.
+- Keep third-party dependencies up to date and monitor for security advisories.
 
-# Development build (with admin interface)
-./build.sh development
+---
 
-# Local build (with admin interface)
-./build.sh local
-```
+## Project structure (high level)
 
-#### Manual Building
-```bash
-# Production build (no admin interface)
-cargo build --release --no-default-features
-
-# Development build (with admin interface)
-cargo build --release --features admin
+- `src/` — main application code (API handlers, DB setup)
+- `data/` — `data.sql`, `zones.db` (generated), transaction logs, JSON helpers like `class_race.json`
+- `dist/` — optional frontend build artefacts (a simple test frontend is included)
+- `utils/` — deployment and transaction log helper scripts
+- `tests/` — test crates and validation tooling
+- `Cargo.toml` — workspace configuration
 
-# Regular build
-cargo build
-```
-
-### Running the server
-```bash
-# Local development with admin interface
-cargo run --bin eq_rng --features admin
+---
 
-# Production mode (no admin interface)
-cargo run --bin eq_rng --no-default-features
+## Contributing
 
-# Regular run
-cargo run --bin eq_rng
-```
+- Make all data edits via `data/data.sql` where possible so diffs are reviewable.
+- If you need to add or modify endpoints, add unit tests and update documentation.
+- Open a PR against the `main` branch with a clear description of changes and any migration steps.
 
-### Database Setup
-
-For fresh environments, the database is automatically created from `data/data.sql`:
+---
 
-```bash
-# Clone repository
-git clone <repository-url>
-cd eq_rng
-
-# Start application (database auto-created from data.sql)
-cargo run --features admin
-
-# Check database was created
-sqlite3 data/zones.db "SELECT COUNT(*) FROM zones;"
-```
+## License
 
-### Running tests
-```bash
-# Run database tests
-./run_tests.sh db
-
-# Run build tests
-./run_tests.sh build
+This project does not include a license file in this README. Please consult the repository root for licensing information or ask the project owner.
 
-# Run all tests
-./run_tests.sh all
-```
+---
 
-## Quick Command Reference
+If you'd like, I can:
+- Add a short example `curl` usage section for each endpoint (as inline commands),
+- Create a `DEVELOPMENT.md` or `CONTRIBUTING.md` with step-by-step contributor guidance,
+- Or update any specific section to reflect recent changes in the codebase you want highlighted.
 
-### 🚀 Running Applications
-```bash
-cargo run --bin eq_rng                     # Start web server
-cargo run --bin eq_rng --features admin    # Start with admin interface
-cargo run --bin test_db --package eq_rng_tests  # Run database tests
-```
-
-### 📋 Using Scripts (Recommended)
-```bash
-./run_tests.sh db            # Run database tests
-./run_tests.sh build         # Test all packages build
-./run_tests.sh all           # Run all test suites
-```
-
-### 🔨 Building
-```bash
-cargo build                           # Build entire workspace
-cargo build --package eq_rng         # Build main app only
-cargo build --package eq_rng_tests   # Build tests only
-```
-
-### 📊 Database Operations
-```bash
-sqlite3 data/zones.db "SELECT COUNT(*) FROM zones;"  # Check zone count
-sqlite3 data/zones.db "SELECT name FROM zones LIMIT 5;"  # Sample zones
-
-# Create new data.sql dump via admin interface
-curl -X POST http://localhost:3000/admin/dump-database
-```
-
-## Admin Interface
-
-The application includes an optional admin interface that can be enabled/disabled at build time using Cargo features:
-
-### Admin Routes
-When enabled, the admin interface provides:
-- **Dashboard**: `/admin` - Overview of zones, instances, ratings, and statistics
-- **Zone Management**: `/admin/zones` - Create, edit, delete, and move zones
-- **Instance Management**: `/admin/instances` - Manage instances (zones moved from main zones)
-- **Ratings Management**: `/admin/ratings` - View and manage zone ratings
-- **Notes Management**: Add and manage categorized notes for zones and instances
-- **Note Types**: `/admin/note-types` - Manage note categories (Epic 1.0, Epic 1.5, etc.)
-- **Flag Types**: `/admin/flag-types` - Manage zone flag types and their appearance
-- **Links Management**: `/admin/links` - Manage external links by category
-- **Database Dump**: `🗄️ Dump Database to SQL` - Export database to timestamped SQL file
-
-### Feature Control
-- **Production builds**: Admin interface is **disabled** by default for security
-- **Development builds**: Admin interface is **enabled** for testing and management
-- **Local builds**: Admin interface can be enabled with `--features admin`
-
-### Database Dump Feature
-The admin interface includes a database dump feature:
-1. Click "🗄️ Dump Database to SQL" button in admin dashboard
-2. Creates `data/data-YYYYMMDD_HHMMSS.sql` with complete database export
-3. File contains schema, data, indexes, and constraints
-4. Can be used to replace `data/data.sql` for deployment
-
-## Deployment
-
-### Docker Deployment
-
-#### Production Deployment (Recommended)
-```bash
-# Build and run production image (no admin interface)
-./build.sh production
-docker-compose up -d
-
-# Or manually
-docker-compose up -d --build
-curl http://localhost:3000/random_zone
-```
-
-#### Development Deployment
-```bash
-# Build and run development image (with admin interface)
-./build.sh development
-docker-compose -f docker-compose.dev.yml up -d
-
-# Access admin interface
-curl http://localhost:3000/admin
-```
-
-### Fresh Environment Setup
-
-For a completely fresh environment:
-
-```bash
-# Clone the repository
-git clone <repository-url>
-cd eq_rng
-
-# Start the application (database auto-created from data.sql)
-cargo run --bin eq_rng --features admin
-
-# Verify database was created
-sqlite3 data/zones.db "SELECT COUNT(*) FROM zones;"
-```
-
-### Data.sql Deployment Strategy
-
-1. **Development**: Make changes via admin interface, dump to new data.sql
-2. **Version Control**: Commit updated `data/data.sql` to repository
-3. **Deployment**: Ship only `data.sql` file (not binary `zones.db`)
-4. **Production**: Application creates database from `data.sql` on startup
-
-## Build Configuration Summary
-
-| Environment | Admin Interface | Build Command | Docker File |
-|-------------|----------------|---------------|-------------|
-| **Production** | ❌ Disabled | `./build.sh production` | `Dockerfile` |
-| **Development** | ✅ Enabled | `./build.sh development` | `Dockerfile.dev` |
-| **Local** | ✅ Enabled | `./build.sh local` | N/A |
-
-## Database Management
-
-- **Source**: `data/data.sql` (386 zones, all tables and data)
-- **Generated**: `data/zones.db` (created automatically from data.sql)
-- **Backups**: `data/data-YYYYMMDD_HHMMSS.sql` (admin dump feature)
-- **Size**: ~330KB when populated
-- **Reset**: Delete `data/zones.db*` files, restart application
-
-## Migration from Old System
-
-The previous JSON-based migration system has been completely replaced:
-
-- ❌ **Removed**: `migrations/` directory and all JSON zone files
-- ❌ **Removed**: Complex migration scripts and JSON parsing
-- ✅ **New**: Single `data.sql` file as source of truth
-- ✅ **New**: Timestamp-based loading system
-- ✅ **New**: Admin dump functionality for backups
-
-## Security Notes
-
-- **Production deployments should always use builds without admin features**
-- The admin interface has no authentication and should only be enabled in secure development environments
-- Admin routes are completely excluded from the binary in production builds, reducing attack surface
-- The `data.sql` file should be treated as source code and reviewed in PRs
-
-## Rating Transaction Log System
-
-The application includes a simple and secure file-based transaction log system for rating operations that enables seamless data preservation across deployments.
-
-### Key Features
-
-- **File-Based Logging**: All rating operations are logged as SQL statements to `data/rating_transaction.log`
-- **Secure Design**: No API endpoints - transaction logs can only be accessed via file system
-- **Simple Deployment**: Extract file from Docker, deploy new container, apply file to new container
-- **Complete Audit Trail**: Every rating INSERT, UPDATE, DELETE operation is logged with timestamps
-- **SQL Format**: Transaction logs are plain SQL files that can be easily inspected and applied
-
-### Quick Start
-
-```bash
-# Extract transaction log before deployment
-./utils/rating_transaction_log.sh extract
-
-# Deploy new container
-docker-compose up --build -d
-
-# Apply transaction log to new container
-./utils/rating_transaction_log.sh apply-to-docker backups/rating_transactions/rating_transactions_YYYYMMDD_HHMMSS.sql
-```
-
-### Deployment Workflow
-
-1. **Pre-Deployment**: Extract `data/rating_transaction.log` from current container
-2. **Deploy**: Build and start new container with updated code/database
-3. **Post-Deployment**: Apply transaction log SQL file to preserve user rating data
-4. **Verify**: Check that ratings are preserved in the new deployment
-
-### Utilities
-
-- `utils/rating_transaction_log.sh` - Extract, apply, and manage transaction log files
-- `utils/deploy_with_rating_log.sh` - Complete deployment script with rating preservation
-- `utils/test_rating_log.sh` - Test the transaction log functionality
-
-### Security
-
-- **No API endpoints** for transaction log management (secure by design)
-- **File system access required** for all transaction log operations
-- **SQL injection protection** with proper escaping of user input
-
-For detailed documentation, see: `docs/RATING_TRANSACTION_LOG.md`
-
-## Documentation
-
-For detailed information about the data.sql migration system, see:
-- `docs/data-sql-migration.md` - Complete migration system documentation
-- `docs/RATING_TRANSACTION_LOG.md` - Simple file-based rating transaction log documentation
-- Includes troubleshooting, examples, and technical details
+Tell me which you'd prefer and I'll update the README accordingly.
