@@ -48,13 +48,13 @@ pub struct ClassQuery {
 
 pub fn load_classes() -> Arc<RaceClassMap> {
     let file_contents = fs::read_to_string("data/class_race.json").unwrap_or_else(|e| {
-        eprintln!("Failed to read classes.json: {}", e);
+        tracing::error!(error = %e, "Failed to read classes.json");
         // Return empty map as fallback
         "{}".to_string()
     });
 
     let class_race_json = serde_json::from_str(&file_contents).unwrap_or_else(|e| {
-        eprintln!("Failed to parse classes.json: {}", e);
+        tracing::error!(error = %e, "Failed to parse classes.json");
         // Return empty map as fallback
         HashMap::new()
     });

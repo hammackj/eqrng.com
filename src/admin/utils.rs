@@ -18,7 +18,7 @@ pub async fn dump_database_sql(State(_state): State<AppState>) -> Result<Html<St
     let data_dir = Path::new("data");
     if !data_dir.exists() {
         fs::create_dir_all(data_dir).map_err(|e| {
-            eprintln!("Failed to create data directory: {}", e);
+            tracing::error!(error = %e, "Failed to create data directory");
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
     }
@@ -30,13 +30,13 @@ pub async fn dump_database_sql(State(_state): State<AppState>) -> Result<Html<St
         .args(&[".mode insert", ".headers off", ".dump"])
         .output()
         .map_err(|e| {
-            eprintln!("Failed to execute sqlite3 command: {}", e);
+            tracing::error!(error = %e, "Failed to execute sqlite3 command");
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 
     if !output.status.success() {
         let error = String::from_utf8_lossy(&output.stderr);
-        eprintln!("SQLite dump failed: {}", error);
+        tracing::error!(error = %error, "SQLite dump failed");
         return Err(StatusCode::INTERNAL_SERVER_ERROR);
     }
 
@@ -45,7 +45,7 @@ pub async fn dump_database_sql(State(_state): State<AppState>) -> Result<Html<St
 
     // Write the complete dump to file
     std::fs::write(&file_path, &output.stdout).map_err(|e| {
-        eprintln!("Failed to write dump file {}: {}", file_path, e);
+        tracing::error!(error = %e, path = %file_path, "Failed to write dump file");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
