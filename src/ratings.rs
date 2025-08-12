@@ -12,7 +12,7 @@ use std::io::Write;
 use std::sync::Arc;
 use tracing::{error, warn};
 
-use crate::{AppState, AppError, AppResult};
+use crate::{AppError, AppResult, AppState};
 
 #[derive(Clone)]
 pub struct RatingState {
@@ -57,12 +57,11 @@ pub struct RatingQuery {
 
 // Hashing utilities to anonymize IP addresses for ratings
 fn rating_ip_hash_key() -> [u8; 32] {
-    let key_material = std::env::var("RATING_IP_HASH_KEY")
-        .unwrap_or_else(|_| {
-            warn!("RATING_IP_HASH_KEY environment variable not set, using fallback key");
-            // Generate a fallback key for development (not secure for production)
-            "fallback-key-not-secure-for-production-use-32-chars".to_string()
-        });
+    let key_material = std::env::var("RATING_IP_HASH_KEY").unwrap_or_else(|_| {
+        warn!("RATING_IP_HASH_KEY environment variable not set, using fallback key");
+        // Generate a fallback key for development (not secure for production)
+        "fallback-key-not-secure-for-production-use-32-chars".to_string()
+    });
 
     // Ensure minimum key length for security
     let key_material = if key_material.len() < 32 {
@@ -99,7 +98,10 @@ pub async fn get_zone_rating(
         .fetch_optional(pool)
         .await
         .map_err(|e| {
-            error!("Database error checking zone existence for zone {}: {}", zone_id, e);
+            error!(
+                "Database error checking zone existence for zone {}: {}",
+                zone_id, e
+            );
             AppError::Database(e)
         })?;
 
@@ -121,7 +123,10 @@ pub async fn get_zone_rating(
     .fetch_one(pool)
     .await
     .map_err(|e| {
-        error!("Database error getting rating stats for zone {}: {}", zone_id, e);
+        error!(
+            "Database error getting rating stats for zone {}: {}",
+            zone_id, e
+        );
         AppError::Database(e)
     })?;
 
@@ -137,7 +142,10 @@ pub async fn get_zone_rating(
             .fetch_optional(pool)
             .await
             .map_err(|e| {
-                error!("Database error getting user rating for zone {}: {}", zone_id, e);
+                error!(
+                    "Database error getting user rating for zone {}: {}",
+                    zone_id, e
+                );
                 AppError::Database(e)
             })?
             .map(|row| row.get::<i32, _>("rating") as u8)
@@ -177,7 +185,10 @@ pub async fn submit_zone_rating(
         .fetch_optional(pool)
         .await
         .map_err(|e| {
-            error!("Database error checking zone existence for rating submission on zone {}: {}", zone_id, e);
+            error!(
+                "Database error checking zone existence for rating submission on zone {}: {}",
+                zone_id, e
+            );
             AppError::Database(e)
         })?;
 
@@ -202,7 +213,10 @@ pub async fn submit_zone_rating(
     .execute(pool)
     .await
     .map_err(|e| {
-        error!("Database error submitting rating for zone {}: {}", zone_id, e);
+        error!(
+            "Database error submitting rating for zone {}: {}",
+            zone_id, e
+        );
         AppError::Database(e)
     })?;
 
@@ -216,7 +230,7 @@ pub async fn submit_zone_rating(
     );
 
     if let Err(e) = write_to_transaction_log(&sql_statement) {
-        eprintln!("Warning: Failed to write to transaction log: {}", e);
+        tracing::warn!(error = %e, "Warning: Failed to write to transaction log");
         // Don't fail the request if logging fails
     }
 
@@ -250,7 +264,10 @@ pub async fn get_zone_ratings(
     .fetch_all(pool)
     .await
     .map_err(|e| {
-        error!("Database error getting zone ratings for zone {}: {}", zone_id, e);
+        error!(
+            "Database error getting zone ratings for zone {}: {}",
+            zone_id, e
+        );
         AppError::Database(e)
     })?;
 
@@ -283,7 +300,10 @@ pub async fn delete_rating(
             .fetch_optional(pool)
             .await
             .map_err(|e| {
-                error!("Database error getting rating details for deletion (id {}): {}", id, e);
+                error!(
+                    "Database error getting rating details for deletion (id {}): {}",
+                    id, e
+                );
                 AppError::Database(e)
             })?;
 

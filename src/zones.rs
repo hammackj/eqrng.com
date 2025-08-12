@@ -131,14 +131,13 @@ pub async fn random_zone(
 
     // Diagnostic: log the constructed query and bindings to help debug 500s
     let mut sql_query = sqlx::query(&query);
-    eprintln!("random_zone SQL: {}", query);
-    eprintln!("random_zone bindings: {:?}", bindings);
+    tracing::debug!(sql = %query, bindings = ?bindings, "random_zone query");
     for binding in &bindings {
         sql_query = sql_query.bind(binding);
     }
 
     let rows = sql_query.fetch_all(pool).await.map_err(|e| {
-        eprintln!("Database error in random_zone query: {}", e);
+        tracing::error!(error = %e, "Database error in random_zone query");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
@@ -152,11 +151,11 @@ pub async fn random_zone(
         let level_ranges: Vec<[u8; 2]> = match serde_json::from_str(&level_ranges_json) {
             Ok(v) => v,
             Err(err) => {
-                eprintln!(
-                    "Warning: failed to parse level_ranges for zone id {}: {}. Raw: {}",
-                    row.get::<i64, _>("id"),
-                    err,
-                    level_ranges_json
+                tracing::warn!(
+                    zone_id = row.get::<i64, _>("id"),
+                    error = %err,
+                    raw = %level_ranges_json,
+                    "failed to parse level_ranges; skipping zone"
                 );
                 // Skip this row since we can't interpret its level ranges
                 continue;
@@ -167,11 +166,11 @@ pub async fn random_zone(
         let connections: Vec<String> = match serde_json::from_str(&connections_json) {
             Ok(v) => v,
             Err(err) => {
-                eprintln!(
-                    "Warning: failed to parse connections for zone id {}: {}. Raw: {}",
-                    row.get::<i64, _>("id"),
-                    err,
-                    connections_json
+                tracing::warn!(
+                    zone_id = row.get::<i64, _>("id"),
+                    error = %err,
+                    raw = %connections_json,
+                    "failed to parse connections; using empty list"
                 );
                 Vec::new()
             }
@@ -183,7 +182,7 @@ pub async fn random_zone(
         let flags = match get_zone_flags(pool, zone_id).await {
             Ok(f) => f,
             Err(e) => {
-                eprintln!("Warning: failed to load flags for zone {}: {}", zone_id, e);
+                tracing::warn!(zone_id = zone_id, error = %e, "failed to load flags for zone");
                 Vec::new()
             }
         };
