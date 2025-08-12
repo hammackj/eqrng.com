@@ -47,14 +47,19 @@ pub struct ClassQuery {
 }
 
 pub fn load_classes() -> Arc<RaceClassMap> {
-    let file_contents =
-        fs::read_to_string("data/class_race.json").expect("Failed to read classes.json");
-    let class_race_json =
-        serde_json::from_str(&file_contents).expect("Failed to parse classes.json");
+    let file_contents = fs::read_to_string("data/class_race.json").unwrap_or_else(|e| {
+        tracing::error!(error = %e, "Failed to read classes.json");
+        // Return empty map as fallback
+        "{}".to_string()
+    });
 
-    let shared_class_race = Arc::new(class_race_json);
+    let class_race_json = serde_json::from_str(&file_contents).unwrap_or_else(|e| {
+        tracing::error!(error = %e, "Failed to parse classes.json");
+        // Return empty map as fallback
+        HashMap::new()
+    });
 
-    return shared_class_race;
+    Arc::new(class_race_json)
 }
 
 pub async fn random_class(
@@ -73,7 +78,11 @@ pub async fn random_class(
         }
     }
 
-    let class_name = CLASSES.choose(&mut rng).unwrap().to_string();
+    // Safe to unwrap here since CLASSES is a constant array that's never empty
+    let class_name = CLASSES
+        .choose(&mut rng)
+        .expect("CLASSES array should never be empty")
+        .to_string();
 
     Json(Some(class_name))
 }

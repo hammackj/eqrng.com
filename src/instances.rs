@@ -102,7 +102,7 @@ pub async fn random_instance(
     }
 
     let rows = sql_query.fetch_all(pool).await.map_err(|e| {
-        eprintln!("Database error: {}", e);
+        tracing::error!(error = %e, "Database error in random_instance query");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 

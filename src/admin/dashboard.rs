@@ -3,6 +3,8 @@ use axum::{extract::State, http::StatusCode, response::Html};
 #[cfg(feature = "admin")]
 use sqlx::{Row, SqlitePool};
 #[cfg(feature = "admin")]
+use tracing::{info, warn};
+#[cfg(feature = "admin")]
 use urlencoding;
 
 use crate::AppState;
@@ -121,41 +123,162 @@ pub fn generate_expansion_options(expansions: &[String], selected_expansion: &st
 
 #[cfg(feature = "admin")]
 pub async fn log_admin_requests(
-    request: axum::extract::Request,
+    request: axum::http::Request<axum::body::Body>,
     next: axum::middleware::Next,
 ) -> axum::response::Response {
     let method = request.method().clone();
     let uri = request.uri().clone();
-    let headers = request.headers().clone();
+    let user_agent = request
+        .headers()
+        .get("user-agent")
+        .and_then(|h| h.to_str().ok())
+        .unwrap_or("unknown");
+    let remote_addr = request
+        .extensions()
+        .get::<std::net::SocketAddr>()
+        .map(|addr| addr.to_string())
+        .unwrap_or_else(|| "unknown".to_string());
 
-    println!("ADMIN DEBUG: {} {}", method, uri);
-    println!("ADMIN DEBUG: Headers:");
-    for (name, value) in headers.iter() {
-        println!("  {}: {:?}", name, value);
-    }
+    // Security monitoring: Check for suspicious patterns
+    let is_suspicious = detect_suspicious_patterns(&method, &uri, user_agent, &remote_addr);
 
-    // Special debug for flag deletion routes
-    if uri.path().contains("remove-flag")
-        || uri.path().contains("flags") && uri.path().contains("delete")
-    {
-        println!("ADMIN DEBUG: FLAG DELETION ROUTE DETECTED");
-        println!("ADMIN DEBUG: Full URI: {}", uri);
-        println!("ADMIN DEBUG: Method: {}", method);
-        println!("ADMIN DEBUG: Path: {}", uri.path());
-        println!("ADMIN DEBUG: Query: {:?}", uri.query());
+    if is_suspicious {
+        warn!(
+            "SUSPICIOUS admin request detected: {} {} from {} (User-Agent: {})",
+            method, uri, remote_addr, user_agent
+        );
+    } else {
+        info!(
+            "Admin request: {} {} from {} (User-Agent: {})",
+            method, uri, remote_addr, user_agent
+        );
     }
 
     let response = next.run(request).await;
     let status = response.status();
-    println!("ADMIN DEBUG: Response status: {}", status);
 
-    if status == axum::http::StatusCode::METHOD_NOT_ALLOWED {
-        println!(
-            "ADMIN DEBUG: 405 METHOD NOT ALLOWED - Route might not be registered for this method"
-        );
+    // Log response status for monitoring
+    if status.is_success() {
+        info!("Admin request completed: {} {} -> {}", method, uri, status);
+    } else {
+        warn!("Admin request failed: {} {} -> {}", method, uri, status);
     }
 
     response
+}
+
+#[cfg(feature = "admin")]
+fn detect_suspicious_patterns(
+    method: &axum::http::Method,
+    uri: &axum::http::Uri,
+    user_agent: &str,
+    remote_addr: &str,
+) -> bool {
+    // Check for suspicious HTTP methods
+    if method != axum::http::Method::GET && method != axum::http::Method::POST {
+        return true;
+    }
+
+    // Check for suspicious URI patterns
+    let uri_str = uri.to_string();
+    let suspicious_patterns = [
+        "..",          // Directory traversal attempts
+        "script",      // Script injection attempts
+        "javascript:", // JavaScript protocol
+        "data:",       // Data URI attempts
+        "file:",       // File protocol attempts
+        "cmd",         // Command execution attempts
+        "exec",        // Execution attempts
+        "system",      // System command attempts
+    ];
+
+    for pattern in suspicious_patterns.iter() {
+        if uri_str.to_lowercase().contains(pattern) {
+            return true;
+        }
+    }
+
+    // Check for suspicious User-Agent patterns
+    let user_agent_lower = user_agent.to_lowercase();
+    let suspicious_user_agents = [
+        "sqlmap", // SQL injection tool
+        "nikto",  // Vulnerability scanner
+        "nmap",   // Network scanner
+        "curl",   // Automated requests (could be legitimate but suspicious)
+        "wget",   // Automated requests (could be legitimate but suspicious)
+        "python", // Scripted requests
+        "perl",   // Scripted requests
+        "ruby",   // Scripted requests
+    ];
+
+    for pattern in suspicious_user_agents.iter() {
+        if user_agent_lower.contains(pattern) {
+            return true;
+        }
+    }
+
+    // Check for suspicious IP patterns (basic checks)
+    if remote_addr == "unknown" || remote_addr.contains("127.0.0.1") {
+        return true;
+    }
+
+    false
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use axum::http::{Method, Uri};
+
+    #[test]
+    fn test_detect_suspicious_patterns() {
+        // Test suspicious HTTP methods
+        assert!(detect_suspicious_patterns(
+            &Method::PUT,
+            &Uri::from_static("/admin/dashboard"),
+            "Mozilla/5.0",
+            "192.168.1.1:8080"
+        ));
+
+        // Test suspicious URI patterns
+        assert!(detect_suspicious_patterns(
+            &Method::GET,
+            &Uri::from_static("/admin/..script"),
+            "Mozilla/5.0",
+            "192.168.1.1:8080"
+        ));
+
+        // Test suspicious User-Agent patterns
+        assert!(detect_suspicious_patterns(
+            &Method::GET,
+            &Uri::from_static("/admin/dashboard"),
+            "sqlmap/1.0",
+            "192.168.1.1:8080"
+        ));
+
+        // Test suspicious IP patterns
+        assert!(detect_suspicious_patterns(
+            &Method::GET,
+            &Uri::from_static("/admin/dashboard"),
+            "Mozilla/5.0",
+            "127.0.0.1:8080"
+        ));
+
+        // Test legitimate requests
+        assert!(!detect_suspicious_patterns(
+            &Method::GET,
+            &Uri::from_static("/admin/dashboard"),
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "192.168.1.1:8080"
+        ));
+
+        assert!(!detect_suspicious_patterns(
+            &Method::POST,
+            &Uri::from_static("/admin/zones"),
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+            "10.0.0.1:8080"
+        ));
+    }
 }
 
 #[cfg(feature = "admin")]

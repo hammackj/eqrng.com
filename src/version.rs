@@ -6,17 +6,12 @@ const UPDATE_VERSION: &str = "Update 5 - August XX, 2025";
 
 #[derive(Serialize)]
 pub struct VersionResponse {
-    version: &'static str,
+    version: String,
     features: Vec<&'static str>,
 }
 
 pub async fn version() -> Json<VersionResponse> {
-    let version = format!(
-        "v{} - {}",
-        String::from(VERSION),
-        String::from(UPDATE_VERSION)
-    );
-    let static_version: &'static str = Box::leak(version.into_boxed_str());
+    let version = format!("v{} - {}", VERSION, UPDATE_VERSION);
 
     let mut features = Vec::new();
 
@@ -27,8 +22,5 @@ pub async fn version() -> Json<VersionResponse> {
         features.push("production");
     }
 
-    Json(VersionResponse {
-        version: static_version,
-        features,
-    })
+    Json(VersionResponse { version, features })
 }

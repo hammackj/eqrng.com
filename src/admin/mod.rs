@@ -61,7 +61,7 @@ async fn trigger_migrations(State(state): State<AppState>) -> Result<String, Sta
     match crate::run_migrations(pool.as_ref()).await {
         Ok(_) => Ok("Migrations completed successfully".to_string()),
         Err(e) => {
-            eprintln!("Migration error: {}", e);
+            tracing::error!(error = %e, "Migration error");
             Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
     }

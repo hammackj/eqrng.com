@@ -1,5 +1,4 @@
 // Zone management functionality
-#[cfg(feature = "admin")]
 use axum::{
     Form,
     extract::{Path, Query, State},
@@ -7,19 +6,14 @@ use axum::{
     response::{Html, Redirect},
 };
 
-#[cfg(feature = "admin")]
 use sqlx::Row;
-#[cfg(feature = "admin")]
 use urlencoding;
 
-#[cfg(feature = "admin")]
 use crate::AppState;
-#[cfg(feature = "admin")]
 use crate::admin::dashboard::{
     generate_expansion_options, generate_sortable_header, generate_zone_type_options,
     get_distinct_expansions, get_distinct_zone_types,
 };
-#[cfg(feature = "admin")]
 use crate::admin::types::*;
 
 #[cfg(feature = "admin")]
@@ -27,6 +21,7 @@ pub async fn list_zones(
     State(state): State<AppState>,
     Query(params): Query<PaginationQuery>,
 ) -> Result<Html<String>, StatusCode> {
+    // For now, use hardcoded values. In the future, these should come from configuration
     let page = params.page.unwrap_or(1).max(1);
     let per_page = params.per_page.unwrap_or(20).clamp(5, 100);
     let offset = (page - 1) * per_page;

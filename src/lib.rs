@@ -3,28 +3,41 @@ use std::path::Path;
 
 pub mod admin;
 pub mod classes;
+pub mod config;
+pub mod error;
 pub mod instances;
 pub mod links;
+pub mod logging;
 pub mod races;
 pub mod ratings;
 pub mod security;
 pub mod version;
 pub mod zones;
 
+// Re-export commonly used types
+pub use config::AppConfig;
+pub use error::{AppError, AppResult};
+
 // Anonymize IP migration utilities
 use blake3;
 use chrono::Utc;
-use std::env;
 
 // Reuse the same keyed blake3 scheme as ratings.rs
 fn rating_ip_hash_key() -> [u8; 32] {
-    let key_material = env::var("RATING_IP_HASH_KEY")
-        .expect("RATING_IP_HASH_KEY environment variable must be set for secure IP hashing. Generate a random 32+ character key.");
+    let key_material = std::env::var("RATING_IP_HASH_KEY").unwrap_or_else(|_| {
+        tracing::warn!("RATING_IP_HASH_KEY environment variable not set, using fallback key");
+        // Generate a fallback key for development (not secure for production)
+        "fallback-key-not-secure-for-production-use-32-chars".to_string()
+    });
 
     // Ensure minimum key length for security
-    if key_material.len() < 32 {
-        panic!("RATING_IP_HASH_KEY must be at least 32 characters long for security");
-    }
+    let key_material = if key_material.len() < 32 {
+        tracing::warn!("RATING_IP_HASH_KEY must be at least 32 characters long for security");
+        // Use a longer fallback key
+        "fallback-key-not-secure-for-production-use-32-chars".to_string()
+    } else {
+        key_material
+    };
 
     let hash = blake3::hash(key_material.as_bytes());
     let mut key = [0u8; 32];
@@ -143,24 +156,39 @@ pub async fn setup_database() -> Result<SqlitePool, Box<dyn std::error::Error>> 
     // Connect to database
     let pool = SqlitePool::connect(database_url).await?;
 
-    // Check if data.sql exists - if so, load from it instead of creating tables
+    // Always create tables first to ensure schema exists
+    println!("Creating/verifying database tables...");
+    create_tables(&pool).await?;
+
+    // Check if data.sql exists - if so, load from it
     if std::path::Path::new("./data/data.sql").exists() {
-        println!("Found data.sql, loading from file...");
-        load_data_sql(&pool).await?;
+        // Check if we already have data in the zones table
+        let zone_count: i64 = sqlx::query("SELECT COUNT(*) as count FROM zones")
+            .fetch_one(&pool)
+            .await?
+            .get("count");
+
+        if zone_count > 0 {
+            println!(
+                "Database already has {} zones, skipping data.sql load",
+                zone_count
+            );
+        } else {
+            println!("Found data.sql, loading from file...");
+            load_data_sql(&pool).await?;
+        }
     } else {
-        println!("No data.sql found, creating tables from scratch...");
-        // Run migrations to create basic table structure
-        create_tables(&pool).await?;
+        println!("No data.sql found, tables created but no data loaded");
     }
 
-    // Run database migrations
+    // Run database migrations (for schema updates like 'filterable' column)
     if let Err(e) = run_migrations(&pool).await {
-        eprintln!("Warning: failed to run migrations: {}", e);
+        tracing::warn!(error = %e, "Warning: failed to run migrations");
     }
 
     // Anonymize any existing plaintext IPs in ratings before continuing
     if let Err(e) = migrate_hash_zone_ratings(&pool).await {
-        eprintln!("Warning: failed to hash existing rating IPs: {}", e);
+        tracing::warn!(error = %e, "Warning: failed to hash existing rating IPs");
     }
 
     // Force WAL checkpoint to consolidate changes into main database file
@@ -195,8 +223,9 @@ async fn create_tables(pool: &SqlitePool) -> Result<(), sqlx::Error> {
                 map_url TEXT NOT NULL DEFAULT '',
                 rating INTEGER NOT NULL DEFAULT 0,
                 hot_zone BOOLEAN NOT NULL DEFAULT FALSE,
-                verified BOOLEAN NOT NULL DEFAULT FALSE,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                mission BOOLEAN NOT NULL DEFAULT FALSE,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                verified BOOLEAN NOT NULL DEFAULT FALSE
             )
             "#,
         )
@@ -312,26 +341,27 @@ async fn create_tables(pool: &SqlitePool) -> Result<(), sqlx::Error> {
         .execute(pool)
         .await?;
 
-        // Insert default note types
-        let default_note_types = [
-            ("epic_1_0", "Epic 1.0", "bg-yellow-500"),
-            ("epic_1_5", "Epic 1.5", "bg-orange-500"),
-            ("epic_2_0", "Epic 2.0", "bg-red-500"),
-            ("zone_aug", "Zone Aug", "bg-purple-500"),
-        ];
+        // TODO REMOVE
+        // // Insert default note types
+        // let default_note_types = [
+        //     ("epic_1_0", "Epic 1.0", "bg-yellow-500"),
+        //     ("epic_1_5", "Epic 1.5", "bg-orange-500"),
+        //     ("epic_2_0", "Epic 2.0", "bg-red-500"),
+        //     ("zone_aug", "Zone Aug", "bg-purple-500"),
+        // ];
 
-        for (name, display_name, color_class) in &default_note_types {
-            sqlx::query(
-                "INSERT INTO note_types (name, display_name, color_class) VALUES (?, ?, ?)",
-            )
-            .bind(name)
-            .bind(display_name)
-            .bind(color_class)
-            .execute(pool)
-            .await?;
-        }
+        // for (name, display_name, color_class) in &default_note_types {
+        //     sqlx::query(
+        //         "INSERT INTO note_types (name, display_name, color_class) VALUES (?, ?, ?)",
+        //     )
+        //     .bind(name)
+        //     .bind(display_name)
+        //     .bind(color_class)
+        //     .execute(pool)
+        //     .await?;
+        // }
 
-        println!("Note types table created successfully with default types");
+        println!("Note types table created successfully.");
     } else {
         println!("Note types table already exists");
     }
@@ -445,6 +475,7 @@ async fn create_tables(pool: &SqlitePool) -> Result<(), sqlx::Error> {
                 map_url TEXT NOT NULL DEFAULT '',
                 rating INTEGER NOT NULL DEFAULT 0,
                 hot_zone BOOLEAN NOT NULL DEFAULT FALSE,
+                mission BOOLEAN NOT NULL DEFAULT FALSE,
                 verified BOOLEAN NOT NULL DEFAULT FALSE,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
@@ -535,33 +566,33 @@ async fn create_tables(pool: &SqlitePool) -> Result<(), sqlx::Error> {
                 name TEXT NOT NULL UNIQUE,
                 display_name TEXT NOT NULL,
                 color_class TEXT NOT NULL DEFAULT 'bg-blue-500',
-                filterable BOOLEAN NOT NULL DEFAULT 1,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                filterable BOOLEAN NOT NULL DEFAULT 1
+            );
             "#,
         )
         .execute(pool)
         .await?;
 
-        // Insert default flag types
-        let default_flag_types = [
-            ("hot_zone", "Hot Zone", "bg-red-500", true),
-            ("undead", "Undead", "bg-purple-500", true),
-        ];
+        // TODO REMOVE
+        // // Insert default flag types
+        // let default_flag_types = [
+        //     ("hot_zone", "Hot Zone", "bg-red-500"),
+        //     ("undead", "Undead", "bg-purple-500"),
+        // ];
 
-        for (name, display_name, color_class, filterable) in &default_flag_types {
-            sqlx::query(
-                "INSERT INTO flag_types (name, display_name, color_class, filterable) VALUES (?, ?, ?, ?)",
-            )
-            .bind(name)
-            .bind(display_name)
-            .bind(color_class)
-            .bind(*filterable)
-            .execute(pool)
-            .await?;
-        }
+        // for (name, display_name, color_class) in &default_flag_types {
+        //     sqlx::query(
+        //         "INSERT INTO flag_types (name, display_name, color_class) VALUES (?, ?, ?)",
+        //     )
+        //     .bind(name)
+        //     .bind(display_name)
+        //     .bind(color_class)
+        //     .execute(pool)
+        //     .await?;
+        // }
 
-        println!("Flag types table created successfully with default types");
+        println!("Flag types table created successfully.");
     } else {
         println!("Flag types table already exists");
     }
@@ -717,87 +748,78 @@ pub async fn load_data_sql(pool: &SqlitePool) -> Result<(), Box<dyn std::error::
 
     println!("Loading data from data.sql...");
 
-    // Read and process the SQL file manually to handle schema differences
+    // Read the SQL file
     let sql_content = fs::read_to_string("./data/data.sql")?;
 
-    // Start a transaction to ensure atomicity
+    // Split the SQL content into individual statements
+    let statements: Vec<&str> = sql_content
+        .split(';')
+        .map(|s| s.trim())
+        .filter(|s| !s.is_empty())
+        .collect();
+
+    // Use a transaction to avoid database locks and ensure consistency
     let mut transaction = pool.begin().await?;
 
-    // Drop all existing tables to start fresh
-    let drop_tables = [
-        "DROP TABLE IF EXISTS zone_flags",
-        "DROP TABLE IF EXISTS zone_notes",
-        "DROP TABLE IF EXISTS instance_notes",
-        "DROP TABLE IF EXISTS zone_ratings",
-        "DROP TABLE IF EXISTS instances",
-        "DROP TABLE IF EXISTS zones",
-        "DROP TABLE IF EXISTS flag_types",
-        "DROP TABLE IF EXISTS note_types",
-        "DROP TABLE IF EXISTS links",
-    ];
+    // Execute each statement individually, skipping CREATE TABLE statements
+    let mut success_count = 0;
+    let mut error_count = 0;
 
-    for drop_sql in &drop_tables {
-        sqlx::query(drop_sql).execute(&mut *transaction).await?;
-    }
+    for statement in statements {
+        let trimmed = statement.trim();
+        let lower = trimmed.to_lowercase();
 
-    // Process the SQL content line by line
-    let lines: Vec<&str> = sql_content.lines().collect();
-    let mut current_statement = String::new();
-
-    for line in lines {
-        let trimmed = line.trim();
-
-        // Skip empty lines and comments
-        if trimmed.is_empty() || trimmed.starts_with("--") {
-            continue;
-        }
-
-        // Skip PRAGMA statements and transaction statements that might cause issues
-        if trimmed.starts_with("PRAGMA")
-            || trimmed.starts_with("BEGIN")
-            || trimmed.starts_with("COMMIT")
+        // Skip statements that would conflict with the outer transaction we created,
+        // and skip obvious DDL that we already handled elsewhere.
+        if trimmed.is_empty()
+            || lower.starts_with("create table")
+            || lower.starts_with("create index")
+            || lower.starts_with("commit")
+            || lower.starts_with("begin")
+            || lower.starts_with("rollback")
         {
+            // Log that we're intentionally skipping transaction/DDL control statements
+            tracing::debug!(statement = %trimmed, "Skipping control/DDL statement while loading data.sql");
             continue;
         }
 
-        current_statement.push_str(line);
-        current_statement.push(' ');
+        match sqlx::query(trimmed).execute(&mut *transaction).await {
+            Ok(_) => {
+                success_count += 1;
+            }
+            Err(e) => {
+                tracing::warn!(error = %e, statement = %trimmed, "Warning: failed to execute statement");
+                error_count += 1;
 
-        // Execute when we hit a semicolon
-        if trimmed.ends_with(';') {
-            let statement = current_statement.trim();
-            if !statement.is_empty() {
-                match sqlx::query(statement).execute(&mut *transaction).await {
-                    Ok(_) => {}
-                    Err(e) => {
-                        let error_message = e.to_string();
-
-                        // Skip harmless errors that are expected during data.sql loading
-                        if error_message.contains("table migrations already exists")
-                            || error_message.contains("UNIQUE constraint failed: migrations.id")
-                        {
-                            // These are expected - ignore silently
-                        } else {
-                            // Log unexpected errors but continue
-                            eprintln!("Warning: Failed to execute statement: {}", e);
-                            eprintln!("Statement was: {}", statement);
-                        }
-                    }
+                // If we get too many errors, abort the transaction
+                if error_count > 10 {
+                    tracing::error!(count = error_count, "Too many errors, aborting transaction");
+                    transaction.rollback().await?;
+                    return Err(format!(
+                        "Failed to load data.sql: {} errors encountered",
+                        error_count
+                    )
+                    .into());
                 }
             }
-            current_statement.clear();
         }
     }
 
     // Commit the transaction
     transaction.commit().await?;
 
-    // Record this migration
-    sqlx::query("INSERT OR REPLACE INTO migrations (name) VALUES ('data_sql')")
+    // Record the migration
+    let now = chrono::Utc::now().format("%Y-%m-%d %H:%M:%S").to_string();
+    sqlx::query("INSERT OR REPLACE INTO migrations (name, applied_at) VALUES (?, ?)")
+        .bind("data_sql")
+        .bind(&now)
         .execute(pool)
         .await?;
 
-    println!("Successfully loaded data from data.sql");
+    println!(
+        "Successfully loaded data from data.sql: {} statements executed, {} errors",
+        success_count, error_count
+    );
     Ok(())
 }
 
@@ -814,15 +836,59 @@ pub async fn dump_database_to_sql(
 
     println!("Dumping database to {}...", filepath);
 
+    // Use a more comprehensive dump approach
     let output = Command::new("sqlite3")
         .arg("./data/zones.db")
-        .arg(".dump")
+        .args(&[".mode insert", ".headers off", ".dump"])
         .output()?;
 
     if output.status.success() {
-        std::fs::write(&filepath, output.stdout)?;
-        println!("Database successfully dumped to {}", filepath);
-        Ok(filename)
+        let dump_content = String::from_utf8(output.stdout)?;
+
+        // Verify the dump contains CREATE TABLE statements
+        if !dump_content.contains("CREATE TABLE") {
+            println!(
+                "Warning: Dump doesn't contain CREATE TABLE statements, trying alternative method..."
+            );
+
+            // Try alternative approach with explicit schema dump
+            let schema_output = Command::new("sqlite3")
+                .arg("./data/zones.db")
+                .arg(".schema")
+                .output()?;
+
+            if schema_output.status.success() {
+                let schema_content = String::from_utf8(schema_output.stdout)?;
+                let data_output = Command::new("sqlite3")
+                    .arg("./data/zones.db")
+                    .args(&[
+                        ".mode insert",
+                        ".headers off",
+                        "SELECT * FROM sqlite_master WHERE type='table'",
+                    ])
+                    .output()?;
+
+                if data_output.status.success() {
+                    let combined_content = format!(
+                        "-- EQ RNG Database Dump\n-- Generated: {}\n\n{}\n\n{}",
+                        Utc::now().format("%Y-%m-%d %H:%M:%S"),
+                        schema_content,
+                        String::from_utf8(data_output.stdout)?
+                    );
+                    std::fs::write(&filepath, combined_content)?;
+                    println!("Database successfully dumped to {} (with schema)", filepath);
+                    Ok(filename)
+                } else {
+                    Err("Failed to get data from database".into())
+                }
+            } else {
+                Err("Failed to get schema from database".into())
+            }
+        } else {
+            std::fs::write(&filepath, dump_content)?;
+            println!("Database successfully dumped to {}", filepath);
+            Ok(filename)
+        }
     } else {
         let error = String::from_utf8_lossy(&output.stderr);
         Err(format!("Failed to dump database: {}", error).into())

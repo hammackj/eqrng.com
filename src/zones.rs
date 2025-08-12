@@ -129,13 +129,15 @@ pub async fn random_zone(
     query.push_str(&where_conditions.join(" AND "));
     query.push_str(" ORDER BY RANDOM() LIMIT 100");
 
+    // Diagnostic: log the constructed query and bindings to help debug 500s
     let mut sql_query = sqlx::query(&query);
+    tracing::debug!(sql = %query, bindings = ?bindings, "random_zone query");
     for binding in &bindings {
         sql_query = sql_query.bind(binding);
     }
 
     let rows = sql_query.fetch_all(pool).await.map_err(|e| {
-        eprintln!("Database error: {}", e);
+        tracing::error!(error = %e, "Database error in random_zone query");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
@@ -145,15 +147,45 @@ pub async fn random_zone(
         let level_ranges_json: String = row.get("level_ranges");
         let connections_json: String = row.get("connections");
 
-        let level_ranges: Vec<[u8; 2]> = serde_json::from_str(&level_ranges_json)
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-        let connections: Vec<String> = serde_json::from_str(&connections_json)
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        // Parse level_ranges with diagnostics. If parsing fails, skip this row rather than returning 500.
+        let level_ranges: Vec<[u8; 2]> = match serde_json::from_str(&level_ranges_json) {
+            Ok(v) => v,
+            Err(err) => {
+                tracing::warn!(
+                    zone_id = row.get::<i64, _>("id"),
+                    error = %err,
+                    raw = %level_ranges_json,
+                    "failed to parse level_ranges; skipping zone"
+                );
+                // Skip this row since we can't interpret its level ranges
+                continue;
+            }
+        };
+
+        // Parse connections; on failure fall back to empty list but continue processing the zone
+        let connections: Vec<String> = match serde_json::from_str(&connections_json) {
+            Ok(v) => v,
+            Err(err) => {
+                tracing::warn!(
+                    zone_id = row.get::<i64, _>("id"),
+                    error = %err,
+                    raw = %connections_json,
+                    "failed to parse connections; using empty list"
+                );
+                Vec::new()
+            }
+        };
 
         let zone_id = row.get::<i64, _>("id");
 
-        // Load flags for this zone
-        let flags = get_zone_flags(pool, zone_id).await.unwrap_or_default();
+        // Load flags for this zone with error handling
+        let flags = match get_zone_flags(pool, zone_id).await {
+            Ok(f) => f,
+            Err(e) => {
+                tracing::warn!(zone_id = zone_id, error = %e, "failed to load flags for zone");
+                Vec::new()
+            }
+        };
 
         let zone = Zone {
             id: Some(zone_id),

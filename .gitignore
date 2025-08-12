@@ -13,6 +13,7 @@ data/zones.db-wal
 *.log
 nohup.out
 # logs
+logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -27,3 +28,7 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+data/zones.db
+data/zones.db-shm
+data/zones.db-wal

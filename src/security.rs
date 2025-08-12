@@ -57,20 +57,40 @@ impl HtmlSanitizer {
     fn strip_html_tags(&self, input: &str) -> String {
         let mut result = String::with_capacity(input.len());
         let mut in_tag = false;
+        let mut in_dangerous_tag = false;
+        let mut current_tag = String::new();
         let mut chars = input.chars();
 
         while let Some(ch) = chars.next() {
             match ch {
                 '<' => {
                     in_tag = true;
+                    current_tag.clear();
                 }
                 '>' if in_tag => {
                     in_tag = false;
+                    // Check if this was a dangerous tag
+                    let tag_lower = current_tag.to_lowercase();
+                    if tag_lower.starts_with("script")
+                        || tag_lower.starts_with("style")
+                        || tag_lower.starts_with("iframe")
+                    {
+                        in_dangerous_tag = true;
+                    } else if tag_lower.starts_with("/script")
+                        || tag_lower.starts_with("/style")
+                        || tag_lower.starts_with("/iframe")
+                    {
+                        in_dangerous_tag = false;
+                    }
+                    current_tag.clear();
                 }
-                ch if !in_tag => {
-                    result.push(self.escape_html_char(ch));
+                ch if in_tag => {
+                    current_tag.push(ch);
                 }
-                _ => {} // Skip characters inside tags
+                ch if !in_tag && !in_dangerous_tag => {
+                    result.push(ch);
+                }
+                _ => {} // Skip characters inside dangerous tags
             }
         }
 
@@ -96,7 +116,12 @@ impl HtmlSanitizer {
                         found_end = true;
                         break;
                     }
-                    tag_content.push(chars.next().unwrap());
+                    // Safe to unwrap since we just checked chars.peek() returned Some
+                    tag_content.push(
+                        chars
+                            .next()
+                            .expect("chars.next() should succeed after peek()"),
+                    );
                 }
 
                 if found_end {
@@ -240,7 +265,8 @@ pub fn sanitize_url(url: &str) -> Option<String> {
         || (!url.contains(':') && !url.starts_with("//"))
     // relative URLs without protocol
     {
-        Some(escape_html(url))
+        // Don't escape forward slashes in URLs - they're safe and needed
+        Some(url.to_string())
     } else {
         None
     }

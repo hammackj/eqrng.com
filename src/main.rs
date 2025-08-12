@@ -2,27 +2,23 @@ use axum::http::HeaderValue;
 use axum::response::Response;
 use axum::{Router, http::Method, middleware, routing::get, serve};
 use clap::Parser;
-use std::env;
 use std::net::SocketAddr;
 use tokio::net::TcpListener;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::services::ServeDir;
+use tracing::{error, info, warn};
 
-use eq_rng::admin;
-use eq_rng::classes::{self, ClassRaceState};
-use eq_rng::instances::{self, InstanceState};
-use eq_rng::links::{self};
-use eq_rng::ratings::{self};
-use eq_rng::zones::{self, ZoneState};
-use eq_rng::{AppState, races, version};
+use eq_rng::{
+    AppConfig, AppState, admin, classes, instances, links, races, ratings, version, zones,
+};
 
 #[derive(Parser)]
 #[command(name = "eq_rng")]
 #[command(about = "EverQuest Random Number Generator API Server")]
 struct Args {
-    /// Port to listen on
-    #[arg(short, long, default_value_t = 3000)]
-    port: u16,
+    /// Port to listen on (overrides config)
+    #[arg(short, long)]
+    port: Option<u16>,
 }
 
 // Security headers middleware
@@ -66,32 +62,57 @@ async fn security_headers(mut response: Response) -> Response {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Load configuration first
+    let config = AppConfig::load()?;
+
+    // Initialize logging
+    eq_rng::logging::init_logging(&config.logging)?;
+
+    info!("Starting EQ RNG server...");
+
     let args = Args::parse();
+
+    // Use command line port if provided, otherwise use config
+    let port = args.port.unwrap_or(config.server.port);
+
+    info!(
+        "Server configuration loaded - Port: {}, Environment: {}",
+        port,
+        if config.is_development() {
+            "development"
+        } else {
+            "production"
+        }
+    );
+
     // Initialize database
-    let pool = eq_rng::setup_database()
-        .await
-        .expect("Failed to initialize database");
+    let pool = eq_rng::setup_database().await.map_err(|e| {
+        error!("Failed to initialize database: {}", e);
+        e
+    })?;
 
     // Check database health
-    eq_rng::database_health_check(&pool)
-        .await
-        .expect("Database health check failed");
+    eq_rng::database_health_check(&pool).await.map_err(|e| {
+        error!("Database health check failed: {}", e);
+        e
+    })?;
 
-    let zone_count = eq_rng::get_zones_count(&pool)
-        .await
-        .expect("Failed to get zone count");
+    let zone_count = eq_rng::get_zones_count(&pool).await.map_err(|e| {
+        error!("Failed to get zone count: {}", e);
+        e
+    })?;
 
-    println!("Database ready with {} zones", zone_count);
+    info!("Database ready with {} zones", zone_count);
 
     let state = AppState {
-        zone_state: ZoneState {
+        zone_state: zones::ZoneState {
             pool: std::sync::Arc::new(pool.clone()),
         },
-        instance_state: InstanceState {
+        instance_state: instances::InstanceState {
             pool: std::sync::Arc::new(pool),
         },
-        class_race_state: ClassRaceState {
+        class_race_state: classes::ClassRaceState {
             class_race_map: classes::load_classes(),
         },
     };
@@ -129,48 +150,62 @@ async fn main() {
         .with_state(state)
         .layer(middleware::map_response(security_headers))
         .layer({
-            // Configure CORS based on environment
-            let cors_layer = if env::var("EQ_RNG_ENV").unwrap_or_default() == "development" {
-                // Development: Allow localhost origins
-                CorsLayer::new()
-                    .allow_origin([
-                        "http://localhost:3000".parse().unwrap(),
-                        "http://localhost:5173".parse().unwrap(), // Vite dev server
-                        "http://127.0.0.1:3000".parse().unwrap(),
-                        "http://127.0.0.1:5173".parse().unwrap(),
-                    ])
-                    .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
-                    .allow_headers(Any)
-                    .allow_credentials(false)
-            } else {
-                // Production: Restrict to specific domain or same-origin only
-                let allowed_origins = env::var("ALLOWED_ORIGINS")
-                    .unwrap_or_else(|_| "https://yourdomain.com".to_string())
-                    .split(',')
-                    .filter_map(|origin| origin.trim().parse().ok())
-                    .collect::<Vec<_>>();
+            // Configure CORS based on configuration
+            let cors_origins = config.get_cors_origins();
+            let parsed_origins: Result<Vec<_>, _> =
+                cors_origins.iter().map(|origin| origin.parse()).collect();
 
-                if allowed_origins.is_empty() {
-                    // Fallback to restrictive CORS if no valid origins
+            match parsed_origins {
+                Ok(origins) => {
+                    info!("CORS configured with {} origins", origins.len());
                     CorsLayer::new()
-                        .allow_methods([Method::GET])
-                        .allow_headers(Any)
-                        .allow_credentials(false)
-                } else {
-                    CorsLayer::new()
-                        .allow_origin(allowed_origins)
+                        .allow_origin(origins)
                         .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
                         .allow_headers(Any)
                         .allow_credentials(false)
                 }
-            };
-            cors_layer
+                Err(e) => {
+                    warn!(
+                        "Failed to parse CORS origins: {}, using restrictive CORS",
+                        e
+                    );
+                    CorsLayer::new()
+                        .allow_methods([Method::GET])
+                        .allow_headers(Any)
+                        .allow_credentials(false)
+                }
+            }
         })
         .nest_service("/", ServeDir::new("dist"));
 
-    let addr: SocketAddr = format!("0.0.0.0:{}", args.port).parse().unwrap();
-    let listener = TcpListener::bind(addr).await.unwrap();
-    println!("Listening on {}", listener.local_addr().unwrap());
+    let addr: SocketAddr = format!("{}:{}", config.server.host, port)
+        .parse()
+        .map_err(|e| {
+            error!(
+                "Failed to parse address {}:{}: {}",
+                config.server.host, port, e
+            );
+            e
+        })?;
 
-    serve(listener, app.into_make_service()).await.unwrap();
+    let listener = TcpListener::bind(addr).await.map_err(|e| {
+        error!("Failed to bind to address {}: {}", addr, e);
+        e
+    })?;
+
+    let local_addr = listener.local_addr().map_err(|e| {
+        error!("Failed to get local address: {}", e);
+        e
+    })?;
+
+    info!("Listening on {}", local_addr);
+
+    serve(listener, app.into_make_service())
+        .await
+        .map_err(|e| {
+            error!("Server error: {}", e);
+            e
+        })?;
+
+    Ok(())
 }

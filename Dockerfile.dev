@@ -41,12 +41,16 @@ COPY --from=backend-builder /usr/src/eq_rng/target/release/eq_rng /opt/eq_rng/eq
 # Copy backend data and assets
 COPY --from=backend-builder /usr/src/eq_rng/data /opt/eq_rng/data
 COPY public/ /opt/eq_rng/public/
+COPY config/ /opt/eq_rng/config/
 
 # Copy built frontend assets
-COPY --from=frontend-builder /usr/src/frontend/dist /opt/eq_rng/dist
+COPY --from=frontend-builder /usr/src/eq_rng/frontend/dist /opt/eq_rng/dist
 
 # Make binary executable
 RUN chmod +x /opt/eq_rng/eq_rng
+
+# Create logs directory
+RUN mkdir -p /opt/eq_rng/logs
 
 # Create symlink for convenience
 RUN ln -s /opt/eq_rng/eq_rng /usr/local/bin/eq_rng
