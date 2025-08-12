@@ -118,7 +118,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let app = Router::new()
-        .route("/random_zone", get(zones::random_zone))
+        .route(
+            "/random_zone",
+            get(|axum::extract::Query(params): axum::extract::Query<zones::RangeQuery>, axum::extract::State(state): axum::extract::State<crate::AppState>| async move {
+                zones::random_zone(axum::extract::Query(params), axum::extract::State(state)).await
+            }),
+        )
         .route("/random_instance", get(instances::random_instance))
         .route("/random_race", get(races::random_race))
         .route("/random_class", get(classes::random_class))

@@ -233,11 +233,24 @@ pub async fn random_zone(
         return Err(StatusCode::NOT_FOUND);
     }
 
+    use rand::SeedableRng;
+    use rand::rngs::StdRng;
     use rand::seq::SliceRandom;
-    let mut rng = rand::thread_rng();
+    let mut rng = StdRng::from_entropy();
 
     if let Some(zone) = matching_zones.choose(&mut rng) {
-        Ok(Json(zone.clone()))
+        // Clone the chosen zone and load its notes so the /random_zone response includes notes.
+        let mut chosen = zone.clone();
+        if let Some(id) = chosen.id {
+            match get_zone_notes(pool, id).await {
+                Ok(notes) => chosen.notes = notes,
+                Err(e) => {
+                    tracing::warn!(zone_id = id, error = %e, "failed to load notes for chosen zone");
+                    chosen.notes = Vec::new();
+                }
+            }
+        }
+        Ok(Json(chosen))
     } else {
         Err(StatusCode::NOT_FOUND)
     }
