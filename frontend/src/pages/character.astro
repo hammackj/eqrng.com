@@ -80,6 +80,9 @@ import Layout from "../layouts/Layout.astro";
         let CUR_SELECTED_RACE_IMAGE = null;
         let CUR_SELECTED_CLASS = null;
 
+        // CUR_ZONE_BUCKETS holds the currently displayed buckets (array of {bucketIndex, low, high, range, zone})
+        let CUR_ZONE_BUCKETS = [];
+
         // Utility: Map backend color classes to Tailwind color classes (copied from zone page)
         function getColorClasses(colorClass) {
             const colorMap = {
@@ -201,8 +204,8 @@ import Layout from "../layouts/Layout.astro";
             loadFlagTypesForCharacter,
         );
 
-        // Build HTML for a single zone card (copied & slightly adapted from index page zone card)
-        function buildZoneCardHtml(zone) {
+        // Build HTML for a single zone card (now accepts bucketIndex to include a per-zone reroll button)
+        function buildZoneCardHtml(zone, bucketIndex, low, high) {
             const flagPillsHTML =
                 zone.flags && zone.flags.length > 0
                     ? `
@@ -239,6 +242,21 @@ import Layout from "../layouts/Layout.astro";
                   ? `${zone.min}–${zone.max}`
                   : "Unknown";
 
+            // Add per-zone reroll button. The button includes data attributes for bucketIndex, low, high
+            const rerollButtonHTML = `
+                <div class="mt-3 flex justify-end">
+                    <button
+                        id="reroll-btn-${bucketIndex}"
+                        data-bucket="${bucketIndex}"
+                        data-low="${low}"
+                        data-high="${high}"
+                        class="reroll-this-zone bg-amber-600 hover:bg-amber-500 text-white text-sm font-medium py-2 px-3 rounded-md shadow-sm"
+                        title="Reroll only this zone (keep race/class)">
+                        Reroll this Zone
+                    </button>
+                </div>
+            `;
+
             return `
         <div class="bg-slate-700 border border-slate-600 rounded-lg p-4" id="zone-${zone.id}">
           <div class="flex items-start gap-4">
@@ -258,6 +276,7 @@ import Layout from "../layouts/Layout.astro";
               </div>
               ${connectionsHTML}
               ${flagPillsHTML}
+              ${rerollButtonHTML}
               <div id="zone-notes-${zone.id}" class="mt-3 pt-3 border-t border-slate-600 text-sm text-slate-300"></div>
             </div>
           </div>
@@ -475,6 +494,8 @@ import Layout from "../layouts/Layout.astro";
                     if (zone) {
                         zones.push({
                             bucketIndex: i,
+                            low,
+                            high,
                             range: `${low}–${high}`,
                             zone,
                         });
@@ -482,6 +503,8 @@ import Layout from "../layouts/Layout.astro";
                         // If we couldn't fetch a zone, push a placeholder object
                         zones.push({
                             bucketIndex: i,
+                            low,
+                            high,
                             range: `${low}–${high}`,
                             zone: {
                                 id: `missing-${i}`,
@@ -501,6 +524,9 @@ import Layout from "../layouts/Layout.astro";
                 // Clear progress
                 if (progressTextEl) progressTextEl.textContent = "";
 
+                // Save current buckets globally so per-zone reroll can reference them
+                CUR_ZONE_BUCKETS = zones.slice();
+
                 // Render timeline vertically
                 timelineContainer.innerHTML = `
                 <div class="space-y-4">
@@ -514,7 +540,7 @@ import Layout from "../layouts/Layout.astro";
                                         <div class="text-lg font-medium text-white">${z.range}</div>
                                     </div>
                                     <div class="flex-1">
-                                        ${buildZoneCardHtml(z.zone)}
+                                        ${buildZoneCardHtml(z.zone, z.bucketIndex, z.low, z.high)}
                                     </div>
                                 </div>
                             `;
@@ -523,6 +549,9 @@ import Layout from "../layouts/Layout.astro";
                 </div>
                 `;
 
+                // Attach per-zone handlers after render
+                attachPerZoneRerollHandlers();
+
                 // Smooth transitions
                 resultDiv.style.opacity = "1";
             } catch (error) {
@@ -530,6 +559,133 @@ import Layout from "../layouts/Layout.astro";
                 resultDiv.style.opacity = "1";
                 resultDiv.innerHTML =
                     '<div class="bg-red-900/50 border border-red-600 text-red-200 px-4 py-3 rounded">Error generating character. Please try again.</div>';
+            }
+        }
+
+        // After timeline render, attach click handlers for each reroll button
+        function attachPerZoneRerollHandlers() {
+            // Remove any previous delegated listeners by cloning container (simple reset)
+            const timeline = document.getElementById("timeline-container");
+            if (!timeline) return;
+            // Attach listeners to each reroll button
+            const buttons = timeline.querySelectorAll(".reroll-this-zone");
+            buttons.forEach((btn) => {
+                // ensure we don't attach multiple listeners
+                btn.removeEventListener("click", perZoneBtnClickHandler);
+                btn.addEventListener("click", perZoneBtnClickHandler);
+            });
+        }
+
+        // Click handler wrapper
+        function perZoneBtnClickHandler(ev) {
+            const btn = ev.currentTarget;
+            if (!(btn instanceof HTMLButtonElement)) return;
+            const bucketStr = btn.dataset.bucket;
+            const lowStr = btn.dataset.low;
+            const highStr = btn.dataset.high;
+            const bucketIndex = bucketStr ? parseInt(bucketStr, 10) : NaN;
+            const low = lowStr ? parseInt(lowStr, 10) : NaN;
+            const high = highStr ? parseInt(highStr, 10) : NaN;
+            if (isNaN(bucketIndex) || isNaN(low) || isNaN(high)) return;
+            // call async reroll
+            rerollSingleZone(bucketIndex, low, high, btn);
+        }
+
+        // Reroll a single bucket (by bucketIndex, low, high). `btnEl` is optional button to update state immediately.
+        async function rerollSingleZone(bucketIndex, low, high, btnEl = null) {
+            const resultDiv = document.getElementById("character-result");
+            const timelineContainer =
+                document.getElementById("timeline-container");
+            if (!resultDiv || !timelineContainer) return;
+
+            if (
+                !CUR_SELECTED_RACE ||
+                !CUR_SELECTED_CLASS ||
+                !Array.isArray(CUR_ZONE_BUCKETS) ||
+                CUR_ZONE_BUCKETS.length === 0
+            ) {
+                resultDiv.innerHTML =
+                    '<div class="bg-yellow-900/30 border border-yellow-600 text-yellow-200 px-4 py-3 rounded">No character to reroll zones for. Generate a character first.</div>';
+                return;
+            }
+
+            // Disable the specific button while working
+            if (btnEl && btnEl instanceof HTMLButtonElement) {
+                btnEl.disabled = true;
+                btnEl.classList.add("opacity-60", "cursor-not-allowed");
+                const originalText = btnEl.textContent;
+                btnEl.textContent = "Rerolling...";
+            }
+
+            try {
+                // Build usedZoneIds excluding the target bucket so the target can be unique vs rest
+                const usedZoneIds = new Set();
+                CUR_ZONE_BUCKETS.forEach((b, idx) => {
+                    if (idx === bucketIndex) return;
+                    const zid = b.zone && b.zone.id;
+                    if (zid) usedZoneIds.add(zid);
+                });
+
+                // Use current filters from UI
+                const filters = getCharacterFilters();
+
+                const newZone = await fetchUniqueZoneForRange(
+                    low,
+                    high,
+                    usedZoneIds,
+                    8,
+                    filters,
+                );
+
+                if (!newZone) {
+                    // If couldn't get, replace with placeholder
+                    CUR_ZONE_BUCKETS[bucketIndex].zone = {
+                        id: `missing-${bucketIndex}`,
+                        name: "No zone found",
+                        expansion: "",
+                        continent: "",
+                        zone_type: "",
+                        verified: false,
+                        level_ranges: [[low, high]],
+                        connections: [],
+                        flags: [],
+                    };
+                } else {
+                    CUR_ZONE_BUCKETS[bucketIndex].zone = newZone;
+                }
+
+                // Re-render only the timeline (reuse same render code)
+                if (timelineContainer) {
+                    timelineContainer.innerHTML = `
+                        <div class="space-y-4">
+                            ${CUR_ZONE_BUCKETS.map((z) => {
+                                return `
+                                        <div class="flex items-start gap-4">
+                                            <div class="w-24 text-right">
+                                                <div class="text-sm text-slate-400">Levels</div>
+                                                <div class="text-lg font-medium text-white">${z.range}</div>
+                                            </div>
+                                            <div class="flex-1">
+                                                ${buildZoneCardHtml(z.zone, z.bucketIndex, z.low, z.high)}
+                                            </div>
+                                        </div>
+                                    `;
+                            }).join("")}
+                        </div>
+                    `;
+                }
+
+                // Re-attach handlers for the newly rendered buttons
+                attachPerZoneRerollHandlers();
+            } catch (err) {
+                console.error("Error rerolling single zone:", err);
+            } finally {
+                if (btnEl && btnEl instanceof HTMLButtonElement) {
+                    btnEl.disabled = false;
+                    btnEl.classList.remove("opacity-60", "cursor-not-allowed");
+                    // restore label
+                    btnEl.textContent = "Reroll this Zone";
+                }
             }
         }
 
@@ -593,12 +749,16 @@ import Layout from "../layouts/Layout.astro";
                 if (zone) {
                     zones.push({
                         bucketIndex: i,
+                        low,
+                        high,
                         range: `${low}–${high}`,
                         zone,
                     });
                 } else {
                     zones.push({
                         bucketIndex: i,
+                        low,
+                        high,
                         range: `${low}–${high}`,
                         zone: {
                             id: `missing-${i}`,
@@ -635,6 +795,9 @@ import Layout from "../layouts/Layout.astro";
                 </div>
                 `;
 
+            // Save to global buckets for per-zone rerolling
+            CUR_ZONE_BUCKETS = zones.slice();
+
             // Render timeline
             const timelineContainerEl =
                 document.getElementById("timeline-container");
@@ -650,7 +813,7 @@ import Layout from "../layouts/Layout.astro";
                                             <div class="text-lg font-medium text-white">${z.range}</div>
                                         </div>
                                         <div class="flex-1">
-                                            ${buildZoneCardHtml(z.zone)}
+                                            ${buildZoneCardHtml(z.zone, z.bucketIndex, z.low, z.high)}
                                         </div>
                                     </div>
                                 `;
@@ -659,6 +822,9 @@ import Layout from "../layouts/Layout.astro";
                     </div>
                 `;
             }
+
+            // Attach per-zone handlers
+            attachPerZoneRerollHandlers();
 
             resultDiv.style.opacity = "1";
         }
