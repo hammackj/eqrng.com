@@ -4,6 +4,10 @@
 - Downscaled Race and Class images to 192x192 so they are way smaller size wise.
 - Added Random Character Generator, with full leveling path to level cap.
 - As more data get verified and updated this will smooth out the leveling path.
+- All House of Thule Zones are now verified, so expect them to be more accurate.
+- All Claws of Veeshan Zones are now verified, so expect them to be more accurate.
+- All Torment of Velious Zones are now verified, so expect them to be more accurate.
+- Other database tweaking for smoother leveling path.
 - Report any bugs or zone issues on Discord or GitHub.
 
 ## August 12, 2025 - Update 5
