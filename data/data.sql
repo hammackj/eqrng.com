@@ -17,12 +17,12 @@ CREATE TABLE zones (
                 verified BOOLEAN NOT NULL DEFAULT FALSE
             );
 INSERT INTO zones VALUES(1,'Ak''Anon','[[0,0]]','Classic','Faydwer','Indoor','["Steamfont Mountains"]','','',0,0,0,'2025-07-21 23:58:30',1);
-INSERT INTO zones VALUES(2,'Befallen','[[7,25]]','Classic','Antonica','dungeon','["Commonlands"]','','',0,0,0,'2025-07-21 23:58:30',1);
-INSERT INTO zones VALUES(3,'Blackburrow','[[4,15]]','Classic','Antonica','Dungeon','[]','','',0,0,0,'2025-07-21 23:58:30',0);
-INSERT INTO zones VALUES(4,'Castle Mistmoore','[[20,45]]','Classic','','Dungeon','[]','','',0,0,0,'2025-07-21 23:58:30',0);
-INSERT INTO zones VALUES(5,'Clan Runnyeye','[[7,30]]','Classic','','Dungeon','[]','','',0,0,0,'2025-07-21 23:58:30',0);
+INSERT INTO zones VALUES(2,'Befallen','[[7,25]]','Classic','Antonica','Indoor','["Commonlands"]','','',0,0,0,'2025-07-21 23:58:30',1);
+INSERT INTO zones VALUES(3,'Blackburrow','[[4,15]]','Classic','Antonica','Outdoor','[]','','',0,0,0,'2025-07-21 23:58:30',0);
+INSERT INTO zones VALUES(4,'Castle Mistmoore','[[20,45]]','Classic','','Outdoor','[]','','',0,0,0,'2025-07-21 23:58:30',0);
+INSERT INTO zones VALUES(5,'Clan Runnyeye','[[7,30]]','Classic','','Indoor','[]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(6,'Commonlands','[[1,20],[35,35]]','Classic','','Outdoor','[]','','',0,0,0,'2025-07-21 23:58:30',0);
-INSERT INTO zones VALUES(7,'Crushbone','[[5,20]]','Classic','','Dungeon','[]','','',0,0,0,'2025-07-21 23:58:30',0);
+INSERT INTO zones VALUES(7,'Crushbone','[[5,20]]','Classic','','Outdoor','[]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(8,'Dagnor''s Cauldron','[[10,25]]','Classic','','Outdoor','[]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(9,'East Karana','[[10,30]]','Classic','','Outdoor','[]','','',0,0,0,'2025-07-21 23:58:30',0);
 INSERT INTO zones VALUES(10,'Erud''s Crossing','[[5,15]]','Classic','Odus','Outdoor','[]','','',0,0,0,'2025-07-21 23:58:30',0);
