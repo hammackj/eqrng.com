@@ -21,8 +21,9 @@ COPY Cargo.toml Cargo.lock ./
 COPY src/ ./src/
 COPY data/ ./data/
 
-# Build the backend without admin features for production
-RUN cargo build --release --no-default-features
+# Build the backend without admin features for production (verbose output)
+# Adding -v makes cargo print rustc invocations and diagnostics even when non-interactive.
+RUN cargo build --release --no-default-features -v
 
 # ─── RUNTIME ───────────────────────────────────────────
 FROM debian:bookworm-slim
