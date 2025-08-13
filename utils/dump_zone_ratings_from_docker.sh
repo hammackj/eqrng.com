@@ -37,7 +37,7 @@ set -euo pipefail
 
 # Defaults
 USE_DOCKER="true"
-CONTAINER_NAME="eq_rng-app-1"
+CONTAINER_NAME="eqrng_app"
 DB_PATH="data/zones.db"
 OUT_DIR="backups/zone_ratings"
 TIMESTAMP="$(date +"%Y%m%d_%H%M%S")"

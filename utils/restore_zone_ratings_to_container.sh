@@ -32,7 +32,7 @@
 set -euo pipefail
 
 # Defaults
-CONTAINER_NAME="eq_rng-app-1"
+CONTAINER_NAME="eqrng_app"
 DB_PATH="/opt/eq_rng/data/zones.db"
 INPUT_FILE=""
 SKIP_BACKUP="false"
