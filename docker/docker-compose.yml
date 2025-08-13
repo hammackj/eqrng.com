@@ -5,7 +5,7 @@ services:
     image: eq_rng:latest
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: docker/Dockerfile
     restart: always
     ports:
       - "3000:3000"
@@ -15,4 +15,4 @@ services:
       RATING_IP_HASH_KEY: "change-this-to-a-secure-random-32plus-character-string-for-production"
       ALLOWED_ORIGINS: "https://eqrng.com"
     volumes:
-      - ./data:/opt/eq_rng/data
+      - ../data:/opt/eq_rng/data

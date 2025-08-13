@@ -19,17 +19,16 @@ WORKDIR /usr/src/eq_rng
 # Copy backend files
 COPY Cargo.toml Cargo.lock ./
 COPY src/ ./src/
-COPY migrations/ ./migrations/
-COPY tests/ ./tests/
 COPY data/ ./data/
 
-# Build the backend with admin features for development
-RUN cargo build --release --features admin
+# Build the backend without admin features for production (verbose output)
+# Adding -v makes cargo print rustc invocations and diagnostics even when non-interactive.
+RUN cargo build --release --no-default-features -v
 
 # ─── RUNTIME ───────────────────────────────────────────
 FROM debian:bookworm-slim
 RUN apt-get update \
-    && apt-get install -y ca-certificates \
+    && apt-get install -y ca-certificates sqlite3 jq \
     && rm -rf /var/lib/apt/lists/*
 
 # Create install directory
@@ -43,14 +42,23 @@ COPY --from=backend-builder /usr/src/eq_rng/data /opt/eq_rng/data
 COPY public/ /opt/eq_rng/public/
 COPY config/ /opt/eq_rng/config/
 
-# Copy built frontend assets
-COPY --from=frontend-builder /usr/src/eq_rng/frontend/dist /opt/eq_rng/dist
+# Copy built frontend assets (fixed source path to match frontend-builder WORKDIR)
+COPY --from=frontend-builder /usr/src/frontend/dist /opt/eq_rng/dist
+
+# Copy zone ratings and transaction log management utilities
+COPY utils/setup_logs.sh /opt/eq_rng/utils/
+COPY utils/docker-entrypoint.sh /opt/eq_rng/
+
+# Make scripts executable
+RUN chmod +x /opt/eq_rng/utils/setup_logs.sh \
+    && chmod +x /opt/eq_rng/docker-entrypoint.sh || true
 
 # Make binary executable
 RUN chmod +x /opt/eq_rng/eq_rng
 
-# Create logs directory
-RUN mkdir -p /opt/eq_rng/logs
+# Create directories for backups and migrations
+RUN mkdir -p /opt/eq_rng/backups/database \
+    && mkdir -p /opt/eq_rng/logs
 
 # Create symlink for convenience
 RUN ln -s /opt/eq_rng/eq_rng /usr/local/bin/eq_rng
@@ -61,5 +69,6 @@ WORKDIR /opt/eq_rng
 # Expose port
 EXPOSE 3000
 
-# Run the server
+# Use the entrypoint script to handle initialization
+ENTRYPOINT ["/opt/eq_rng/docker-entrypoint.sh"]
 CMD ["./eq_rng"]

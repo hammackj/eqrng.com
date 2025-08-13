@@ -47,8 +47,10 @@ AUTO_APPLY_SCRIPT="${AUTO_APPLY_SCRIPT:-/opt/eq_rng/utils/apply_rating_transacti
 # Environment flags with defaults
 SKIP_ZONE_MIGRATION="${SKIP_ZONE_MIGRATION:-false}"
 SKIP_TRANSACTION_AUTO_APPLY="${SKIP_TRANSACTION_AUTO_APPLY:-false}"
+SKIP_DATABASE_WAIT="${SKIP_DATABASE_WAIT:-false}"
 ZONE_MIGRATION_TIMEOUT="${ZONE_MIGRATION_TIMEOUT:-60}"
 RUST_LOG="${RUST_LOG:-info}"
+DEBUG_ENTRYPOINT="${DEBUG_ENTRYPOINT:-false}"
 
 # Show helpful startup info (used early in main)
 show_startup_info() {
@@ -56,6 +58,12 @@ show_startup_info() {
     echo "================================"
     echo "Database path: $DB_PATH"
     echo "Database exists: $([ -f "$DB_PATH" ] && echo "Yes" || echo "No")"
+    if [[ "$DEBUG_ENTRYPOINT" == "true" ]]; then
+        echo "Database directory contents:"
+        ls -la "$(dirname "$DB_PATH")" 2>/dev/null || echo "  Cannot list directory"
+        echo "Database file permissions:"
+        ls -la "$DB_PATH" 2>/dev/null || echo "  Cannot stat file"
+    fi
     if [[ -f "$DB_PATH" ]]; then
         if command -v sqlite3 >/dev/null 2>&1; then
             local zone_count
@@ -74,9 +82,21 @@ show_startup_info() {
     echo "================================"
 }
 
-# Wait for the database file to be ready and responsive
+# Wait for the database file to be ready and responsive (only if it should already exist)
 wait_for_database() {
-    log_info "Waiting for database to be ready..."
+    # If database doesn't exist and the app is supposed to create it, skip waiting
+    if [[ ! -f "$DB_PATH" && -f "/opt/eq_rng/data/data.sql" ]]; then
+        log_info "Database will be created by application from data.sql, skipping wait"
+        return 0
+    fi
+
+    # If database doesn't exist and no data.sql, skip waiting (app will create empty DB)
+    if [[ ! -f "$DB_PATH" ]]; then
+        log_info "Database will be created by application, skipping wait"
+        return 0
+    fi
+
+    log_info "Database exists, verifying it's accessible..."
 
     local timeout=${ZONE_MIGRATION_TIMEOUT:-60}
     local counter=0
@@ -283,7 +303,7 @@ main() {
         fi
     fi
 
-    # Wait for database to be available (if it's expected to exist)
+    # Wait for database to be available (only if it already exists)
     if ! wait_for_database; then
         log_error "Database initialization failed"
         exit 1

@@ -62,7 +62,7 @@ print_usage() {
     echo ""
     echo "Typical deployment workflow:"
     echo "  1. $0 extract                     # Before stopping old container"
-    echo "  2. docker-compose up --build -d  # Deploy new container"
+    echo "  2. docker-compose -f docker/docker-compose.yml up --build -d  # Deploy new container"
     echo "  3. $0 apply-to-docker \$latest    # Apply to new container"
 }
 

@@ -65,7 +65,7 @@ Recommended build patterns:
 - Build only the main app:
   - `cargo build --package eq_rng`
 
-The repository includes helper scripts (`./build.sh`, `./run_tests.sh`) to simplify common flows; review them before use.
+The repository includes helper scripts (`./utils/build.sh`, `./run_tests.sh`) to simplify common flows; review them before use.
 
 ---
 
@@ -185,11 +185,11 @@ See `tests/README.md` for more details about test cases and expected environment
 Two primary workflows are supported:
 
 - Production image (admin disabled):
-  - `./build.sh production` (builds optimized image without admin)
-  - `docker-compose up -d` to run
+  - `./utils/build.sh production` (builds optimized image without admin)
+  - `docker-compose -f docker/docker-compose.yml up -d` to run
 - Development image (admin enabled):
-  - `./build.sh development`
-  - `docker-compose -f docker-compose.dev.yml up -d`
+  - `./utils/build.sh development`
+  - `docker-compose -f docker/docker-compose.dev.yml up -d`
 
 Before deploying:
 - Extract `data/rating_transaction.log` if you need to preserve live user ratings between releases.

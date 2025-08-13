@@ -21,9 +21,8 @@ COPY Cargo.toml Cargo.lock ./
 COPY src/ ./src/
 COPY data/ ./data/
 
-# Build the backend without admin features for production (verbose output)
-# Adding -v makes cargo print rustc invocations and diagnostics even when non-interactive.
-RUN cargo build --release --no-default-features -v
+# Build the backend with admin features for development
+RUN cargo build --release --features admin
 
 # ─── RUNTIME ───────────────────────────────────────────
 FROM debian:bookworm-slim
@@ -46,26 +45,18 @@ COPY config/ /opt/eq_rng/config/
 COPY --from=frontend-builder /usr/src/frontend/dist /opt/eq_rng/dist
 
 # Copy zone ratings and transaction log management utilities
-COPY utils/backup_zone_ratings.sh /opt/eq_rng/utils/
-COPY utils/rating_transaction_log.sh /opt/eq_rng/utils/
-COPY utils/deploy_with_rating_log.sh /opt/eq_rng/utils/
 COPY utils/setup_logs.sh /opt/eq_rng/utils/
 COPY utils/docker-entrypoint.sh /opt/eq_rng/
 
 # Make scripts executable
-RUN chmod +x /opt/eq_rng/utils/backup_zone_ratings.sh \
-    && chmod +x /opt/eq_rng/utils/rating_transaction_log.sh \
-    && chmod +x /opt/eq_rng/utils/deploy_with_rating_log.sh \
-    && chmod +x /opt/eq_rng/utils/setup_logs.sh \
+RUN chmod +x /opt/eq_rng/utils/setup_logs.sh \
     && chmod +x /opt/eq_rng/docker-entrypoint.sh || true
 
 # Make binary executable
 RUN chmod +x /opt/eq_rng/eq_rng
 
 # Create directories for backups and migrations
-RUN mkdir -p /opt/eq_rng/backups/zone_ratings \
-    && mkdir -p /opt/eq_rng/backups/database \
-    && mkdir -p /opt/eq_rng/backups/rating_transactions \
+RUN mkdir -p /opt/eq_rng/backups/database \
     && mkdir -p /opt/eq_rng/logs
 
 # Create symlink for convenience

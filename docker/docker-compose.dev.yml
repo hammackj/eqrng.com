@@ -1,10 +1,11 @@
 version: "3.8"
 services:
   app:
+    container_name: eqrng_app_dev
     image: eq_rng:dev
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: docker/Dockerfile.dev
     restart: always
     ports:
       - "3000:3000"
@@ -13,4 +14,4 @@ services:
       EQ_RNG_ENV: development
       RATING_IP_HASH_KEY: "development-key-change-for-production-use-32plus-chars"
     volumes:
-      - ./data:/opt/eq_rng/data
+      - ../data:/opt/eq_rng/data
