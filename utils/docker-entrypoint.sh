@@ -267,10 +267,25 @@ main() {
 
     show_startup_info
 
+    # If the SQLite DB file is missing but a data SQL dump is present, create the DB from the SQL.
+    # This allows first-time container startup to initialize the database automatically.
+    if [[ ! -f "$DB_PATH" && -f "/opt/eq_rng/data/data.sql" ]]; then
+        log_info "Database file $DB_PATH not found but data/data.sql exists; creating database from SQL..."
+        mkdir -p "$(dirname "$DB_PATH")"
+        if command -v sqlite3 >/dev/null 2>&1; then
+            if sqlite3 "$DB_PATH" < /opt/eq_rng/data/data.sql 2>/opt/eq_rng/logs/db_init_error.log; then
+                log_success "Created $DB_PATH from data/data.sql"
+            else
+                log_error "Failed to create $DB_PATH from data/data.sql (see /opt/eq_rng/logs/db_init_error.log)"
+            fi
+        else
+            log_error "sqlite3 not available in the image; cannot create database from data/data.sql"
+        fi
+    fi
+
     # Wait for database to be available (if it's expected to exist)
     if ! wait_for_database; then
         log_error "Database initialization failed"
-        # continue anyway? exit is safer
         exit 1
     fi
 
