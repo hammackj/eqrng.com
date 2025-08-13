@@ -313,11 +313,22 @@ main() {
         exit 2
     fi
 
-    log_info "Starting eq_rng application..."
-    log_info "Command: $APP_BINARY $*"
+    # If Docker provided the same executable name as a CMD (common when image CMD is ["./eq_rng"]),
+    # drop that redundant single argument so the application doesn't receive it.
+    if [[ $# -eq 1 && ( "$1" == "./$(basename "$APP_BINARY")" || "$1" == "$(basename "$APP_BINARY")" ) ]]; then
+        set --
+    fi
 
-    # Start application in background (capture PID)
-    "$APP_BINARY" "$@" &
+    log_info "Starting eq_rng application..."
+    if [[ $# -gt 0 ]]; then
+        log_info "Command: $APP_BINARY $*"
+        # Start application with provided args
+        "$APP_BINARY" "$@" &
+    else
+        log_info "Command: $APP_BINARY"
+        # Start application with no extra args
+        "$APP_BINARY" &
+    fi
     APP_PID=$!
 
     # Wait for the application process; this allows trap to work
