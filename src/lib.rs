@@ -824,11 +824,20 @@ pub async fn load_data_sql(pool: &SqlitePool) -> Result<(), Box<dyn std::error::
 }
 
 /// Export current database to a timestamped data.sql file
-pub async fn dump_database_to_sql(
-    _pool: &SqlitePool,
-) -> Result<String, Box<dyn std::error::Error>> {
+pub async fn dump_database_to_sql(pool: &SqlitePool) -> Result<String, Box<dyn std::error::Error>> {
     use chrono::Utc;
     use std::process::Command;
+
+    // Ensure WAL is checkpointed before dumping so the main DB file contains recent changes.
+    match checkpoint_wal(pool).await {
+        Ok(_) => {
+            println!("WAL checkpoint succeeded before export");
+        }
+        Err(e) => {
+            // Non-fatal: warn and continue with dump, but surface the error in logs.
+            tracing::warn!(error = %e, "WAL checkpoint failed before export; continuing with dump");
+        }
+    }
 
     let timestamp = Utc::now().format("%Y%m%d_%H%M%S");
     let filename = format!("data-{}.sql", timestamp);
