@@ -1,0 +1,699 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="EQRng.com - Random Character Generator" currentPage="character">
+    <div class="max-w-3xl mx-auto px-4 py-8">
+        <div
+            class="bg-slate-800 rounded-lg shadow-xl border border-slate-600/20 p-6"
+        >
+            <h1 class="text-3xl font-bold text-white mb-6 text-center">
+                Random EverQuest Character
+            </h1>
+
+            <div
+                id="character-result"
+                class="mb-6 transition-opacity duration-300"
+            >
+            </div>
+
+            <div class="mb-6 text-sm text-slate-300">
+                <p>
+                    This will pick a Race, a valid Class for that Race, then
+                    choose unique zones to level in for every N levels from
+                    1–125 (non-overlapping ranges). Choose N between 1 and 10.
+                </p>
+            </div>
+
+            <div class="mb-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="md:col-span-1 flex items-center gap-3">
+                    <label for="bucket-size" class="text-sm text-slate-300"
+                        >Bucket size (N levels, 1–5):</label
+                    >
+                    <input
+                        id="bucket-size"
+                        type="number"
+                        min="1"
+                        max="5"
+                        value="5"
+                        class="w-20 p-2 bg-slate-700 border border-slate-600 text-white rounded-md"
+                    />
+                </div>
+
+                <div class="md:col-span-1">
+                    <label class="block text-sm font-medium text-slate-300 mb-2"
+                        >Zone Flags (optional - check to filter by specific
+                        flags)</label
+                    >
+                    <div
+                        id="character-flag-checkboxes"
+                        class="grid grid-cols-2 sm:grid-cols-3 gap-2"
+                    >
+                        <!-- Flag checkboxes will be dynamically loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button
+                    id="generate-character"
+                    class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 px-6 rounded-md transition-colors text-lg shadow-lg"
+                >
+                    Generate Character
+                </button>
+                <button
+                    id="reroll-zones"
+                    class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-medium py-3 px-6 rounded-md transition-colors text-lg shadow-lg disabled:opacity-60"
+                    disabled
+                >
+                    Reroll Zones (Keep Race/Class)
+                </button>
+            </div>
+        </div>
+
+        <div id="timeline-container" class="mt-8 space-y-4"></div>
+    </div>
+
+    <script>
+        // Global state so we can reroll zones without changing race/class
+        let CUR_SELECTED_RACE = null;
+        let CUR_SELECTED_RACE_IMAGE = null;
+        let CUR_SELECTED_CLASS = null;
+
+        // Utility: Map backend color classes to Tailwind color classes (copied from zone page)
+        function getColorClasses(colorClass) {
+            const colorMap = {
+                "bg-red-500": "bg-red-500 border-red-400",
+                "bg-orange-500": "bg-orange-500 border-orange-400",
+                "bg-yellow-500": "bg-yellow-500 border-yellow-400",
+                "bg-green-500": "bg-green-500 border-green-400",
+                "bg-blue-500": "bg-blue-500 border-blue-400",
+                "bg-indigo-500": "bg-indigo-500 border-indigo-400",
+                "bg-purple-500": "bg-purple-500 border-purple-400",
+                "bg-pink-500": "bg-pink-500 border-pink-400",
+                "bg-gray-500": "bg-gray-500 border-gray-400",
+                "bg-slate-500": "bg-slate-500 border-slate-400",
+                "bg-cyan-500": "bg-cyan-500 border-cyan-400",
+                "bg-teal-500": "bg-teal-500 border-teal-400",
+                "bg-emerald-500": "bg-emerald-500 border-emerald-400",
+                "bg-lime-500": "bg-lime-500 border-lime-400",
+                "bg-amber-500": "bg-amber-500 border-amber-400",
+                "bg-rose-500": "bg-rose-500 border-rose-400",
+                "bg-fuchsia-500": "bg-fuchsia-500 border-fuchsia-400",
+                "bg-violet-500": "bg-violet-500 border-violet-400",
+            };
+            return colorMap[colorClass] || "bg-gray-500 border-gray-400";
+        }
+
+        // Helper: get class image filename (copied logic from class page)
+        function getClassImagePath(className) {
+            const classImageMap = {
+                Warrior: "warrior.png",
+                Cleric: "cleric.png",
+                Paladin: "paladin.png",
+                Ranger: "ranger.png",
+                "Shadow Knight": "shadowknight.png",
+                Druid: "druid.png",
+                Monk: "monk.png",
+                Bard: "bard.png",
+                Rogue: "rogue.png",
+                Shaman: "shaman.png",
+                Necromancer: "necromancer.png",
+                Wizard: "wizard.png",
+                Magician: "magician.png",
+                Enchanter: "enchanter.png",
+                Beastlord: "beastlord.png",
+                Berserker: "warrior.png",
+            };
+            return classImageMap[className] || "warrior.png";
+        }
+
+        // Load flag types into the character page filter UI
+        async function loadFlagTypesForCharacter() {
+            try {
+                const response = await fetch("/flag-types");
+                if (!response.ok) {
+                    console.warn(
+                        "Failed to load flag types for character page",
+                    );
+                    return;
+                }
+                const flagTypes = await response.json();
+                const container = document.getElementById(
+                    "character-flag-checkboxes",
+                );
+                if (!container) return;
+
+                const emojiMap = {
+                    hot_zone: "🔥",
+                    undead: "💀",
+                    epic_zone: "⚔️",
+                    newbie_friendly: "🌱",
+                    raid_zone: "🏰",
+                    pvp_zone: "⚔️",
+                };
+
+                // Build checkboxes dynamically, similar to zone page
+                container.innerHTML = flagTypes
+                    .map((flagType) => {
+                        const emoji = emojiMap[flagType.name] || "🔸";
+                        // extract a color name from color_class like "bg-blue-500"
+                        const colorMatch = (flagType.color_class || "").match(
+                            /bg-(\w+)-/,
+                        );
+                        const color = colorMatch ? colorMatch[1] : "blue";
+                        return `
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        id="char-flag-${flagType.name}"
+                                        value="${flagType.name}"
+                                        class="w-4 h-4 text-${color}-600 bg-slate-700 border-slate-600 rounded focus:ring-${color}-500 focus:ring-2"
+                                    />
+                                    <span class="text-sm text-slate-300">${emoji} ${flagType.display_name}</span>
+                                </label>
+                                `;
+                    })
+                    .join("");
+            } catch (error) {
+                console.warn(
+                    "Error loading flag types for character page:",
+                    error,
+                );
+            }
+        }
+
+        // Read current character filters from the UI (flags only)
+        function getCharacterFilters() {
+            const checkedEls = document.querySelectorAll(
+                '#character-flag-checkboxes input[type="checkbox"]:checked',
+            );
+            const checked = Array.from(checkedEls)
+                .map((el) => (el instanceof HTMLInputElement ? el.value : ""))
+                .filter(Boolean);
+            const flags = checked.length > 0 ? checked.join(",") : "";
+            return { flags };
+        }
+
+        // Load flag types on page ready
+        document.addEventListener(
+            "DOMContentLoaded",
+            loadFlagTypesForCharacter,
+        );
+
+        // Build HTML for a single zone card (copied & slightly adapted from index page zone card)
+        function buildZoneCardHtml(zone) {
+            const flagPillsHTML =
+                zone.flags && zone.flags.length > 0
+                    ? `
+                    <div class="mt-4 pt-4 border-t border-slate-600 mb-2">
+                        <div class="font-medium mb-2 text-slate-300">Zone Flags:</div>
+                        <div class="flex flex-wrap gap-2">
+                            ${zone.flags
+                                .map((flag) => {
+                                    const colors = getColorClasses(
+                                        flag.flag_type?.color_class,
+                                    );
+                                    return `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium text-white border ${colors}">${flag.flag_type?.display_name || "Unknown"}</span>`;
+                                })
+                                .join("")}
+                        </div>
+                    </div>
+                    `
+                    : "";
+
+            const connectionsHTML =
+                zone.connections && zone.connections.length > 0
+                    ? `
+                <div class="mt-3">
+                  <div class="font-medium mb-1 text-slate-300">Connections:</div>
+                  <div class="text-base text-white">${zone.connections.join(", ")}</div>
+                </div>
+                `
+                    : "";
+
+            // levels display: flatten level_ranges if available, else show min/max
+            const levelsDisplay = zone.level_ranges
+                ? zone.level_ranges.map((r) => r.join("–")).join(", ")
+                : zone.min && zone.max
+                  ? `${zone.min}–${zone.max}`
+                  : "Unknown";
+
+            return `
+        <div class="bg-slate-700 border border-slate-600 rounded-lg p-4" id="zone-${zone.id}">
+          <div class="flex items-start gap-4">
+            <div class="flex-shrink-0">
+              <img src="/assets/images/zone.png" alt="Zone" class="w-16 h-16 rounded-md object-cover border-2 border-slate-600/20" />
+            </div>
+            <div class="flex-1">
+              <div class="flex justify-between items-start">
+                <h3 class="text-xl font-bold text-white">${zone.name}</h3>
+                <div class="text-sm text-slate-300">${zone.expansion || "Unknown"}</div>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-sm mt-2">
+                <div class="text-slate-300"><span class="font-medium">Levels:</span> <span class="text-white">${levelsDisplay}</span></div>
+                <div class="text-slate-300"><span class="font-medium">Continent:</span> <span class="text-white">${zone.continent || "Unknown"}</span></div>
+                <div class="text-slate-300"><span class="font-medium">Type:</span> <span class="text-white">${zone.zone_type || "Unknown"}</span></div>
+                <div class="text-slate-300"><span class="font-medium">Verified:</span> <img src="/assets/images/gouda.png" alt="Verified" class="w-5 h-5 inline-block ${zone.verified ? "opacity-100" : "opacity-30"}" /></div>
+              </div>
+              ${connectionsHTML}
+              ${flagPillsHTML}
+              <div id="zone-notes-${zone.id}" class="mt-3 pt-3 border-t border-slate-600 text-sm text-slate-300"></div>
+            </div>
+          </div>
+        </div>
+        `;
+        }
+
+        // Generate a single random zone in the given level range, attempting to avoid duplicates.
+        // Returns the chosen zone object, or null on failure.
+        // Attempts to fetch a unique zone for the min/max range.
+        // The function first tries with the provided filters (expansion/flags).
+        // If nothing matching the filters is found after attempts, it falls back
+        // to trying unfiltered random zones for that range.
+        async function fetchUniqueZoneForRange(
+            min,
+            max,
+            usedZoneIds,
+            maxAttempts = 10,
+            filters = null,
+        ) {
+            // ensure we treat filters safely
+            const f = filters || {};
+
+            // internal attempt function that makes a fetch with given params
+            async function tryFetch(withFilters) {
+                const params = new URLSearchParams();
+                params.set("min", String(min));
+                params.set("max", String(max));
+                params.set("mission", "false");
+                // cache bust
+                params.set("_t", Date.now().toString());
+                if (withFilters) {
+                    if (f && f.flags) params.set("flags", f.flags);
+                }
+                const res = await fetch(`/random_zone?${params}`, {
+                    cache: "no-store",
+                    headers: { "Cache-Control": "no-cache" },
+                });
+                if (!res.ok) return null;
+                try {
+                    const zone = await res.json();
+                    return zone && zone.id ? zone : null;
+                } catch (e) {
+                    return null;
+                }
+            }
+
+            // First: try to find a unique zone matching filters (if flags provided)
+            const shouldUseFilters = f && f.flags;
+            if (shouldUseFilters) {
+                for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                    try {
+                        const zone = await tryFetch(true);
+                        if (!zone) continue;
+                        if (usedZoneIds.has(zone.id)) {
+                            // duplicate — try again
+                            continue;
+                        }
+                        usedZoneIds.add(zone.id);
+                        return zone;
+                    } catch (err) {
+                        console.warn(
+                            "fetchUniqueZoneForRange (filtered) attempt failed",
+                            err,
+                        );
+                    }
+                }
+                // If filtered attempts didn't yield a result, FALL BACK to unfiltered below
+            }
+
+            // Second: try unfiltered but still respecting uniqueness
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                try {
+                    const zone = await tryFetch(false);
+                    if (!zone) continue;
+                    if (usedZoneIds.has(zone.id)) {
+                        continue;
+                    }
+                    usedZoneIds.add(zone.id);
+                    return zone;
+                } catch (err) {
+                    console.warn(
+                        "fetchUniqueZoneForRange (unfiltered) attempt failed",
+                        err,
+                    );
+                }
+            }
+
+            // Final attempt: one last unfiltered call, accept result even if duplicate to avoid infinite loop
+            try {
+                const zone = await tryFetch(false);
+                if (zone && zone.id) {
+                    usedZoneIds.add(zone.id);
+                    return zone;
+                }
+            } catch (err) {
+                // final failure
+            }
+
+            return null;
+        }
+
+        // Main generator function
+        async function generateCharacter() {
+            const resultDiv = document.getElementById("character-result");
+            const timelineContainer =
+                document.getElementById("timeline-container");
+            if (!resultDiv || !timelineContainer) return;
+
+            // Reset UI
+            resultDiv.style.opacity = "0.5";
+            timelineContainer.innerHTML = "";
+            resultDiv.innerHTML = `<div class="text-slate-400">Generating character... <span id="progress-text" class="ml-2"></span></div>`;
+
+            try {
+                // 1) Pick a race
+                const raceRes = await fetch("/random_race");
+                if (!raceRes.ok) {
+                    throw new Error("Failed to fetch race");
+                }
+                const raceData = await raceRes.json();
+                const selectedRace = raceData.name;
+                const selectedRaceImage = raceData.image_path || "";
+
+                // Save to global state so reroll can reuse
+                CUR_SELECTED_RACE = selectedRace;
+                CUR_SELECTED_RACE_IMAGE = selectedRaceImage;
+
+                // 2) Pick a valid class for that race (with fallback logic similar to Class page)
+                let selectedClass = null;
+                let originalRaceTried = selectedRace;
+                // Try to get a class filtered by race
+                try {
+                    let params = new URLSearchParams();
+                    params.set("race", selectedRace);
+                    const classRes = await fetch(`/random_class?${params}`);
+                    if (classRes.ok) {
+                        const classResult = await classRes.json();
+                        if (classResult) {
+                            selectedClass = classResult;
+                        }
+                    }
+                } catch (e) {
+                    // ignore and fallback below
+                }
+                // Fallback to any class if none found
+                if (!selectedClass) {
+                    const fallbackRes = await fetch("/random_class");
+                    if (fallbackRes.ok) {
+                        selectedClass = await fallbackRes.json();
+                    }
+                }
+
+                // Save chosen class to global state
+                CUR_SELECTED_CLASS = selectedClass;
+
+                // Build header with race + class
+                const classImage = getClassImagePath(
+                    selectedClass || "Warrior",
+                );
+                resultDiv.innerHTML = `
+            <div class="bg-slate-700 border border-emerald-600/30 rounded-lg p-6 text-center transform transition-all duration-300">
+              <div class="mb-4 flex items-center justify-center gap-8">
+                <div class="text-center">
+                  ${
+                      selectedRaceImage
+                          ? `<img src="${selectedRaceImage}" alt="${selectedRace}" class="w-28 h-28 mx-auto rounded-lg shadow-xl border-2 border-emerald-500/30 object-cover" onerror="this.style.display='none';" />`
+                          : `<div class="w-28 h-28 mx-auto rounded-lg shadow-xl border-2 border-emerald-500/30 bg-slate-600 flex items-center justify-center"><span class="text-3xl">👤</span></div>`
+                  }
+                  <p class="text-emerald-300 text-sm mt-2 font-medium">${selectedRace}</p>
+                </div>
+                <div class="text-2xl text-slate-300">+</div>
+                <div class="text-center">
+                  <img src="/assets/images/classes/${classImage}" alt="${selectedClass}" class="w-28 h-28 mx-auto rounded-lg shadow-xl border-2 border-emerald-500/30 object-cover" onerror="this.style.display='none';" />
+                  <p class="text-emerald-300 text-sm mt-2 font-medium">${selectedClass || "Unknown"}</p>
+                </div>
+              </div>
+              <h2 class="text-3xl font-bold text-white">${selectedRace} ${selectedClass ? " " + selectedClass : ""}</h2>
+            </div>
+            `;
+
+                // 3) For each N-level bucket, fetch a unique zone
+                const usedZoneIds = new Set();
+                const buckets = [];
+                // Determine bucket size from input (default 5, clamped 1..10)
+                const bucketInput = document.getElementById("bucket-size");
+                let bucketSize = 5;
+                if (bucketInput && bucketInput instanceof HTMLInputElement) {
+                    const parsed = parseInt(bucketInput.value, 10);
+                    if (!isNaN(parsed) && parsed >= 1 && parsed <= 10) {
+                        bucketSize = parsed;
+                    }
+                }
+                const totalLevels = 125;
+                for (let low = 1; low <= totalLevels; low += bucketSize) {
+                    const high = Math.min(low + bucketSize - 1, totalLevels);
+                    buckets.push({ low, high });
+                }
+
+                const zones = [];
+                const progressTextEl = document.getElementById("progress-text");
+
+                for (let i = 0; i < buckets.length; i++) {
+                    const { low, high } = buckets[i];
+                    if (progressTextEl)
+                        progressTextEl.textContent = `(${i + 1}/${buckets.length}) levels ${low}–${high}`;
+                    const filters = getCharacterFilters();
+                    const zone = await fetchUniqueZoneForRange(
+                        low,
+                        high,
+                        usedZoneIds,
+                        8,
+                        filters,
+                    );
+                    if (zone) {
+                        zones.push({
+                            bucketIndex: i,
+                            range: `${low}–${high}`,
+                            zone,
+                        });
+                    } else {
+                        // If we couldn't fetch a zone, push a placeholder object
+                        zones.push({
+                            bucketIndex: i,
+                            range: `${low}–${high}`,
+                            zone: {
+                                id: `missing-${i}`,
+                                name: "No zone found",
+                                expansion: "",
+                                continent: "",
+                                zone_type: "",
+                                verified: false,
+                                level_ranges: [[low, high]],
+                                connections: [],
+                                flags: [],
+                            },
+                        });
+                    }
+                }
+
+                // Clear progress
+                if (progressTextEl) progressTextEl.textContent = "";
+
+                // Render timeline vertically
+                timelineContainer.innerHTML = `
+                <div class="space-y-4">
+                    ${zones
+                        .map((z, idx) => {
+                            // wrap zone card plus a small header with level range
+                            return `
+                                <div class="flex items-start gap-4">
+                                    <div class="w-24 text-right">
+                                        <div class="text-sm text-slate-400">Levels</div>
+                                        <div class="text-lg font-medium text-white">${z.range}</div>
+                                    </div>
+                                    <div class="flex-1">
+                                        ${buildZoneCardHtml(z.zone)}
+                                    </div>
+                                </div>
+                            `;
+                        })
+                        .join("")}
+                </div>
+                `;
+
+                // Smooth transitions
+                resultDiv.style.opacity = "1";
+            } catch (error) {
+                console.error("Error generating character:", error);
+                resultDiv.style.opacity = "1";
+                resultDiv.innerHTML =
+                    '<div class="bg-red-900/50 border border-red-600 text-red-200 px-4 py-3 rounded">Error generating character. Please try again.</div>';
+            }
+        }
+
+        const generateBtn = document.getElementById(
+            "generate-character",
+        ) as HTMLButtonElement | null;
+        const rerollBtn = document.getElementById(
+            "reroll-zones",
+        ) as HTMLButtonElement | null;
+
+        // Reroll only the zones, keeping CUR_SELECTED_RACE and CUR_SELECTED_CLASS
+        async function rerollZones() {
+            const resultDiv = document.getElementById("character-result");
+            const timelineContainer =
+                document.getElementById("timeline-container");
+            if (!resultDiv || !timelineContainer) return;
+
+            if (!CUR_SELECTED_RACE || !CUR_SELECTED_CLASS) {
+                resultDiv.innerHTML =
+                    '<div class="bg-yellow-900/30 border border-yellow-600 text-yellow-200 px-4 py-3 rounded">No character to reroll zones for. Generate a character first.</div>';
+                return;
+            }
+
+            // Determine bucket size
+            const bucketInput = document.getElementById("bucket-size");
+            let bucketSize = 5;
+            if (bucketInput && bucketInput instanceof HTMLInputElement) {
+                const parsed = parseInt(bucketInput.value, 10);
+                if (!isNaN(parsed) && parsed >= 1 && parsed <= 10) {
+                    bucketSize = parsed;
+                }
+            }
+
+            resultDiv.style.opacity = "0.5";
+            timelineContainer.innerHTML = "";
+            resultDiv.innerHTML = `<div class="text-slate-400">Rerolling zones... <span id="progress-text" class="ml-2"></span></div>`;
+
+            const totalLevels = 125;
+            const buckets = [];
+            for (let low = 1; low <= totalLevels; low += bucketSize) {
+                const high = Math.min(low + bucketSize - 1, totalLevels);
+                buckets.push({ low, high });
+            }
+
+            const usedZoneIds = new Set();
+            const zones = [];
+            const progressTextEl = document.getElementById("progress-text");
+
+            for (let i = 0; i < buckets.length; i++) {
+                const { low, high } = buckets[i];
+                if (progressTextEl)
+                    progressTextEl.textContent = `(${i + 1}/${buckets.length}) levels ${low}–${high}`;
+                const filters = getCharacterFilters();
+                const zone = await fetchUniqueZoneForRange(
+                    low,
+                    high,
+                    usedZoneIds,
+                    8,
+                    filters,
+                );
+                if (zone) {
+                    zones.push({
+                        bucketIndex: i,
+                        range: `${low}–${high}`,
+                        zone,
+                    });
+                } else {
+                    zones.push({
+                        bucketIndex: i,
+                        range: `${low}–${high}`,
+                        zone: {
+                            id: `missing-${i}`,
+                            name: "No zone found",
+                            expansion: "",
+                            continent: "",
+                            zone_type: "",
+                            verified: false,
+                            level_ranges: [[low, high]],
+                            connections: [],
+                            flags: [],
+                        },
+                    });
+                }
+            }
+
+            if (progressTextEl) progressTextEl.textContent = "";
+
+            // Reuse the header display for race/class
+            resultDiv.innerHTML = `
+                <div class="bg-slate-700 border border-emerald-600/30 rounded-lg p-6 text-center transform transition-all duration-300">
+                  <div class="mb-4 flex items-center justify-center gap-8">
+                    <div class="text-center">
+                      ${CUR_SELECTED_RACE_IMAGE ? `<img src="${CUR_SELECTED_RACE_IMAGE}" alt="${CUR_SELECTED_RACE}" class="w-28 h-28 mx-auto rounded-lg shadow-xl border-2 border-emerald-500/30 object-cover" onerror="this.style.display='none';" />` : `<div class="w-28 h-28 mx-auto rounded-lg shadow-xl border-2 border-emerald-500/30 bg-slate-600 flex items-center justify-center"><span class="text-3xl">👤</span></div>`}
+                      <p class="text-emerald-300 text-sm mt-2 font-medium">${CUR_SELECTED_RACE}</p>
+                    </div>
+                    <div class="text-2xl text-slate-300">+</div>
+                    <div class="text-center">
+                      <img src="/assets/images/classes/${getClassImagePath(CUR_SELECTED_CLASS)}" alt="${CUR_SELECTED_CLASS}" class="w-28 h-28 mx-auto rounded-lg shadow-xl border-2 border-emerald-500/30 object-cover" onerror="this.style.display='none';" />
+                      <p class="text-emerald-300 text-sm mt-2 font-medium">${CUR_SELECTED_CLASS || "Unknown"}</p>
+                    </div>
+                  </div>
+                  <h2 class="text-3xl font-bold text-white">${CUR_SELECTED_RACE} ${CUR_SELECTED_CLASS ? " " + CUR_SELECTED_CLASS : ""}</h2>
+                </div>
+                `;
+
+            // Render timeline
+            const timelineContainerEl =
+                document.getElementById("timeline-container");
+            if (timelineContainerEl) {
+                timelineContainerEl.innerHTML = `
+                    <div class="space-y-4">
+                        ${zones
+                            .map((z, idx) => {
+                                return `
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-24 text-right">
+                                            <div class="text-sm text-slate-400">Levels</div>
+                                            <div class="text-lg font-medium text-white">${z.range}</div>
+                                        </div>
+                                        <div class="flex-1">
+                                            ${buildZoneCardHtml(z.zone)}
+                                        </div>
+                                    </div>
+                                `;
+                            })
+                            .join("")}
+                    </div>
+                `;
+            }
+
+            resultDiv.style.opacity = "1";
+        }
+
+        if (generateBtn) {
+            generateBtn.addEventListener("click", async () => {
+                generateBtn.disabled = true;
+                if (rerollBtn) {
+                    rerollBtn.disabled = true;
+                    rerollBtn.classList.add("opacity-60");
+                }
+                generateBtn.classList.add("opacity-70", "cursor-not-allowed");
+                try {
+                    await generateCharacter();
+                    // enable reroll after successful generation
+                    if (rerollBtn) {
+                        rerollBtn.disabled = false;
+                        rerollBtn.classList.remove("opacity-60");
+                        rerollBtn.addEventListener("click", async () => {
+                            rerollBtn.disabled = true;
+                            try {
+                                await rerollZones();
+                            } finally {
+                                rerollBtn.disabled = false;
+                            }
+                        });
+                    }
+                } finally {
+                    generateBtn.disabled = false;
+                    generateBtn.classList.remove(
+                        "opacity-70",
+                        "cursor-not-allowed",
+                    );
+                }
+            });
+        }
+    </script>
+</Layout>

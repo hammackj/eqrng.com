@@ -83,20 +83,51 @@ const {
                             class={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${currentPage === "zone" ? "bg-slate-600/40 text-white shadow-lg" : "text-slate-300 hover:text-white hover:bg-slate-600/20"}`}
                         >
                             <img
-                                src="/assets/images/zone.png"
+                                src="/assets/images/zone.png?v=20250721"
                                 alt="Zone"
                                 class="w-4 h-4 inline-block mr-2 object-contain"
+                                onerror="this.style.display='none';"
                             />
                             Zone
+                        </a>
+                        <a
+                            href="/character"
+                            class={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${currentPage === "character" ? "bg-slate-600/40 text-white shadow-lg" : "text-slate-300 hover:text-white hover:bg-slate-600/20"}`}
+                        >
+                            <img
+                                src="/assets/images/character.png?v=20250721"
+                                alt="Character"
+                                class="w-4 h-4 inline-block mr-2 object-contain"
+                                onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';"
+                            />
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="w-4 h-4 inline-block mr-2 object-contain"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.5"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                style="display:none;"
+                                aria-hidden="true"
+                                focusable="false"
+                            >
+                                <circle cx="12" cy="8" r="3"></circle>
+                                <path d="M6 20c0-3.3 2.7-6 6-6s6 2.7 6 6"
+                                ></path>
+                            </svg>
+                            Character
                         </a>
                         <a
                             href="/race"
                             class={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${currentPage === "race" ? "bg-slate-600/40 text-white shadow-lg" : "text-slate-300 hover:text-white hover:bg-slate-600/20"}`}
                         >
                             <img
-                                src="/assets/images/race.png"
+                                src="/assets/images/race.png?v=20250721"
                                 alt="Race"
                                 class="w-4 h-4 inline-block mr-2 object-contain"
+                                onerror="this.style.display='none';"
                             />
                             Race
                         </a>
@@ -105,9 +136,10 @@ const {
                             class={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${currentPage === "class" ? "bg-slate-600/40 text-white shadow-lg" : "text-slate-300 hover:text-white hover:bg-slate-600/20"}`}
                         >
                             <img
-                                src="/assets/images/class.png"
+                                src="/assets/images/class.png?v=20250721"
                                 alt="Class"
                                 class="w-4 h-4 inline-block mr-2 object-contain"
+                                onerror="this.style.display='none';"
                             />
                             Class
                         </a>
@@ -116,9 +148,10 @@ const {
                             class={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${currentPage === "links" ? "bg-slate-600/40 text-white shadow-lg" : "text-slate-300 hover:text-white hover:bg-slate-600/20"}`}
                         >
                             <img
-                                src="/assets/images/links.png"
+                                src="/assets/images/links.png?v=20250721"
                                 alt="Links"
                                 class="w-4 h-4 inline-block mr-2 object-contain"
+                                onerror="this.style.display='none';"
                             />
                             Links
                         </a>

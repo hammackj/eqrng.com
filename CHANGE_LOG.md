@@ -2,6 +2,8 @@
 
 ## August XX, 2025 - Update 6
 - Downscaled Race and Class images to 192x192 so they are way smaller size wise.
+- Added Random Character Generator, with full leveling path to level cap.
+- Report any bugs or zone issues on Discord or GitHub.
 
 ## August 12, 2025 - Update 5
 - Data Updates/Corrections
