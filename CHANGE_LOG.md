@@ -2,6 +2,7 @@
 
 ## August 13, 2025 - Update 7
 - Added the ability to reroll specific zones in CharGen
+- Fix for stale db data
 
 ## August 13, 2025 - Update 6
 - Downscaled Race and Class images to 192x192 so they are way smaller size wise.
