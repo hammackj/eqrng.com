@@ -1,5 +1,8 @@
 # Change Log
 
+## August XX, 2025 - Update 6
+- Downscaled Race and Class images to 192x192 so they are way smaller size wise.
+
 ## August 12, 2025 - Update 5
 - Data Updates/Corrections
 - Zones marked Verified have been processed and verified.
