@@ -341,26 +341,6 @@ async fn create_tables(pool: &SqlitePool) -> Result<(), sqlx::Error> {
         .execute(pool)
         .await?;
 
-        // TODO REMOVE
-        // // Insert default note types
-        // let default_note_types = [
-        //     ("epic_1_0", "Epic 1.0", "bg-yellow-500"),
-        //     ("epic_1_5", "Epic 1.5", "bg-orange-500"),
-        //     ("epic_2_0", "Epic 2.0", "bg-red-500"),
-        //     ("zone_aug", "Zone Aug", "bg-purple-500"),
-        // ];
-
-        // for (name, display_name, color_class) in &default_note_types {
-        //     sqlx::query(
-        //         "INSERT INTO note_types (name, display_name, color_class) VALUES (?, ?, ?)",
-        //     )
-        //     .bind(name)
-        //     .bind(display_name)
-        //     .bind(color_class)
-        //     .execute(pool)
-        //     .await?;
-        // }
-
         println!("Note types table created successfully.");
     } else {
         println!("Note types table already exists");
@@ -573,24 +553,6 @@ async fn create_tables(pool: &SqlitePool) -> Result<(), sqlx::Error> {
         )
         .execute(pool)
         .await?;
-
-        // TODO REMOVE
-        // // Insert default flag types
-        // let default_flag_types = [
-        //     ("hot_zone", "Hot Zone", "bg-red-500"),
-        //     ("undead", "Undead", "bg-purple-500"),
-        // ];
-
-        // for (name, display_name, color_class) in &default_flag_types {
-        //     sqlx::query(
-        //         "INSERT INTO flag_types (name, display_name, color_class) VALUES (?, ?, ?)",
-        //     )
-        //     .bind(name)
-        //     .bind(display_name)
-        //     .bind(color_class)
-        //     .execute(pool)
-        //     .await?;
-        // }
 
         println!("Flag types table created successfully.");
     } else {
