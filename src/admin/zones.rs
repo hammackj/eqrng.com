@@ -9,12 +9,12 @@ use axum::{
 use sqlx::Row;
 use urlencoding;
 
-use crate::AppState;
 use crate::admin::dashboard::{
     generate_expansion_options, generate_sortable_header, generate_zone_type_options,
     get_distinct_expansions, get_distinct_zone_types,
 };
 use crate::admin::types::*;
+use crate::{AppState, security};
 
 #[cfg(feature = "admin")]
 pub async fn list_zones(
@@ -1162,6 +1162,11 @@ pub async fn create_zone_note(
 ) -> Result<Redirect, StatusCode> {
     let pool = &state.zone_state.pool;
 
+    let sanitized_content = security::sanitize_user_input_with_formatting(&form.content);
+    if sanitized_content != form.content {
+        tracing::warn!(zone_id, "sanitized zone note content differed from input");
+    }
+
     // Insert the new note
     let result = sqlx::query(
         r#"
@@ -1171,7 +1176,7 @@ pub async fn create_zone_note(
     )
     .bind(zone_id)
     .bind(form.note_type_id)
-    .bind(&form.content)
+    .bind(&sanitized_content)
     .execute(pool.as_ref())
     .await;
 

@@ -18,6 +18,8 @@ use crate::AppState;
 use crate::admin::dashboard::generate_sortable_header;
 #[cfg(feature = "admin")]
 use crate::admin::types::*;
+#[cfg(feature = "admin")]
+use crate::security;
 
 #[cfg(feature = "admin")]
 pub async fn list_instances(
@@ -637,12 +639,20 @@ pub async fn create_instance_note(
 ) -> Result<Redirect, StatusCode> {
     let pool = &state.instance_state.pool;
 
+    let sanitized_content = security::sanitize_user_input_with_formatting(&form.content);
+    if sanitized_content != form.content {
+        tracing::warn!(
+            instance_id,
+            "sanitized instance note content differed from input"
+        );
+    }
+
     let _ = sqlx::query(
         "INSERT INTO instance_notes (instance_id, note_type_id, content) VALUES (?, ?, ?)",
     )
     .bind(instance_id)
     .bind(form.note_type_id)
-    .bind(&form.content)
+    .bind(&sanitized_content)
     .execute(pool.as_ref())
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
