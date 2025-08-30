@@ -136,11 +136,11 @@ impl HtmlSanitizer {
                     result.push_str("&lt;");
                     // Put back the characters we consumed
                     for ch in tag_content.chars() {
-                        result.push(self.escape_html_char(ch));
+                        result.push_str(&self.escape_html_char(ch));
                     }
                 }
             } else {
-                result.push(self.escape_html_char(ch));
+                result.push_str(&self.escape_html_char(ch));
             }
         }
 
@@ -193,10 +193,15 @@ impl HtmlSanitizer {
     }
 
     /// Escape a single character for HTML safety
-    fn escape_html_char(&self, ch: char) -> char {
+    fn escape_html_char(&self, ch: char) -> String {
         match ch {
-            // These will be handled by escape_html_entities
-            _ => ch,
+            '<' => "&lt;".to_string(),
+            '>' => "&gt;".to_string(),
+            '"' => "&quot;".to_string(),
+            '\'' => "&#x27;".to_string(),
+            '&' => "&amp;".to_string(),
+            '/' => "&#x2F;".to_string(),
+            _ => ch.to_string(),
         }
     }
 }
@@ -304,6 +309,15 @@ mod tests {
         assert_eq!(
             sanitizer.sanitize("<b onclick='alert()'>Bold</b>"),
             "<b>Bold</b>"
+        );
+    }
+
+    #[test]
+    fn test_escape_html_characters_outside_tags() {
+        let sanitizer = HtmlSanitizer::new();
+        assert_eq!(
+            sanitizer.sanitize("<b>Fish & Chips</b> > ' \" / < &"),
+            "<b>Fish &amp; Chips</b> &gt; &#x27; &quot; &#x2F; &lt; &amp;"
         );
     }
 
