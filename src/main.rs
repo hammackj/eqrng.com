@@ -87,7 +87,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     // Initialize database
-    let pool = eq_rng::setup_database().await.map_err(|e| {
+    let pool = eq_rng::setup_database(&config).await.map_err(|e| {
         error!("Failed to initialize database: {}", e);
         e
     })?;
@@ -106,6 +106,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     info!("Database ready with {} zones", zone_count);
 
     let state = AppState {
+        config: std::sync::Arc::new(config.clone()),
         zone_state: zones::ZoneState {
             pool: std::sync::Arc::new(pool.clone()),
         },
@@ -205,7 +206,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     info!("Listening on {}", local_addr);
 
-    serve(listener, app.into_make_service())
+    serve(listener, app.into_make_service_with_connect_info::<SocketAddr>())
         .await
         .map_err(|e| {
             error!("Server error: {}", e);
