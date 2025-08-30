@@ -1,6 +1,6 @@
 use axum::extract::FromRef;
 use axum::{
-    extract::{Path, Query, State},
+    extract::{ConnectInfo, Path, State},
     http::StatusCode,
     response::Json,
 };
@@ -11,6 +11,7 @@ use std::fs::OpenOptions;
 use std::io::Write;
 use std::sync::Arc;
 use tracing::{error, warn};
+use std::net::SocketAddr;
 
 use crate::{AppError, AppResult, AppState};
 
@@ -50,36 +51,10 @@ pub struct SubmitRatingRequest {
     pub rating: u8,
 }
 
-#[derive(Debug, Deserialize)]
-pub struct RatingQuery {
-    pub user_ip: Option<String>,
-}
-
-// Hashing utilities to anonymize IP addresses for ratings
-fn rating_ip_hash_key() -> [u8; 32] {
-    let key_material = std::env::var("RATING_IP_HASH_KEY").unwrap_or_else(|_| {
-        warn!("RATING_IP_HASH_KEY environment variable not set, using fallback key");
-        // Generate a fallback key for development (not secure for production)
-        "fallback-key-not-secure-for-production-use-32-chars".to_string()
-    });
-
-    // Ensure minimum key length for security
-    let key_material = if key_material.len() < 32 {
-        warn!("RATING_IP_HASH_KEY must be at least 32 characters long for security");
-        // Use a longer fallback key
-        "fallback-key-not-secure-for-production-use-32-chars".to_string()
-    } else {
-        key_material
-    };
-
-    let hash = blake3::hash(key_material.as_bytes());
+fn hash_ip(ip: &str, config: &crate::AppConfig) -> String {
+    let hash = blake3::hash(config.security.rating_ip_hash_key.as_bytes());
     let mut key = [0u8; 32];
     key.copy_from_slice(hash.as_bytes());
-    key
-}
-
-fn hash_ip(ip: &str) -> String {
-    let key = rating_ip_hash_key();
     let h = blake3::keyed_hash(&key, ip.as_bytes());
     h.to_hex().to_string()
 }
@@ -87,7 +62,7 @@ fn hash_ip(ip: &str) -> String {
 // Get rating statistics for a zone
 pub async fn get_zone_rating(
     Path(zone_id): Path<i64>,
-    Query(params): Query<RatingQuery>,
+    ConnectInfo(addr): ConnectInfo<SocketAddr>,
     State(state): State<AppState>,
 ) -> AppResult<Json<ZoneRatingStats>> {
     let pool = &*state.zone_state.pool;
@@ -133,25 +108,21 @@ pub async fn get_zone_rating(
     let total_ratings: i64 = stats.get("total_ratings");
     let average_rating: Option<f64> = stats.get("average_rating");
 
-    // Get user's rating if user_ip is provided (hashed for anonymity)
-    let user_rating = if let Some(ref user_ip) = params.user_ip {
-        let hashed_ip = hash_ip(user_ip);
-        sqlx::query("SELECT rating FROM zone_ratings WHERE zone_id = ? AND user_ip = ?")
-            .bind(zone_id)
-            .bind(&hashed_ip)
-            .fetch_optional(pool)
-            .await
-            .map_err(|e| {
-                error!(
-                    "Database error getting user rating for zone {}: {}",
-                    zone_id, e
-                );
-                AppError::Database(e)
-            })?
-            .map(|row| row.get::<i32, _>("rating") as u8)
-    } else {
-        None
-    };
+    let user_ip = addr.ip().to_string();
+    let hashed_ip = hash_ip(&user_ip, &state.config);
+    let user_rating = sqlx::query("SELECT rating FROM zone_ratings WHERE zone_id = ? AND user_ip = ?")
+        .bind(zone_id)
+        .bind(&hashed_ip)
+        .fetch_optional(pool)
+        .await
+        .map_err(|e| {
+            error!(
+                "Database error getting user rating for zone {}: {}",
+                zone_id, e
+            );
+            AppError::Database(e)
+        })?
+        .map(|row| row.get::<i32, _>("rating") as u8);
 
     Ok(Json(ZoneRatingStats {
         zone_id,
@@ -164,7 +135,7 @@ pub async fn get_zone_rating(
 // Submit or update a rating for a zone
 pub async fn submit_zone_rating(
     Path(zone_id): Path<i64>,
-    Query(params): Query<RatingQuery>,
+    ConnectInfo(addr): ConnectInfo<SocketAddr>,
     State(state): State<AppState>,
     Json(payload): Json<SubmitRatingRequest>,
 ) -> AppResult<Json<ZoneRatingStats>> {
@@ -175,9 +146,8 @@ pub async fn submit_zone_rating(
         return Err(AppError::InvalidRating(payload.rating, 1, 5));
     }
 
-    // Get user IP (in a real app, you'd extract this from the request headers) and hash it
-    let user_ip = params.user_ip.unwrap_or_else(|| "127.0.0.1".to_string());
-    let hashed_ip = hash_ip(&user_ip);
+    let user_ip = addr.ip().to_string();
+    let hashed_ip = hash_ip(&user_ip, &state.config);
 
     // First, verify the zone exists
     let zone_exists = sqlx::query("SELECT id FROM zones WHERE id = ?")
@@ -235,14 +205,7 @@ pub async fn submit_zone_rating(
     }
 
     // Return updated statistics
-    get_zone_rating(
-        Path(zone_id),
-        Query(RatingQuery {
-            user_ip: Some(user_ip),
-        }),
-        State(state),
-    )
-    .await
+    get_zone_rating(Path(zone_id), ConnectInfo(addr), State(state)).await
 }
 
 // Get all ratings for a zone (admin/debug endpoint)

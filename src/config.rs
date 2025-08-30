@@ -92,11 +92,10 @@ impl AppConfig {
     fn validate(&self) -> Result<(), config::ConfigError> {
         // Validate security settings
         if self.security.rating_ip_hash_key.len() < self.security.min_ip_hash_key_length {
-            warn!(
-                "RATING_IP_HASH_KEY is shorter than minimum length ({} < {}). This is not secure for production.",
-                self.security.rating_ip_hash_key.len(),
+            return Err(config::ConfigError::Message(format!(
+                "security.rating_ip_hash_key must be at least {} characters long",
                 self.security.min_ip_hash_key_length
-            );
+            )));
         }
 
         // Validate rating range

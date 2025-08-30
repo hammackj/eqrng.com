@@ -11,6 +11,6 @@ services:
     environment:
       RUST_LOG: debug
       EQ_RNG_ENV: development
-      RATING_IP_HASH_KEY: "development-key-change-for-production-use-32plus-chars"
+      EQ_RNG_SECURITY_RATING_IP_HASH_KEY: "development-key-change-for-production-use-32plus-chars"
     volumes:
       - ./data:/opt/eq_rng/data

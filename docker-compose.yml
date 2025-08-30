@@ -12,7 +12,7 @@ services:
     environment:
       RUST_LOG: info
       EQ_RNG_ENV: production
-      RATING_IP_HASH_KEY: "change-this-to-a-secure-random-32plus-character-string-for-production"
+      EQ_RNG_SECURITY_RATING_IP_HASH_KEY: "change-this-to-a-secure-random-32plus-character-string-for-production"
       ALLOWED_ORIGINS: "https://eqrng.com"
     volumes:
       - ./data:/opt/eq_rng/data

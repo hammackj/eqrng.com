@@ -22,31 +22,10 @@ pub use error::{AppError, AppResult};
 use blake3;
 use chrono::Utc;
 
-// Reuse the same keyed blake3 scheme as ratings.rs
-fn rating_ip_hash_key() -> [u8; 32] {
-    let key_material = std::env::var("RATING_IP_HASH_KEY").unwrap_or_else(|_| {
-        tracing::warn!("RATING_IP_HASH_KEY environment variable not set, using fallback key");
-        // Generate a fallback key for development (not secure for production)
-        "fallback-key-not-secure-for-production-use-32-chars".to_string()
-    });
-
-    // Ensure minimum key length for security
-    let key_material = if key_material.len() < 32 {
-        tracing::warn!("RATING_IP_HASH_KEY must be at least 32 characters long for security");
-        // Use a longer fallback key
-        "fallback-key-not-secure-for-production-use-32-chars".to_string()
-    } else {
-        key_material
-    };
-
-    let hash = blake3::hash(key_material.as_bytes());
+fn hash_ip(ip: &str, config: &AppConfig) -> String {
+    let hash = blake3::hash(config.security.rating_ip_hash_key.as_bytes());
     let mut key = [0u8; 32];
     key.copy_from_slice(hash.as_bytes());
-    key
-}
-
-fn hash_ip(ip: &str) -> String {
-    let key = rating_ip_hash_key();
     let h = blake3::keyed_hash(&key, ip.as_bytes());
     h.to_hex().to_string()
 }
@@ -56,7 +35,10 @@ fn is_lower_hex64(s: &str) -> bool {
 }
 
 // Startup migration to hash any existing plaintext IPs in zone_ratings
-pub async fn migrate_hash_zone_ratings(pool: &SqlitePool) -> Result<(), sqlx::Error> {
+pub async fn migrate_hash_zone_ratings(
+    pool: &SqlitePool,
+    config: &AppConfig,
+) -> Result<(), sqlx::Error> {
     // Ensure table exists
     let table_exists =
         sqlx::query("SELECT name FROM sqlite_master WHERE type='table' AND name='zone_ratings'")
@@ -103,7 +85,7 @@ pub async fn migrate_hash_zone_ratings(pool: &SqlitePool) -> Result<(), sqlx::Er
         let ip_hashed = if is_lower_hex64(&user_ip) {
             user_ip
         } else {
-            hash_ip(&user_ip)
+            hash_ip(&user_ip, config)
         };
 
         let created_at_val = created_at.unwrap_or_else(|| Utc::now().to_rfc3339());
@@ -138,12 +120,15 @@ pub async fn migrate_hash_zone_ratings(pool: &SqlitePool) -> Result<(), sqlx::Er
 
 #[derive(Clone)]
 pub struct AppState {
+    pub config: std::sync::Arc<AppConfig>,
     pub zone_state: zones::ZoneState,
     pub instance_state: instances::InstanceState,
     pub class_race_state: classes::ClassRaceState,
 }
 
-pub async fn setup_database() -> Result<SqlitePool, Box<dyn std::error::Error>> {
+pub async fn setup_database(
+    config: &AppConfig,
+) -> Result<SqlitePool, Box<dyn std::error::Error>> {
     let database_url = "sqlite:./data/zones.db";
     let db_path = "./data/zones.db";
 
@@ -187,7 +172,7 @@ pub async fn setup_database() -> Result<SqlitePool, Box<dyn std::error::Error>> 
     }
 
     // Anonymize any existing plaintext IPs in ratings before continuing
-    if let Err(e) = migrate_hash_zone_ratings(&pool).await {
+    if let Err(e) = migrate_hash_zone_ratings(&pool, config).await {
         tracing::warn!(error = %e, "Warning: failed to hash existing rating IPs");
     }
 
