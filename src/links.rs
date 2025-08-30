@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::Row;
 use std::collections::HashMap;
 
-use crate::AppState;
+use crate::{security, AppState};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Link {
@@ -160,15 +160,25 @@ pub async fn create_link(
         return Err(StatusCode::BAD_REQUEST);
     }
 
+    let url = match security::sanitize_url(&form.url) {
+        Some(url) => url,
+        None => return Err(StatusCode::BAD_REQUEST),
+    };
+    let name = security::sanitize_user_input(&form.name);
+    let description = form
+        .description
+        .as_ref()
+        .map(|d| security::sanitize_user_input_with_formatting(d));
+
     let result = sqlx::query(
         "INSERT INTO links (name, url, category, description)
          VALUES (?, ?, ?, ?)
          RETURNING id, name, url, category, description, created_at",
     )
-    .bind(&form.name)
-    .bind(&form.url)
+    .bind(&name)
+    .bind(&url)
     .bind(&form.category)
-    .bind(&form.description)
+    .bind(&description)
     .fetch_one(pool.as_ref())
     .await;
 
@@ -200,16 +210,26 @@ pub async fn update_link(
         return Err(StatusCode::BAD_REQUEST);
     }
 
+    let url = match security::sanitize_url(&form.url) {
+        Some(url) => url,
+        None => return Err(StatusCode::BAD_REQUEST),
+    };
+    let name = security::sanitize_user_input(&form.name);
+    let description = form
+        .description
+        .as_ref()
+        .map(|d| security::sanitize_user_input_with_formatting(d));
+
     let result = sqlx::query(
         "UPDATE links
          SET name = ?, url = ?, category = ?, description = ?, updated_at = CURRENT_TIMESTAMP
          WHERE id = ?
          RETURNING id, name, url, category, description, created_at",
     )
-    .bind(&form.name)
-    .bind(&form.url)
+    .bind(&name)
+    .bind(&url)
     .bind(&form.category)
-    .bind(&form.description)
+    .bind(&description)
     .bind(id)
     .fetch_optional(pool.as_ref())
     .await;
