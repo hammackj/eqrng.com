@@ -833,3 +833,123 @@ fn get_instance_form_body(
         }
     )
 }
+
+#[cfg(all(test, feature = "admin"))]
+mod tests {
+    use super::*;
+    use axum::extract::{Path, State};
+    use axum::Form;
+    use sqlx::{sqlite::SqlitePoolOptions, Row, SqlitePool};
+    use std::collections::HashMap;
+    use std::sync::Arc;
+
+    use crate::admin::types::InstanceNoteForm;
+    use crate::classes::ClassRaceState;
+    use crate::config::{
+        AdminConfig, AppConfig, CorsConfig, DatabaseConfig, LoggingConfig, RatingsConfig,
+        SecurityConfig, ServerConfig,
+    };
+    use crate::instances::InstanceState;
+    use crate::zones::ZoneState;
+
+    fn test_config() -> AppConfig {
+        AppConfig {
+            server: ServerConfig {
+                port: 0,
+                host: "localhost".to_string(),
+            },
+            database: DatabaseConfig {
+                path: "".to_string(),
+                backup_dir: "".to_string(),
+                migrate_on_startup: false,
+            },
+            security: SecurityConfig {
+                rating_ip_hash_key: "test".to_string(),
+                min_ip_hash_key_length: 0,
+            },
+            ratings: RatingsConfig {
+                min_rating: 1,
+                max_rating: 5,
+                transaction_log_path: "".to_string(),
+            },
+            admin: AdminConfig {
+                enabled: false,
+                page_size: 10,
+                min_page_size: 1,
+                max_page_size: 100,
+                default_sort_column: "id".to_string(),
+                default_sort_order: "asc".to_string(),
+            },
+            cors: CorsConfig {
+                development_origins: vec![],
+                production_origins: vec![],
+            },
+            logging: LoggingConfig {
+                level: "info".to_string(),
+                format: "text".to_string(),
+                file_path: "".to_string(),
+                max_file_size: "1MB".to_string(),
+                max_files: 1,
+            },
+        }
+    }
+
+    async fn setup_state() -> (AppState, Arc<SqlitePool>) {
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect("sqlite::memory:")
+            .await
+            .unwrap();
+
+        sqlx::query(
+            r#"CREATE TABLE instance_notes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                instance_id INTEGER NOT NULL,
+                note_type_id INTEGER NOT NULL,
+                content TEXT NOT NULL
+            )"#,
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+
+        let pool_arc = Arc::new(pool);
+        let state = AppState {
+            config: Arc::new(test_config()),
+            zone_state: ZoneState {
+                pool: pool_arc.clone(),
+            },
+            instance_state: InstanceState {
+                pool: pool_arc.clone(),
+            },
+            class_race_state: ClassRaceState {
+                class_race_map: Arc::new(HashMap::new()),
+            },
+        };
+
+        (state, pool_arc)
+    }
+
+    #[tokio::test]
+    async fn create_instance_note_sanitizes_script_tags() {
+        let (state, pool) = setup_state().await;
+        let raw = "<script>alert('y')</script>";
+        let form = InstanceNoteForm {
+            note_type_id: 1,
+            content: raw.to_string(),
+        };
+
+        let _ = create_instance_note(State(state), Path(1), Form(form))
+            .await
+            .unwrap();
+
+        let row = sqlx::query("SELECT content FROM instance_notes WHERE instance_id = ?")
+            .bind(1)
+            .fetch_one(&*pool)
+            .await
+            .unwrap();
+        let stored: String = row.get("content");
+        let expected = crate::security::sanitize_user_input_with_formatting(raw);
+        assert_eq!(stored, expected);
+    }
+}
