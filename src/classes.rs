@@ -86,3 +86,134 @@ pub async fn random_class(
 
     Json(Some(class_name))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use axum::extract::{Query, State};
+    use sqlx::sqlite::SqlitePoolOptions;
+    use std::sync::{Arc, Mutex};
+    use tempfile::tempdir;
+
+    use crate::{
+        config::{
+            AdminConfig, AppConfig, CorsConfig, DatabaseConfig, LoggingConfig, RatingsConfig,
+            SecurityConfig, ServerConfig,
+        },
+        instances, zones, AppState,
+    };
+
+    static DIR_LOCK: Mutex<()> = Mutex::new(());
+
+    fn test_app_config() -> AppConfig {
+        AppConfig {
+            server: ServerConfig {
+                port: 0,
+                host: "localhost".into(),
+            },
+            database: DatabaseConfig {
+                path: String::new(),
+                backup_dir: String::new(),
+                migrate_on_startup: false,
+            },
+            security: SecurityConfig {
+                rating_ip_hash_key: "test".into(),
+                min_ip_hash_key_length: 0,
+            },
+            ratings: RatingsConfig {
+                min_rating: 0,
+                max_rating: 10,
+                transaction_log_path: String::new(),
+            },
+            admin: AdminConfig {
+                enabled: false,
+                page_size: 0,
+                min_page_size: 0,
+                max_page_size: 1,
+                default_sort_column: String::new(),
+                default_sort_order: String::new(),
+            },
+            cors: CorsConfig {
+                development_origins: vec![],
+                production_origins: vec![],
+            },
+            logging: LoggingConfig {
+                level: String::new(),
+                format: String::new(),
+                file_path: String::new(),
+                max_file_size: String::new(),
+                max_files: 0,
+            },
+        }
+    }
+
+    fn test_app_state(class_race_state: ClassRaceState) -> AppState {
+        let pool = SqlitePoolOptions::new()
+            .connect_lazy("sqlite::memory:")
+            .expect("create pool");
+        let pool = Arc::new(pool);
+
+        AppState {
+            config: Arc::new(test_app_config()),
+            zone_state: zones::ZoneState { pool: pool.clone() },
+            instance_state: instances::InstanceState { pool: pool.clone() },
+            class_race_state,
+        }
+    }
+
+    #[test]
+    fn load_classes_missing_file() {
+        let _guard = DIR_LOCK.lock().unwrap();
+        let orig_dir = std::env::current_dir().unwrap();
+        let tmp = tempdir().unwrap();
+        std::env::set_current_dir(tmp.path()).unwrap();
+
+        let classes = load_classes();
+        assert!(classes.is_empty());
+
+        std::env::set_current_dir(orig_dir).unwrap();
+    }
+
+    #[test]
+    fn load_classes_invalid_json() {
+        let _guard = DIR_LOCK.lock().unwrap();
+        let orig_dir = std::env::current_dir().unwrap();
+        let tmp = tempdir().unwrap();
+        std::fs::create_dir_all(tmp.path().join("data")).unwrap();
+        std::fs::write(tmp.path().join("data/class_race.json"), "{invalid").unwrap();
+        std::env::set_current_dir(tmp.path()).unwrap();
+
+        let classes = load_classes();
+        assert!(classes.is_empty());
+
+        std::env::set_current_dir(orig_dir).unwrap();
+    }
+
+    #[tokio::test]
+    async fn random_class_with_race() {
+        let map = HashMap::from([(
+            "Human".to_string(),
+            vec!["Warrior".to_string()],
+        )]);
+        let state = test_app_state(ClassRaceState {
+            class_race_map: Arc::new(map),
+        });
+
+        let result =
+            random_class(Query(ClassQuery { race: Some("Human".into()) }), State(state)).await;
+        assert_eq!(result.0, Some("Warrior".to_string()));
+    }
+
+    #[tokio::test]
+    async fn random_class_without_race() {
+        let state = test_app_state(ClassRaceState {
+            class_race_map: Arc::new(HashMap::new()),
+        });
+
+        for _ in 0..10 {
+            let result = random_class(Query(ClassQuery { race: None }), State(state.clone())).await;
+            let class = result.0.expect("expected a class");
+            assert!(CLASSES.contains(&class.as_str()));
+        }
+    }
+}
