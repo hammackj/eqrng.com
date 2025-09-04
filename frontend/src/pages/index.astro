@@ -115,6 +115,15 @@ import Layout from "../layouts/Layout.astro";
     </div>
 
     <script nonce="eqrngNonce">
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
         // Helper: extract YouTube ID from common URL forms
         function extractYouTubeId(href) {
             if (!href || typeof href !== "string") return null;
@@ -393,7 +402,7 @@ import Layout from "../layouts/Layout.astro";
                                     const colors = getColorClasses(
                                         flag.flag_type?.color_class,
                                     );
-                                    return `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium text-white border ${colors}">${flag.flag_type?.display_name || "Unknown"}</span>`;
+                                    return `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium text-white border ${colors}">${escapeHtml(flag.flag_type?.display_name || "Unknown")}</span>`;
                                 })
                                 .join("")}
                         </div>
@@ -404,13 +413,13 @@ import Layout from "../layouts/Layout.astro";
                 // Build the zone card HTML. Place notes placeholder at the BOTTOM of the card (after flags).
                 resultDiv.innerHTML = `
         <div class="bg-slate-700 border border-slate-600 rounded-lg p-6" id="zone-details">
-          <h2 class="text-4xl font-bold text-white mb-4">${zone.name}</h2>
+          <h2 class="text-4xl font-bold text-white mb-4">${escapeHtml(zone.name)}</h2>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-base">
-            <div class="flex justify-between"><span class="font-medium text-slate-300">Levels:</span> <span class="text-white">${zone.level_ranges.map((r) => r.join("–")).join(", ")}</span></div>
-            <div class="flex justify-between"><span class="font-medium text-slate-300">Expansion:</span> <span class="text-white">${zone.expansion}</span></div>
-            <div class="flex justify-between"><span class="font-medium text-slate-300">Continent:</span> <span class="text-white">${zone.continent || "Unknown"}</span></div>
-            <div class="flex justify-between"><span class="font-medium text-slate-300">Type:</span> <span class="text-white">${zone.zone_type}</span></div>
+            <div class="flex justify-between"><span class="font-medium text-slate-300">Levels:</span> <span class="text-white">${escapeHtml(zone.level_ranges.map((r) => r.join("–")).join(", "))}</span></div>
+            <div class="flex justify-between"><span class="font-medium text-slate-300">Expansion:</span> <span class="text-white">${escapeHtml(zone.expansion)}</span></div>
+            <div class="flex justify-between"><span class="font-medium text-slate-300">Continent:</span> <span class="text-white">${escapeHtml(zone.continent || "Unknown")}</span></div>
+            <div class="flex justify-between"><span class="font-medium text-slate-300">Type:</span> <span class="text-white">${escapeHtml(zone.zone_type)}</span></div>
 
             <div class="flex justify-between items-center"><span class="font-medium text-slate-300">Verified:</span> <img src="/assets/images/gouda.png" alt="Verified" class="w-6 h-6 ${zone.verified ? "opacity-100" : "opacity-30"}" /></div>
           </div>
@@ -419,7 +428,7 @@ import Layout from "../layouts/Layout.astro";
                   ? `
             <div class="mt-4 pt-4 border-t border-slate-600">
               <div class="font-medium mb-2 text-slate-300">Connections:</div>
-              <div class="text-base text-white">${zone.connections.join(", ")}</div>
+              <div class="text-base text-white">${zone.connections.map((c) => escapeHtml(c)).join(", ")}</div>
             </div>
           `
                   : ""
@@ -529,17 +538,17 @@ import Layout from "../layouts/Layout.astro";
                             // For non-video notes just display content
                             const typeClass =
                                 note.note_type && note.note_type.color_class
-                                    ? note.note_type.color_class
+                                    ? escapeHtml(note.note_type.color_class)
                                     : "bg-gray-500";
                             const displayName =
                                 note.note_type && note.note_type.display_name
-                                    ? note.note_type.display_name
+                                    ? escapeHtml(note.note_type.display_name)
                                     : "";
                             // Put a placeholder for note content; we'll process it below
                             return `
                             <div class="note-row flex items-start gap-3">
                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-white ${typeClass}">${displayName}</span>
-                                <div class="note-content text-base text-slate-300" data-note-index="${index}">${note.content}</div>
+                                <div class="note-content text-base text-slate-300" data-note-index="${index}">${escapeHtml(note.content)}</div>
                             </div>
                         `;
                         })
