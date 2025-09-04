@@ -4,6 +4,11 @@ use axum::{
     http::StatusCode,
     response::Json,
 };
+use crate::security::{
+    sanitize_url,
+    sanitize_user_input,
+    sanitize_user_input_with_formatting,
+};
 use serde::{Deserialize, Serialize};
 use sqlx::{Row, SqlitePool};
 use std::sync::Arc;
@@ -189,14 +194,17 @@ pub async fn random_zone(
 
         let zone = Zone {
             id: Some(zone_id),
-            name: row.get("name"),
+            name: sanitize_user_input(&row.get::<String, _>("name")),
             level_ranges: level_ranges.clone(),
-            expansion: row.get("expansion"),
-            continent: row.get("continent"),
-            zone_type: row.get("zone_type"),
-            connections,
-            image_url: row.get("image_url"),
-            map_url: row.get("map_url"),
+            expansion: sanitize_user_input(&row.get::<String, _>("expansion")),
+            continent: sanitize_user_input(&row.get::<String, _>("continent")),
+            zone_type: sanitize_user_input(&row.get::<String, _>("zone_type")),
+            connections: connections
+                .into_iter()
+                .map(|c| sanitize_user_input(&c))
+                .collect(),
+            image_url: sanitize_url(&row.get::<String, _>("image_url")).unwrap_or_default(),
+            map_url: sanitize_url(&row.get::<String, _>("map_url")).unwrap_or_default(),
             rating: row.get::<i32, _>("rating") as u8,
             verified: row.get("verified"),
             notes: Vec::new(),
@@ -285,14 +293,17 @@ pub async fn get_all_zones(pool: &SqlitePool) -> Result<Vec<Zone>, sqlx::Error> 
 
         zones.push(Zone {
             id: Some(row.get::<i64, _>("id")),
-            name: row.get("name"),
+            name: sanitize_user_input(&row.get::<String, _>("name")),
             level_ranges,
-            expansion: row.get("expansion"),
-            continent: row.get("continent"),
-            zone_type: row.get("zone_type"),
-            connections,
-            image_url: row.get("image_url"),
-            map_url: row.get("map_url"),
+            expansion: sanitize_user_input(&row.get::<String, _>("expansion")),
+            continent: sanitize_user_input(&row.get::<String, _>("continent")),
+            zone_type: sanitize_user_input(&row.get::<String, _>("zone_type")),
+            connections: connections
+                .into_iter()
+                .map(|c| sanitize_user_input(&c))
+                .collect(),
+            image_url: sanitize_url(&row.get::<String, _>("image_url")).unwrap_or_default(),
+            map_url: sanitize_url(&row.get::<String, _>("map_url")).unwrap_or_default(),
             rating: row.get::<i32, _>("rating") as u8,
             verified: row.get("verified"),
             notes: Vec::new(), // Notes not loaded for bulk operations
@@ -331,12 +342,12 @@ pub async fn get_zone_notes(pool: &SqlitePool, zone_id: i64) -> Result<Vec<ZoneN
             id: Some(row.get::<i64, _>("id")),
             zone_id: row.get("zone_id"),
             note_type_id: row.get("note_type_id"),
-            content: row.get("content"),
+            content: sanitize_user_input_with_formatting(&row.get::<String, _>("content")),
             note_type: Some(NoteType {
                 id: Some(row.get("note_type_id")),
-                name: row.get("note_type_name"),
-                display_name: row.get("note_type_display_name"),
-                color_class: row.get("note_type_color_class"),
+                name: sanitize_user_input(&row.get::<String, _>("note_type_name")),
+                display_name: sanitize_user_input(&row.get::<String, _>("note_type_display_name")),
+                color_class: sanitize_user_input(&row.get::<String, _>("note_type_color_class")),
             }),
         });
     }
@@ -356,9 +367,9 @@ pub async fn get_note_types(pool: &SqlitePool) -> Result<Vec<NoteType>, sqlx::Er
     for row in rows {
         note_types.push(NoteType {
             id: Some(row.get::<i64, _>("id")),
-            name: row.get("name"),
-            display_name: row.get("display_name"),
-            color_class: row.get("color_class"),
+            name: sanitize_user_input(&row.get::<String, _>("name")),
+            display_name: sanitize_user_input(&row.get::<String, _>("display_name")),
+            color_class: sanitize_user_input(&row.get::<String, _>("color_class")),
         });
     }
 
@@ -377,9 +388,9 @@ pub async fn get_flag_types(pool: &SqlitePool) -> Result<Vec<FlagType>, sqlx::Er
     for row in rows {
         flag_types.push(FlagType {
             id: Some(row.get("id")),
-            name: row.get("name"),
-            display_name: row.get("display_name"),
-            color_class: row.get("color_class"),
+            name: sanitize_user_input(&row.get::<String, _>("name")),
+            display_name: sanitize_user_input(&row.get::<String, _>("display_name")),
+            color_class: sanitize_user_input(&row.get::<String, _>("color_class")),
         });
     }
 
@@ -398,9 +409,9 @@ pub async fn get_all_flag_types(pool: &SqlitePool) -> Result<Vec<FlagType>, sqlx
     for row in rows {
         flag_types.push(FlagType {
             id: Some(row.get("id")),
-            name: row.get("name"),
-            display_name: row.get("display_name"),
-            color_class: row.get("color_class"),
+            name: sanitize_user_input(&row.get::<String, _>("name")),
+            display_name: sanitize_user_input(&row.get::<String, _>("display_name")),
+            color_class: sanitize_user_input(&row.get::<String, _>("color_class")),
         });
     }
 
@@ -436,9 +447,9 @@ pub async fn get_zone_flags(pool: &SqlitePool, zone_id: i64) -> Result<Vec<ZoneF
             flag_type_id: row.get("flag_type_id"),
             flag_type: Some(FlagType {
                 id: Some(row.get("flag_type_id")),
-                name: row.get("flag_type_name"),
-                display_name: row.get("flag_type_display_name"),
-                color_class: row.get("flag_type_color_class"),
+                name: sanitize_user_input(&row.get::<String, _>("flag_type_name")),
+                display_name: sanitize_user_input(&row.get::<String, _>("flag_type_display_name")),
+                color_class: sanitize_user_input(&row.get::<String, _>("flag_type_color_class")),
             }),
         });
     }
