@@ -58,6 +58,12 @@ async fn security_headers(mut response: Response) -> Response {
         HeaderValue::from_static("geolocation=(), microphone=(), camera=()"),
     );
 
+    // Strict Transport Security (HSTS)
+    headers.insert(
+        "Strict-Transport-Security",
+        HeaderValue::from_static("max-age=31536000; includeSubDomains; preload"),
+    );
+
     response
 }
 
@@ -153,8 +159,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/api/links/:id", axum::routing::put(links::update_link))
         .route("/api/links/:id", axum::routing::delete(links::delete_link))
         .merge(admin::admin_routes())
-        .with_state(state)
-        .layer(middleware::map_response(security_headers))
+        .with_state(state);
+
+    let app = if config.is_production() {
+        // Only apply security headers when running behind HTTPS
+        app.layer(middleware::map_response(security_headers))
+    } else {
+        app
+    };
+
+    let app = app
         .layer({
             // Configure CORS based on configuration
             let cors_origins = config.get_cors_origins();
@@ -206,12 +220,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     info!("Listening on {}", local_addr);
 
-    serve(listener, app.into_make_service_with_connect_info::<SocketAddr>())
-        .await
-        .map_err(|e| {
-            error!("Server error: {}", e);
-            e
-        })?;
+    serve(
+        listener,
+        app.into_make_service_with_connect_info::<SocketAddr>(),
+    )
+    .await
+    .map_err(|e| {
+        error!("Server error: {}", e);
+        e
+    })?;
 
     Ok(())
 }
