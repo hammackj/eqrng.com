@@ -278,8 +278,14 @@ pub fn sanitize_url(url: &str) -> Option<String> {
 }
 
 /// Content Security Policy header value for additional XSS protection
+pub const CSP_NONCE: &str = "eqrngNonce";
+
 pub fn get_csp_header() -> &'static str {
-    "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+    "default-src 'self'; script-src 'self' 'nonce-eqrngNonce'; style-src 'self' 'nonce-eqrngNonce' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+}
+
+pub fn get_csp_nonce() -> &'static str {
+    CSP_NONCE
 }
 
 #[cfg(test)]
