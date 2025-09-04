@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use url::Url;
 
 /// Comprehensive HTML sanitization for preventing XSS attacks
 pub struct HtmlSanitizer {
@@ -249,31 +250,11 @@ pub fn sanitize_user_input_with_formatting(input: &str) -> String {
 pub fn sanitize_url(url: &str) -> Option<String> {
     let url = url.trim();
 
-    // Check for dangerous schemes
-    let dangerous_schemes = ["javascript:", "data:", "vbscript:", "file:", "about:"];
+    let parsed = Url::parse(url).ok()?;
 
-    let lower_url = url.to_lowercase();
-    for scheme in dangerous_schemes.iter() {
-        if lower_url.starts_with(scheme) {
-            return None;
-        }
-    }
-
-    // Allow http, https, ftp, mailto, and relative URLs
-    if url.starts_with("http://")
-        || url.starts_with("https://")
-        || url.starts_with("ftp://")
-        || url.starts_with("mailto:")
-        || url.starts_with("/")
-        || url.starts_with("./")
-        || url.starts_with("../")
-        || (!url.contains(':') && !url.starts_with("//"))
-    // relative URLs without protocol
-    {
-        // Don't escape forward slashes in URLs - they're safe and needed
-        Some(url.to_string())
-    } else {
-        None
+    match parsed.scheme() {
+        "http" | "https" | "ftp" | "mailto" => Some(url.to_string()),
+        _ => None,
     }
 }
 
@@ -333,11 +314,16 @@ mod tests {
             sanitize_url("https://example.com"),
             Some("https://example.com".to_string())
         );
+        assert_eq!(
+            sanitize_url("ftp://example.com/file"),
+            Some("ftp://example.com/file".to_string())
+        );
+        assert_eq!(
+            sanitize_url("mailto:someone@example.com"),
+            Some("mailto:someone@example.com".to_string())
+        );
         assert_eq!(sanitize_url("javascript:alert()"), None);
         assert_eq!(sanitize_url("data:text/html,<script>"), None);
-        assert_eq!(
-            sanitize_url("/relative/path"),
-            Some("/relative/path".to_string())
-        );
+        assert_eq!(sanitize_url("/relative/path"), None);
     }
 }
