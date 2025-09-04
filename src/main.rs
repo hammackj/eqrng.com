@@ -9,8 +9,10 @@ use tower_http::services::ServeDir;
 use tracing::{error, info, warn};
 
 use eq_rng::{
-    AppConfig, AppState, admin, classes, instances, links, races, ratings, version, zones,
+    AppConfig, AppState, classes, instances, links, races, ratings, version, zones,
 };
+#[cfg(feature = "admin")]
+use eq_rng::admin;
 
 #[derive(Parser)]
 #[command(name = "eq_rng")]
@@ -65,6 +67,17 @@ async fn security_headers(mut response: Response) -> Response {
     );
 
     response
+}
+
+#[cfg(feature = "admin")]
+fn link_admin_routes() -> Router<AppState> {
+    Router::new()
+        .route("/api/links", axum::routing::post(links::create_link))
+        .route("/api/links/:id", axum::routing::put(links::update_link))
+        .route(
+            "/api/links/:id",
+            axum::routing::delete(links::delete_link),
+        )
 }
 
 #[tokio::main]
@@ -154,12 +167,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/api/links", get(links::get_links))
         .route("/api/links/by-category", get(links::get_links_by_category))
         .route("/api/links/categories", get(links::get_categories))
-        .route("/api/links", axum::routing::post(links::create_link))
-        .route("/api/links/:id", get(links::get_link))
-        .route("/api/links/:id", axum::routing::put(links::update_link))
-        .route("/api/links/:id", axum::routing::delete(links::delete_link))
-        .merge(admin::admin_routes())
-        .with_state(state);
+        .route("/api/links/:id", get(links::get_link));
+
+    #[cfg(feature = "admin")]
+    let app = if state.config.admin.enabled {
+        app.merge(link_admin_routes()).merge(admin::admin_routes())
+    } else {
+        app
+    };
+    #[cfg(not(feature = "admin"))]
+    let app = app;
+
+    let app = app.with_state(state);
 
     let app = if config.is_production() {
         // Only apply security headers when running behind HTTPS
