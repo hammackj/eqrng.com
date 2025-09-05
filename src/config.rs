@@ -18,7 +18,7 @@ pub struct DatabaseConfig {
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct SecurityConfig {
-    #[serde(default)]
+    #[serde(skip)]
     pub rating_ip_hash_key: String,
     pub min_ip_hash_key_length: usize,
 }

@@ -10,6 +10,7 @@ backup_dir = "./backups/database"
 migrate_on_startup = true
 
 [security]
+# rating_ip_hash_key is loaded from the RATING_IP_HASH_KEY environment variable
 min_ip_hash_key_length = 32
 
 [ratings]
