@@ -1,18 +1,22 @@
-use axum::http::HeaderValue;
+use axum::extract::{ConnectInfo, State};
+use axum::http::{HeaderValue, Request, StatusCode};
+use axum::middleware::Next;
 use axum::response::Response;
 use axum::{Router, http::Method, middleware, routing::get, serve};
 use clap::Parser;
-use std::net::SocketAddr;
+use once_cell::sync::Lazy;
+use std::collections::HashMap;
+use std::net::{IpAddr, SocketAddr};
+use std::time::{Duration, Instant};
 use tokio::net::TcpListener;
+use tokio::sync::Mutex;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::services::ServeDir;
 use tracing::{error, info, warn};
 
-use eq_rng::{
-    AppConfig, AppState, classes, instances, links, races, ratings, version, zones,
-};
 #[cfg(feature = "admin")]
 use eq_rng::admin;
+use eq_rng::{AppConfig, AppState, classes, instances, links, races, ratings, version, zones};
 
 #[derive(Parser)]
 #[command(name = "eq_rng")]
@@ -74,10 +78,44 @@ fn link_admin_routes() -> Router<AppState> {
     Router::new()
         .route("/api/links", axum::routing::post(links::create_link))
         .route("/api/links/:id", axum::routing::put(links::update_link))
-        .route(
-            "/api/links/:id",
-            axum::routing::delete(links::delete_link),
-        )
+        .route("/api/links/:id", axum::routing::delete(links::delete_link))
+}
+
+static RATE_LIMITER: Lazy<Mutex<HashMap<IpAddr, Vec<Instant>>>> =
+    Lazy::new(|| Mutex::new(HashMap::new()));
+const MAX_REQUESTS_PER_MINUTE: usize = 5;
+const RATE_LIMIT_WINDOW: Duration = Duration::from_secs(60);
+const CSRF_HEADER: &str = "x-csrf-token";
+
+async fn csrf_and_rate_limit(
+    State(state): State<AppState>,
+    ConnectInfo(addr): ConnectInfo<SocketAddr>,
+    req: Request<axum::body::Body>,
+    next: Next,
+) -> Result<Response, StatusCode> {
+    if req.method() != Method::GET {
+        let token = req
+            .headers()
+            .get(CSRF_HEADER)
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("");
+        if token != state.config.security.rating_ip_hash_key {
+            return Err(StatusCode::UNAUTHORIZED);
+        }
+
+        let ip = addr.ip();
+        {
+            let mut map = RATE_LIMITER.lock().await;
+            let entry = map.entry(ip).or_insert_with(Vec::new);
+            let now = Instant::now();
+            entry.retain(|t| now.duration_since(*t) < RATE_LIMIT_WINDOW);
+            if entry.len() >= MAX_REQUESTS_PER_MINUTE {
+                return Err(StatusCode::TOO_MANY_REQUESTS);
+            }
+            entry.push(now);
+        }
+    }
+    Ok(next.run(req).await)
 }
 
 #[tokio::main]
@@ -178,7 +216,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     #[cfg(not(feature = "admin"))]
     let app = app;
 
+    let state_for_middleware = state.clone();
     let app = app.with_state(state);
+    let app = app.layer(middleware::from_fn_with_state(
+        state_for_middleware,
+        csrf_and_rate_limit,
+    ));
 
     let app = if config.is_production() {
         // Only apply security headers when running behind HTTPS
