@@ -31,7 +31,6 @@ migrate_on_startup = true
 ### Security Configuration
 ```toml
 [security]
-rating_ip_hash_key = "your-secure-key-here"
 min_ip_hash_key_length = 32
 ```
 
@@ -76,7 +75,7 @@ max_files = 5
 
 ## Environment Variables
 
-You can override any configuration value using environment variables with the `EQ_RNG_` prefix:
+You can override most configuration values using environment variables with the `EQ_RNG_` prefix. The `rating_ip_hash_key` is loaded exclusively from the `RATING_IP_HASH_KEY` environment variable:
 
 ```bash
 # Override server port
@@ -85,8 +84,8 @@ export EQ_RNG_SERVER_PORT=8080
 # Override database path
 export EQ_RNG_DATABASE_PATH="/var/lib/eq_rng/zones.db"
 
-# Override security key
-export EQ_RNG_SECURITY_RATING_IP_HASH_KEY="your-production-key-here"
+# Set the required security key
+export RATING_IP_HASH_KEY="your-production-key-here"
 
 # Override logging level
 export EQ_RNG_LOGGING_LEVEL="debug"
@@ -145,7 +144,7 @@ export EQ_RNG_ADMIN_ENABLED=true
 export EQ_RNG_ENV=production
 export EQ_RNG_LOGGING_LEVEL=info
 export EQ_RNG_ADMIN_ENABLED=false
-export EQ_RNG_SECURITY_RATING_IP_HASH_KEY="your-secure-production-key"
+export RATING_IP_HASH_KEY="your-secure-production-key"
 export EQ_RNG_SERVER_HOST="0.0.0.0"
 export EQ_RNG_SERVER_PORT=3000
 ```
@@ -159,7 +158,7 @@ When running in Docker, you can pass configuration via environment variables:
 environment:
   EQ_RNG_ENV: production
   EQ_RNG_LOGGING_LEVEL: info
-  EQ_RNG_SECURITY_RATING_IP_HASH_KEY: "your-production-key"
+  RATING_IP_HASH_KEY: "your-production-key"
 ```
 
 ## Migration from Old System

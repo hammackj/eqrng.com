@@ -10,7 +10,6 @@ backup_dir = "./backups/database"
 migrate_on_startup = true
 
 [security]
-rating_ip_hash_key = "development-key-change-for-production-use-32plus-chars"
 min_ip_hash_key_length = 32
 
 [ratings]
