@@ -18,6 +18,7 @@ pub struct DatabaseConfig {
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct SecurityConfig {
+    #[serde(default)]
     pub rating_ip_hash_key: String,
     pub min_ip_hash_key_length: usize,
 }
@@ -79,8 +80,22 @@ impl AppConfig {
             // Add environment variables with prefix EQ_RNG_
             .add_source(Environment::with_prefix("EQ_RNG").separator("_"))
             .build()?;
+        let mut app_config: AppConfig = config.try_deserialize()?;
 
-        let app_config: AppConfig = config.try_deserialize()?;
+        let key = env::var("RATING_IP_HASH_KEY").map_err(|_| {
+            config::ConfigError::Message(
+                "RATING_IP_HASH_KEY environment variable must be set".into(),
+            )
+        })?;
+
+        if key.len() < app_config.security.min_ip_hash_key_length {
+            return Err(config::ConfigError::Message(format!(
+                "RATING_IP_HASH_KEY must be at least {} characters long",
+                app_config.security.min_ip_hash_key_length
+            )));
+        }
+
+        app_config.security.rating_ip_hash_key = key;
 
         // Validate configuration
         app_config.validate()?;
